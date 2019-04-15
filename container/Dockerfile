@@ -1,7 +1,7 @@
 FROM centos:7.5.1804
 
 ENV USER root
-ENV HOME /root/
+ENV HOME /root
 ENV CONTRAIL $HOME/contrail
 ARG BRANCH=master
 
@@ -41,9 +41,6 @@ RUN yum -y install epel-release \
 # and fetch third parties
 RUN echo "Initializing repo from $BRANCH" \
 &&  repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $BRANCH \
-&&  repo sync --no-clone-bundle -q contrail-packages contrail-third-party \
-&&  make -f tools/packages/Makefile dep \
-&&  ./third_party/fetch_packages.py \
 &&  yum clean all \
 &&  rm -rf /var/cache/yum
 
@@ -54,5 +51,6 @@ RUN pip install --upgrade tox geventhttpclient
 RUN echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc \
 &&  echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc
 
-ADD Dockerfile $HOME/
+ADD Dockerfile entrypoint.sh $HOME/
 
+ENTRYPOINT ["/root/entrypoint.sh"]

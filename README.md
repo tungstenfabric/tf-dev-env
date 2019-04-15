@@ -123,7 +123,7 @@ The descriptions of targets:
 ### 7. Testing the deployment
 
 See https://github.com/Juniper/contrail-ansible-deployer/wiki/Contrail-with-Openstack-Kolla .
-Set `CONTAINER_REGISTRY` to `registry:5000` to use containers built in the previous step.
+Set `CONTRAIL_REGISTRY` to `registry:5000` to use containers built in the previous step.
 
 ### Alternate build methods
 

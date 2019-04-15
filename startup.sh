@@ -3,14 +3,20 @@
 set -o nounset
 set -o errexit
 
-scriptdir=$(dirname "$0")
+scriptdir=$(realpath $(dirname "$0"))
 cd "$scriptdir"
 setup_only=0
 own_vm=0
 DEVENVTAG=latest
 IMAGE=opencontrailnightly/developer-sandbox
+options="-itd"
+log_option=">/dev/null"
 
 # variables that can be redefined outside
+
+AUTOBUILD=${AUTOBUILD:-0}
+BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
+SRC_ROOT=${SRC_ROOT:-}
 REGISTRY_PORT=${REGISTRY_PORT:-6666}
 REGISTRY_IP=${REGISTRY_IP:-}
 
@@ -68,11 +74,18 @@ test "$setup_only" -eq 1 && exit
 
 echo
 echo '[environment setup]'
-if [[ "$own_vm" -eq 0 ]]; then
-  rpm_source=$(docker volume create --name contrail-dev-env-rpm-volume) 
+if [[ ! -z "${SRC_ROOT}" ]]; then
+  rpm_source=${SRC_ROOT}/RPMS
+  rpm_mount="${SRC_ROOT}:/root/contrail"
+  mkdir -p ${rpm_source}
+
+elif [[ "$own_vm" -eq 0 ]]; then
+  rpm_source=$(docker volume create --name contrail-dev-env-rpm-volume)
+  rpm_mount="${rpm_source}:/root/contrail/RPMS"
 else
   contrail_dir=$(realpath ${scriptdir}/../contrail)
   rpm_source=${contrail_dir}/RPMS
+  rpm_mount="${rpm_source}:/root/contrail/RPMS"
   mkdir -p ${rpm_source}
 fi
 echo "${rpm_source} created."
@@ -104,27 +117,6 @@ else
   fi
 fi
 
-if [[ "$own_vm" -eq 0 ]]; then
-  if ! is_created "contrail-developer-sandbox"; then
-    if [[ x"$DEVENVTAG" == x"latest" ]]; then
-      docker pull ${IMAGE}:${DEVENVTAG}
-    fi
-    docker run --privileged --name contrail-developer-sandbox \
-      -w /root -itd \
-      -v /var/run/docker.sock:/var/run/docker.sock \
-      -v ${rpm_source}:/root/contrail/RPMS \
-      -v $(pwd):/root/contrail-dev-env \
-      ${IMAGE}:${DEVENVTAG} >/dev/null
-    echo contrail-developer-sandbox created.
-  else
-    if is_up "contrail-developer-sandbox"; then
-      echo "contrail-developer-sandbox already running."
-    else
-      echo $(docker start contrail-developer-sandbox) started.
-    fi
-  fi
-fi
-
 echo
 echo '[configuration update]'
 rpm_repo_ip=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' contrail-dev-env-rpm-repo)
@@ -139,7 +131,7 @@ sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" dev_config
 sed -e "s/registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" daemon.json.tmpl > daemon.json
 
 if [ x"$distro" == x"centos" ]; then
-  if ! diff daemon.json /etc/docker/daemon.json; then 
+  if ! diff daemon.json /etc/docker/daemon.json; then
     cp daemon.json /etc/docker/daemon.json
     systemctl restart docker
     docker start contrail-dev-env-rpm-repo contrail-dev-env-registry
@@ -149,7 +141,39 @@ elif [ x"$distro" == x"ubuntu" ]; then
   diff daemon.json /etc/docker/daemon.json || (cp daemon.json /etc/docker/daemon.json && service docker reload)
 fi
 
+if [[ "$own_vm" -eq 0 ]]; then
+  if ! is_created "contrail-developer-sandbox"; then
+    if [[ "${AUTOBUILD}" -eq 1 ]]; then
+      options="-it --rm -e AUTOBUILD=1"
+      timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
+      log_option="2>&1 | tee /${HOME}/build_${timestamp}.log"
+    fi
+    if [[ x"$DEVENVTAG" == x"latest" ]]; then
+      if [[ "$BUILD_DEV_ENV" -eq 1 ]]; then
+        echo Build ${IMAGE}:${DEVENVTAG} docker image
+        cd ${scriptdir}/container && ./build.sh -i ${IMAGE} ${DEVENVTAG}
+        cd ${scriptdir}
+      else
+        docker pull ${IMAGE}:${DEVENVTAG}
+      fi
+    fi
+    docker run --privileged --name contrail-developer-sandbox \
+      -w /root ${options} \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -v ${rpm_mount} \
+      -v ${scriptdir}:/root/contrail-dev-env \
+      -e CONTRAIL_DEV_ENV=/root/contrail-dev-env \
+      ${IMAGE}:${DEVENVTAG} ${log_option}
+    echo contrail-developer-sandbox created.
+  else
+    if is_up "contrail-developer-sandbox"; then
+      echo "contrail-developer-sandbox already running."
+    else
+      echo $(docker start contrail-developer-sandbox) started.
+    fi
+  fi
+fi
+
 echo
 echo '[READY]'
 test "$own_vm" -eq 0 && echo "You can now connect to the sandbox container by using: $ docker attach contrail-developer-sandbox"
-
