@@ -9,7 +9,7 @@ setup_only=0
 own_vm=0
 DEVENVTAG=latest
 IMAGE=opencontrailnightly/developer-sandbox
-options="-itd"
+options=""
 log_option=">/dev/null"
 
 # variables that can be redefined outside
@@ -17,6 +17,7 @@ log_option=">/dev/null"
 AUTOBUILD=${AUTOBUILD:-0}
 BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 SRC_ROOT=${SRC_ROOT:-}
+EXTERNAL_REPOS=${EXTERNAL_REPOS:-}
 REGISTRY_PORT=${REGISTRY_PORT:-6666}
 REGISTRY_IP=${REGISTRY_IP:-}
 
@@ -76,19 +77,22 @@ echo
 echo '[environment setup]'
 if [[ ! -z "${SRC_ROOT}" ]]; then
   rpm_source=${SRC_ROOT}/RPMS
-  rpm_mount="${SRC_ROOT}:/root/contrail"
   mkdir -p ${rpm_source}
-
+  options="${options} -v ${SRC_ROOT}:/root/contrail"
 elif [[ "$own_vm" -eq 0 ]]; then
   rpm_source=$(docker volume create --name contrail-dev-env-rpm-volume)
-  rpm_mount="${rpm_source}:/root/contrail/RPMS"
+  options="${options} -v ${rpm_source}:/root/contrail/RPMS"
 else
   contrail_dir=$(realpath ${scriptdir}/../contrail)
   rpm_source=${contrail_dir}/RPMS
-  rpm_mount="${rpm_source}:/root/contrail/RPMS"
   mkdir -p ${rpm_source}
+  options="${options} -v ${rpm_source}:/root/contrail/RPMS"
 fi
 echo "${rpm_source} created."
+
+if [[ ! -z "${EXTERNAL_REPOS}" ]]; then
+  options="${options} -v ${EXTERNAL_REPOS}:/root/src"
+fi
 
 if ! is_created "contrail-dev-env-rpm-repo"; then
   docker run --privileged --name contrail-dev-env-rpm-repo \
@@ -144,9 +148,11 @@ fi
 if [[ "$own_vm" -eq 0 ]]; then
   if ! is_created "contrail-developer-sandbox"; then
     if [[ "${AUTOBUILD}" -eq 1 ]]; then
-      options="-it --rm -e AUTOBUILD=1"
+      options="${options} -it --rm -e AUTOBUILD=1"
       timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
       log_option="2>&1 | tee /${HOME}/build_${timestamp}.log"
+    else
+      options="${options} -itd"
     fi
     if [[ x"$DEVENVTAG" == x"latest" ]]; then
       if [[ "$BUILD_DEV_ENV" -eq 1 ]]; then
@@ -160,7 +166,6 @@ if [[ "$own_vm" -eq 0 ]]; then
     docker run --privileged --name contrail-developer-sandbox \
       -w /root ${options} \
       -v /var/run/docker.sock:/var/run/docker.sock \
-      -v ${rpm_mount} \
       -v ${scriptdir}:/root/contrail-dev-env \
       -e CONTRAIL_DEV_ENV=/root/contrail-dev-env \
       ${IMAGE}:${DEVENVTAG} ${log_option}
