@@ -4,7 +4,7 @@ DE_TOP  := $(abspath $(DE_DIR)/../)/
 # include RPM-building targets
 -include $(DE_TOP)contrail/tools/packages/Makefile
 
-repos_dir=$(DE_TOP)src/review.opencontrail.org/Juniper/
+repos_dir=$(DE_TOP)src/${CANONICAL_HOSTNAME}/Juniper/
 container_builder_dir=$(repos_dir)contrail-container-builder/
 deployers_builder_dir=$(repos_dir)contrail-deployers-containers/
 ansible_playbook=ansible-playbook -i inventory --extra-vars @vars.yaml --extra-vars @dev_config.yaml

@@ -4,7 +4,7 @@ zuul:
   patchset: 1
   projects:
   - short_name: contrail-packages
-    src_dir: src/review.opencontrail.org/Juniper/contrail-packages
+    src_dir: src/${CANONICAL_HOSTNAME}/Juniper/contrail-packages
   executor:
     work_root: /tmp
 docker_registry:

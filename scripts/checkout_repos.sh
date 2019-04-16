@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 
-SRC_DIR=/root/src/review.opencontrail.org/Juniper/
+SRC_DIR=/root/src/${CANONICAL_HOSTNAME}/Juniper/
 c_p_c_rev=c9524c72199
 c_z_j_rev=22aea96d23
 
