@@ -148,7 +148,7 @@ fi
 if [[ "$own_vm" -eq 0 ]]; then
   if ! is_created "contrail-developer-sandbox"; then
     if [[ "${AUTOBUILD}" -eq 1 ]]; then
-      options="${options} -it --rm -e AUTOBUILD=1"
+      options="${options} -t --rm -e AUTOBUILD=1"
       timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
       log_option="2>&1 | tee /${HOME}/build_${timestamp}.log"
     else
