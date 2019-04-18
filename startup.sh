@@ -85,7 +85,7 @@ echo '[environment setup]'
 if [[ ! -z "${SRC_ROOT}" ]]; then
   rpm_source=${SRC_ROOT}/RPMS
   mkdir -p ${rpm_source}
-  options="${options} -v ${SRC_ROOT}:/root/contrail"
+  options="${options} -v ${SRC_ROOT}:/root/contrail -e SRC_MOUNTED=1"
 elif [[ "$own_vm" -eq 0 ]]; then
   rpm_source=$(docker volume create --name contrail-dev-env-rpm-volume)
   options="${options} -v ${rpm_source}:/root/contrail/RPMS"
