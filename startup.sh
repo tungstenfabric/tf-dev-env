@@ -10,7 +10,7 @@ own_vm=0
 DEVENVTAG=latest
 IMAGE=opencontrailnightly/developer-sandbox
 options=""
-log_option=">/dev/null"
+log_path=""
 
 # variables that can be redefined outside
 
@@ -54,6 +54,13 @@ function is_up () {
   return $?
 }
 
+function install_docker() {
+  (yum install -y yum-utils device-mapper-persistent-data lvm2 \
+  && yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
+  && yum install docker-ce docker-ce-cli containerd.io) \
+  || (echo Failed to install docker with error $? && exit 1)
+}
+
 echo contrail-dev-env startup
 echo
 echo '[docker setup]'
@@ -61,12 +68,12 @@ echo '[docker setup]'
 distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
 echo $distro detected.
 if [ x"$distro" == x"centos" ]; then
-  which docker || yum install -y docker
+  which docker || install_docker
   systemctl start docker
   systemctl stop firewalld || true
   systemctl start docker
-  grep 'dm.basesize=20G' /etc/sysconfig/docker-storage || sed -i 's/DOCKER_STORAGE_OPTIONS=/DOCKER_STORAGE_OPTIONS=--storage-opt dm.basesize=20G /g' /etc/sysconfig/docker-storage
-  systemctl restart docker
+#  grep 'dm.basesize=20G' /etc/sysconfig/docker-storage || sed -i 's/DOCKER_STORAGE_OPTIONS=/DOCKER_STORAGE_OPTIONS=--storage-opt dm.basesize=20G /g' /etc/sysconfig/docker-storage
+#  systemctl restart docker
 elif [ x"$distro" == x"ubuntu" ]; then
   which docker || apt install -y docker.io
 fi
@@ -150,7 +157,7 @@ if [[ "$own_vm" -eq 0 ]]; then
     if [[ "${AUTOBUILD}" -eq 1 ]]; then
       options="${options} -t -e AUTOBUILD=1"
       timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
-      log_option="2>&1 | tee /${HOME}/build_${timestamp}.log"
+      log_path="/${HOME}/build_${timestamp}.log"
     else
       options="${options} -itd"
     fi
@@ -163,12 +170,18 @@ if [[ "$own_vm" -eq 0 ]]; then
         docker pull ${IMAGE}:${DEVENVTAG}
       fi
     fi
-    docker run --privileged --name contrail-developer-sandbox \
+    start_sandbox_cmd="docker run --privileged --name contrail-developer-sandbox \
       -w /root ${options} \
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v ${scriptdir}:/root/contrail-dev-env \
       -e CONTRAIL_DEV_ENV=/root/contrail-dev-env \
-      ${IMAGE}:${DEVENVTAG} ${log_option}
+      ${IMAGE}:${DEVENVTAG}"
+
+    if [[ -z "${log_path}" ]]; then
+      eval $start_sandbox_cmd &>/dev/null
+    else
+      eval $start_sandbox_cmd |& tee ${log_path}
+    fi
     echo contrail-developer-sandbox created.
   else
     if is_up "contrail-developer-sandbox"; then
