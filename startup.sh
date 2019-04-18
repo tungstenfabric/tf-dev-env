@@ -146,7 +146,6 @@ if [ x"$distro" == x"centos" ]; then
     cp daemon.json /etc/docker/daemon.json
     systemctl restart docker
     docker start contrail-dev-env-rpm-repo contrail-dev-env-registry
-    test "$own_vm" -eq 0 && docker start contrail-developer-sandbox
   fi
 elif [ x"$distro" == x"ubuntu" ]; then
   diff daemon.json /etc/docker/daemon.json || (cp daemon.json /etc/docker/daemon.json && service docker reload)
