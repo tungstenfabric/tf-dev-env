@@ -116,6 +116,10 @@ The descriptions of targets:
 * `make deployers` - builds all deployers
 * `make deployer-<container_name>` - builds single deployer as a target, with all docker dependencies
 
+#### Test containers
+
+* `make test-containers` - build test containers
+
 #### Clean
 
 * `make clean{-containers,-deployers,-repo,-rpm}` - delete artifacts

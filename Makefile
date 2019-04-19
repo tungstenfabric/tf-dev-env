@@ -7,6 +7,7 @@ DE_TOP  := $(abspath $(DE_DIR)/../)/
 repos_dir=$(DE_TOP)src/${CANONICAL_HOSTNAME}/Juniper/
 container_builder_dir=$(repos_dir)contrail-container-builder/
 deployers_builder_dir=$(repos_dir)contrail-deployers-containers/
+test_containers_builder_dir=$(repos_dir)contrail-test/
 ansible_playbook=ansible-playbook -i inventory --extra-vars @vars.yaml --extra-vars @dev_config.yaml
 
 all: dep rpm containers
@@ -37,6 +38,9 @@ containers: create-repo prepare-containers
 deployers: create-repo prepare-deployers
 	@$(deployers_builder_dir)containers/build.sh
 
+test-containers: create-repo prepare-test-containers
+	@$(DE_DIR)scripts/build-test-containers.sh
+
 # TODO: switch next job to using deployers
 deploy_contrail_kolla: containers
 	@$(ansible_playbook) $(repos_dir)contrail-project-config/playbooks/kolla/centos74-provision-kolla.yaml
@@ -64,9 +68,14 @@ $(container_builder_dir).git:
 $(deployers_builder_dir).git:
 	@$(DE_DIR)scripts/prepare-deployers.sh
 
+$(test_containers_builder_dir).git:
+	@$(DE_DIR)scripts/prepare-test-containers.sh
+
 prepare-containers: $(container_builder_dir).git
 
 prepare-deployers: $(deployers_builder_dir).git
+
+prepare-test-containers: $(test_containers_builder_dir).git
 
 create-repo:
 	@mkdir -p $(DE_TOP)contrail/RPMS
