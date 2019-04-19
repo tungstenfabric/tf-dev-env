@@ -174,6 +174,7 @@ if [[ "$own_vm" -eq 0 ]]; then
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v ${scriptdir}:/root/contrail-dev-env \
       -e CONTRAIL_DEV_ENV=/root/contrail-dev-env \
+      -v ${scriptdir}/container/entrypoint.sh:/root/entrypoint.sh \
       ${IMAGE}:${DEVENVTAG}"
 
     if [[ -z "${log_path}" ]]; then
