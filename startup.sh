@@ -20,6 +20,7 @@ SRC_ROOT=${SRC_ROOT:-}
 EXTERNAL_REPOS=${EXTERNAL_REPOS:-}
 REGISTRY_PORT=${REGISTRY_PORT:-6666}
 REGISTRY_IP=${REGISTRY_IP:-}
+BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-0}
 
 while getopts ":t:i:sb" opt; do
   case $opt in
@@ -153,6 +154,10 @@ fi
 
 if [[ "$own_vm" -eq 0 ]]; then
   if ! is_created "contrail-developer-sandbox"; then
+    if [[ "$BUILD_TEST_CONTAINERS" == "1" ]]; then
+      options="${options} -e BUILD_TEST_CONTAINERS=1"
+    fi
+
     if [[ "${AUTOBUILD}" -eq 1 ]]; then
       options="${options} -t -e AUTOBUILD=1"
       timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
@@ -160,6 +165,7 @@ if [[ "$own_vm" -eq 0 ]]; then
     else
       options="${options} -itd"
     fi
+
     if [[ x"$DEVENVTAG" == x"latest" ]]; then
       if [[ "$BUILD_DEV_ENV" -eq 1 ]]; then
         echo Build ${IMAGE}:${DEVENVTAG} docker image
@@ -169,6 +175,7 @@ if [[ "$own_vm" -eq 0 ]]; then
         docker pull ${IMAGE}:${DEVENVTAG}
       fi
     fi
+
     start_sandbox_cmd="docker run --privileged --name contrail-developer-sandbox \
       -w /root ${options} \
       -v /var/run/docker.sock:/var/run/docker.sock \
@@ -182,6 +189,7 @@ if [[ "$own_vm" -eq 0 ]]; then
     else
       eval $start_sandbox_cmd |& tee ${log_path}
     fi
+
     echo contrail-developer-sandbox created.
   else
     if is_up "contrail-developer-sandbox"; then
