@@ -62,20 +62,14 @@ build deploy:
 sync:
 	@cd $(DE_TOP)contrail && repo sync -q --no-clone-bundle -j $(shell nproc)
 
-$(container_builder_dir).git:
+prepare-containers:
 	@$(DE_DIR)scripts/prepare-containers.sh
 
-$(deployers_builder_dir).git:
+prepare-deployers:
 	@$(DE_DIR)scripts/prepare-deployers.sh
 
-$(test_containers_builder_dir).git:
+prepare-test-containers:
 	@$(DE_DIR)scripts/prepare-test-containers.sh
-
-prepare-containers: $(container_builder_dir).git
-
-prepare-deployers: $(deployers_builder_dir).git
-
-prepare-test-containers: $(test_containers_builder_dir).git
 
 create-repo:
 	@mkdir -p $(DE_TOP)contrail/RPMS
