@@ -5,4 +5,4 @@ BRANCH=${SB_BRANCH:-master}
 
 [ -d ${REPODIR} ] || git clone https://github.com/Juniper/contrail-test -b ${BRANCH}  ${REPODIR}
 cp common.env ${REPODIR}
-cp tpc.repo ${REPODIR}/docker/test/
+cp tpc.repo.template ${REPODIR}/docker/test/tpc.repo

@@ -27,7 +27,7 @@ for openstack_version in "ocata" "queens" "rocky"; do
     openstack_repo_option=""
     if [[ ! -z "${OPENSTACK_REPOSITORY}" ]]; then
         echo Using openstack repository ${OPENSTACK_REPOSITORY}/openstack-${openstack_version}
-        openstack_repo_option = "--openstack-repo ${OPENSTACK_REPOSITORY}/openstack-${openstack_version}"
+        openstack_repo_option="--openstack-repo ${OPENSTACK_REPOSITORY}/openstack-${openstack_version}"
     fi
 
     echo Build test container for ${openstack_version}
