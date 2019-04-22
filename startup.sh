@@ -158,6 +158,10 @@ if [[ "$own_vm" -eq 0 ]]; then
       options="${options} -e BUILD_TEST_CONTAINERS=1"
     fi
 
+    if [[ ! -z "${CANONICAL_HOSTNAME}" ]]; then
+      options="${options} -e CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME}"
+    fi
+
     if [[ "${AUTOBUILD}" -eq 1 ]]; then
       options="${options} -t -e AUTOBUILD=1"
       timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
