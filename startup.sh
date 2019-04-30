@@ -182,6 +182,7 @@ if [[ "$own_vm" -eq 0 ]]; then
     fi
 
     start_sandbox_cmd="docker run --privileged --name contrail-developer-sandbox \
+      --network host \
       -w /root ${options} \
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v ${scriptdir}:/root/contrail-dev-env \
