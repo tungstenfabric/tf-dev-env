@@ -63,10 +63,15 @@ function install_docker() {
   || (echo Failed to install docker with error $? && exit 1)
 }
 
+function check_docker_value() {
+  local name=$1
+  local value$2
+  cat /etc/docker/daemon.json | jq ".\"$name\"" | grep -q "$value"
+}
+
 echo contrail-dev-env startup
 echo
-echo '[docker setup]'
-
+echo '[docker install]'
 distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
 echo $distro detected.
 if [ x"$distro" == x"centos" ]; then
@@ -76,8 +81,46 @@ if [ x"$distro" == x"centos" ]; then
   systemctl start docker
 #  grep 'dm.basesize=20G' /etc/sysconfig/docker-storage || sed -i 's/DOCKER_STORAGE_OPTIONS=/DOCKER_STORAGE_OPTIONS=--storage-opt dm.basesize=20G /g' /etc/sysconfig/docker-storage
 #  systemctl restart docker
+  yum install -y jq
 elif [ x"$distro" == x"ubuntu" ]; then
-  which docker || apt install -y docker.io
+  which docker || apt install -y jq docker.io
+fi
+touch /etc/docker/daemon.json
+
+echo
+echo '[docker setup]'
+default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
+registry_ip=${REGISTRY_IP}
+if [ -z $registry_ip ]; then
+  # use default ip as registry ip if it's not passed to the script
+  registry_ip=`ip addr show dev $default_iface | awk '/inet /{print $2}' | cut -f '1' -d '/'`
+fi
+defailt_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
+
+docker_reload=0
+if ! check_docker_value mtu ${registry_ip}:${REGISTRY_PORT} || ! check_docker_value mtu $defailt_iface_mtu ; then
+  python <<EOF
+import json
+data=dict()
+try:
+  with open("/etc/docker/daemon.json") as f:
+    data = json.load(f)
+except Exception:
+  pass
+data.setdefault("insecure-registries", list()).append("${registry_ip}:${REGISTRY_PORT}")
+data["mtu"] = $defailt_iface_mtu
+with open("/etc/docker/daemon.json", "w") as f:
+  data = json.dump(data, f, sort_keys=True, indent=4)
+EOF
+  docker_reload=1
+fi
+runtime_docker_mtu=`sudo docker network inspect bridge | jq '.[0]["Options"]["com.docker.network.driver.mtu"]' | sed 's/"//g'`
+if [[ "$defailt_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]]; then
+  if [ x"$distro" == x"centos" ]; then
+    systemctl restart docker
+  elif [ x"$distro" == x"ubuntu" ]; then
+    service docker reload
+  fi
 fi
 
 test "$setup_only" -eq 1 && exit
@@ -133,25 +176,10 @@ fi
 echo
 echo '[configuration update]'
 rpm_repo_ip=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' contrail-dev-env-rpm-repo)
-registry_ip=${REGISTRY_IP}
-if [ -z $registry_ip ]; then
-  registry_ip=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' contrail-dev-env-registry)
-fi
 
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" common.env.tmpl > common.env
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/contrail-registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" vars.yaml.tmpl > vars.yaml
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" dev_config.yaml.tmpl > dev_config.yaml
-sed -e "s/registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" daemon.json.tmpl > daemon.json
-
-if [ x"$distro" == x"centos" ]; then
-  if ! diff daemon.json /etc/docker/daemon.json; then
-    cp daemon.json /etc/docker/daemon.json
-    systemctl restart docker
-    docker start contrail-dev-env-rpm-repo contrail-dev-env-registry
-  fi
-elif [ x"$distro" == x"ubuntu" ]; then
-  diff daemon.json /etc/docker/daemon.json || (cp daemon.json /etc/docker/daemon.json && service docker reload)
-fi
 
 if [[ "$own_vm" -eq 0 ]]; then
   if ! is_created "contrail-developer-sandbox"; then
