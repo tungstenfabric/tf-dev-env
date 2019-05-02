@@ -65,7 +65,7 @@ function install_docker() {
 
 function check_docker_value() {
   local name=$1
-  local value$2
+  local value=$2
   cat /etc/docker/daemon.json | jq ".\"$name\"" | grep -q "$value"
 }
 
