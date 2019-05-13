@@ -13,7 +13,7 @@ RUN curl -s https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/re
 &&  chmod a+x /usr/bin/repo
 
 # Inject repositories that we might need
-COPY *.repo /etc/yum.repos.d
+COPY *.repo /etc/yum.repos.d/
 
 # Install basic packages
 RUN yum -y install epel-release \
