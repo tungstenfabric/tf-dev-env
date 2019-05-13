@@ -203,6 +203,9 @@ if [[ "$own_vm" -eq 0 ]]; then
     if [[ x"$DEVENVTAG" == x"latest" ]]; then
       if [[ "$BUILD_DEV_ENV" -eq 1 ]]; then
         echo Build ${IMAGE}:${DEVENVTAG} docker image
+        if [[ -d "${scriptdir}/config/etc/yum.repos.d" ]]; then
+          cp -f "${scriptdir}/config/etc/yum.repos.d/*" "${scriptdir}/container/"
+        fi
         cd ${scriptdir}/container && ./build.sh -i ${IMAGE} ${DEVENVTAG}
         cd ${scriptdir}
       else
