@@ -3,7 +3,9 @@ set -e
 
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 
-cp -rf /config/* /
+if [[ -d /config ]]; then
+  cp -rf /config/* /
+fi
 
 if [[ "${AUTOBUILD}" -eq 1 ]]; then
     cd $CONTRAIL_DEV_ENV

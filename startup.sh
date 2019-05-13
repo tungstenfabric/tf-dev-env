@@ -210,13 +210,16 @@ if [[ "$own_vm" -eq 0 ]]; then
       fi
     fi
 
+    volumes="-v /var/run/docker.sock:/var/run/docker.sock"
+    volumes+=" -v ${scriptdir}:/root/contrail-dev-env"
+    volumes+=" -v ${scriptdir}/container/entrypoint.sh:/root/entrypoint.sh"
+    if [[ -d "${scriptdir}/config" ]]; then
+      volumes+=" -v ${scriptdir}/config:/config"
+    fi
     start_sandbox_cmd="docker run --privileged --name contrail-developer-sandbox \
       -w /root ${options} \
-      -v /var/run/docker.sock:/var/run/docker.sock \
-      -v ${scriptdir}:/root/contrail-dev-env \
       -e CONTRAIL_DEV_ENV=/root/contrail-dev-env \
-      -v ${scriptdir}/container/entrypoint.sh:/root/entrypoint.sh \
-      -v ${scriptdir}/config:/config \
+      $volumes \
       ${IMAGE}:${DEVENVTAG}"
 
     if [[ -z "${log_path}" ]]; then
