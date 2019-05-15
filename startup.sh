@@ -22,6 +22,7 @@ REGISTRY_PORT=${REGISTRY_PORT:-6666}
 REGISTRY_IP=${REGISTRY_IP:-}
 BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-0}
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
+SITE_MIRROR=${SITE_MIRROR:-}
 
 while getopts ":t:i:sb" opt; do
   case $opt in
@@ -190,6 +191,10 @@ if [[ "$own_vm" -eq 0 ]]; then
 
     if [[ ! -z "${CANONICAL_HOSTNAME}" ]]; then
       options="${options} -e CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME}"
+    fi
+
+    if [[ ! -z "${SITE_MIRROR}" ]]; then
+      options="${options} -e SITE_MIRROR=${SITE_MIRROR}"
     fi
 
     if [[ "${AUTOBUILD}" -eq 1 ]]; then
