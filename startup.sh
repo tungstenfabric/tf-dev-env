@@ -231,7 +231,13 @@ if [[ "$own_vm" -eq 0 ]]; then
       eval $start_sandbox_cmd |& tee ${log_path}
     fi
 
-    echo contrail-developer-sandbox created.
+    if [[ "${AUTOBUILD}" -eq 1 ]]; then
+      exit_code=$(docker inspect contrail-developer-sandbox --format='{{.State.ExitCode}}')
+      echo Build has compeleted with exit code $exit_code
+      exit $exit_code
+    else
+      echo contrail-developer-sandbox created.
+    fi
   else
     if is_up "contrail-developer-sandbox"; then
       echo "contrail-developer-sandbox already running."
