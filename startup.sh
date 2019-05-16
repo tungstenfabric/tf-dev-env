@@ -7,8 +7,8 @@ scriptdir=$(realpath $(dirname "$0"))
 cd "$scriptdir"
 setup_only=0
 own_vm=0
-DEVENVTAG=latest
-IMAGE=opencontrailnightly/developer-sandbox
+IMAGE=${IMAGE:-"opencontrailnightly/developer-sandbox"}
+DEVENVTAG=${DEVENVTAG:-"latest"}
 options=""
 log_path=""
 
@@ -16,6 +16,7 @@ log_path=""
 
 AUTOBUILD=${AUTOBUILD:-0}
 BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
+BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-0}
 SRC_ROOT=${SRC_ROOT:-}
 EXTERNAL_REPOS=${EXTERNAL_REPOS:-}
 REGISTRY_PORT=${REGISTRY_PORT:-6666}
@@ -205,17 +206,24 @@ if [[ "$own_vm" -eq 0 ]]; then
       options="${options} -itd"
     fi
 
-    if [[ x"$DEVENVTAG" == x"latest" ]]; then
-      if [[ "$BUILD_DEV_ENV" -eq 1 ]]; then
-        echo Build ${IMAGE}:${DEVENVTAG} docker image
-        if [[ -d ${scriptdir}/config/etc/yum.repos.d ]]; then
-          cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
+    if [[ ! "$BUILD_DEV_ENV" -eq 1 ]]; then
+      pull_result=$(docker pull ${IMAGE}:${DEVENVTAG}; echo $?)
+      if [[ ! "$pull_result" -eq 0 ]]; then
+        if [[ ! "BUILD_DEV_ENV_ON_PULL_FAIL" -eq 1 ]]; then
+          exit $pull_result
         fi
-        cd ${scriptdir}/container && ./build.sh -i ${IMAGE} ${DEVENVTAG}
-        cd ${scriptdir}
-      else
-        docker pull ${IMAGE}:${DEVENVTAG}
+        echo Failed to pull ${IMAGE}:${DEVENVTAG} with error $pull_result. Trying to build image.
+        BUILD_DEV_ENV=1
       fi
+    fi
+
+    if [[ "$BUILD_DEV_ENV" -eq 1 ]]; then
+      echo Build ${IMAGE}:${DEVENVTAG} docker image
+      if [[ -d ${scriptdir}/config/etc/yum.repos.d ]]; then
+        cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
+      fi
+      cd ${scriptdir}/container && ./build.sh -i ${IMAGE} ${DEVENVTAG}
+      cd ${scriptdir}
     fi
 
     volumes="-v /var/run/docker.sock:/var/run/docker.sock"

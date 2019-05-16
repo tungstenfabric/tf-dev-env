@@ -178,7 +178,9 @@ There are several options to change standard behaviour of `contrail-developer-sa
 
 ### Building dev-env docker image
 
-There is an **BUILD_DEV_ENV** environment variable that used to building dev-env docker image and runing `contrail-developer-sandbox` container from it. To build new image set **BUILD_DEV_ENV** to 1.
+There are several environment variables are used to build dev-env docker image:
+  - **BUILD_DEV_ENV** is used to build dev-env docker image and runing `contrail-developer-sandbox` container from it. To build new image set **BUILD_DEV_ENV** to 1.
+  - **BUILD_DEV_ENV_ON_PULL_FAIL** is used to build dev-env docker image if `docker pull` command has failed.
 
 ### External sources
 
