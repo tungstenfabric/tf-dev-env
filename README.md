@@ -144,7 +144,7 @@ are headers for running kernel (`uname -r`). If you want to customize your manua
 use i.e newer kernel header take a look at below examples.
 
 In case you want to compile TungstenFabric with latest or another custom kernel headers installed
-in `contrail-developer-sanbox` container, then you have to run scons with extra arguments:
+in `contrail-developer-sandbox` container, then you have to run scons with extra arguments:
 
 ```
 RTE_KERNELDIR=/path/to/custom_kernel_headers scons --kernel-dir=/path/to/custom_kernel_headers
@@ -168,6 +168,35 @@ To build and run unit test against your code:
 RTE_KERNELDIR=/path/to/custom_kernel_headers scons --kernel-dir=/path/to/custom_kernel_headers test
 ```
 
+## Customizing dev-env container
+
+There are several options to change standard behaviour of `contrail-developer-sandbox` container:
+  - Build dev-env container instead of pulling it from registry
+  - Attach external sources to container
+  - Use external docker registry to store contrail-images
+  - Build contrail's rpms and containers on startup
+
+### Building dev-env docker image
+
+There is an **BUILD_DEV_ENV** environment variable that used to building dev-env docker image and runing `contrail-developer-sandbox` container from it. To build new image set **BUILD_DEV_ENV** to 1.
+
+### External sources
+
+You can attach you host contrail-vnc sources instead of syncing them from github.com.
+
+There are special environment variables to set correct behaviour:
+  - **SRC_ROOT** stores host's path to initialized contrail-vnc repository.
+  - **EXTERNAL_REPOS** stores path to external repositories like *contrail-containers-builder*, *contrail-deployers-containers* and *contrail-test*. These repositories must be placed there in format `<server_name>/<namespace>/<project_name>` (for example `review.opencontrail.org/Juniper/contrail-containers-builder`)
+  - **CANONICAL_HOSTNAME** stores `<server_name>`. It used to find required repositories in **EXTERNAL_REPOS**.
+  - **SITE_MIRROR** stores contrail third-party repository url. It used to collect external packages required by *contrail-third-party* tools.
+
+### External docker registry
+
+Environment variables **REGISTRY_IP** and **REGISTRY_PORT** stores external docker registry connection information where contrail's containers would be stored.
+
+### Autobuild rpms and containers on startup
+
+There is an option to use `contrail-developer-sandbox` container just to build contrail's rpms and containers. **AUTOBUILD** environment variable manages this behaviour. `contrail-developer-sandbox` container builds and stores all artifacts and then exits if set **AUTOBUILD** to 1. So run contrail's build again just start `contrail-developer-sandbox` with the command `docker start -i contrail-developer-sandbox`.
 
 ## Bring-your-own-VM (experimental)
 
