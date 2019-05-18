@@ -206,7 +206,7 @@ if [[ "$own_vm" == '0' ]]; then
       options="${options} -itd"
     fi
 
-    if [[ "$BUILD_DEV_ENV" != '1' && ! docker pull ${IMAGE}:${DEVENVTAG} ]]; then
+    if [[ "$BUILD_DEV_ENV" != '1' ]] && ! docker pull ${IMAGE}:${DEVENVTAG}; then
       if [[ "BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
         exit 1
       fi
