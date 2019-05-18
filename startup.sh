@@ -184,21 +184,21 @@ sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" -e "s/6666
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/contrail-registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" vars.yaml.tmpl > vars.yaml
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" dev_config.yaml.tmpl > dev_config.yaml
 
-if [[ "$own_vm" -eq 0 ]]; then
+if [[ "$own_vm" == '0' ]]; then
   if ! is_created "contrail-developer-sandbox"; then
     if [[ "$BUILD_TEST_CONTAINERS" == "1" ]]; then
       options="${options} -e BUILD_TEST_CONTAINERS=1"
     fi
 
-    if [[ ! -z "${CANONICAL_HOSTNAME}" ]]; then
+    if [[ -n "${CANONICAL_HOSTNAME}" ]]; then
       options="${options} -e CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME}"
     fi
 
-    if [[ ! -z "${SITE_MIRROR}" ]]; then
+    if [[ -n "${SITE_MIRROR}" ]]; then
       options="${options} -e SITE_MIRROR=${SITE_MIRROR}"
     fi
 
-    if [[ "${AUTOBUILD}" -eq 1 ]]; then
+    if [[ "${AUTOBUILD}" == '1' ]]; then
       options="${options} -t -e AUTOBUILD=1"
       timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
       log_path="/${HOME}/build_${timestamp}.log"
@@ -206,18 +206,15 @@ if [[ "$own_vm" -eq 0 ]]; then
       options="${options} -itd"
     fi
 
-    if [[ ! "$BUILD_DEV_ENV" -eq 1 ]]; then
-      pull_result=$(docker pull ${IMAGE}:${DEVENVTAG}; echo $?)
-      if [[ ! "$pull_result" -eq 0 ]]; then
-        if [[ ! "BUILD_DEV_ENV_ON_PULL_FAIL" -eq 1 ]]; then
-          exit $pull_result
-        fi
-        echo Failed to pull ${IMAGE}:${DEVENVTAG} with error $pull_result. Trying to build image.
-        BUILD_DEV_ENV=1
+    if [[ "$BUILD_DEV_ENV" != '1' && ! docker pull ${IMAGE}:${DEVENVTAG} ]]; then
+      if [[ "BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
+        exit 1
       fi
+      echo Failed to pull ${IMAGE}:${DEVENVTAG} with error $pull_result. Trying to build image.
+      BUILD_DEV_ENV=1
     fi
 
-    if [[ "$BUILD_DEV_ENV" -eq 1 ]]; then
+    if [[ "$BUILD_DEV_ENV" == '1' ]]; then
       echo Build ${IMAGE}:${DEVENVTAG} docker image
       if [[ -d ${scriptdir}/config/etc/yum.repos.d ]]; then
         cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
@@ -244,7 +241,7 @@ if [[ "$own_vm" -eq 0 ]]; then
       eval $start_sandbox_cmd |& tee ${log_path}
     fi
 
-    if [[ "${AUTOBUILD}" -eq 1 ]]; then
+    if [[ "${AUTOBUILD}" == '1' ]]; then
       exit_code=$(docker inspect contrail-developer-sandbox --format='{{.State.ExitCode}}')
       echo Build has compeleted with exit code $exit_code
       exit $exit_code
