@@ -15,13 +15,13 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
     fi
 
     make setup dep fetch_packages
-    make rpm
+    make rpm create-repo
 
     if [[ "${BUILD_TEST_CONTAINERS}" == "1" ]]; then
-        make containers deployers | sed "s/^/containers: /" &
+        make prepare-containers containers-only prepare-deployers deployers-only | sed "s/^/containers: /" &
         containers_pid=$!
 
-        make test-containers | sed "s/^/test_containers: /" &
+        make prepare-test-containers test-containers-only | sed "s/^/test_containers: /" &
         test_containers_pid=$!
 
         wait $containers_pid
@@ -41,7 +41,8 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
             exit $test_containers_status
         fi
     else
-        make containers deployers
+        make prepare-containers containers-only
+        make prepare-deployers deployers-only
     fi
 
     exit 0

@@ -109,16 +109,19 @@ The descriptions of targets:
 * `make list-containers` - lists all container targets
 * `make containers` - builds all containers' images, requires RPM packages in /root/contrail/RPMS
 * `make container-<container_name>` - builds single container as a target, with all docker dependencies
+* `make containers-only` - build all containers without cloning of external repositories and creating of rmp rpository
 
 #### Deployers
 
 * `make list-deployers` - lists all deployers container targets
 * `make deployers` - builds all deployers
 * `make deployer-<container_name>` - builds single deployer as a target, with all docker dependencies
+* `make deployers-only` - build all deployers without cloning of external repositories and creating of rmp rpository
 
 #### Test containers
 
 * `make test-containers` - build test containers
+* `make test-containers-only` - build test containers without cloning of external repositories and creating of rmp repository
 
 #### Clean
 

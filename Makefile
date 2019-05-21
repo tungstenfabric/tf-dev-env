@@ -32,14 +32,20 @@ container-%: prepare-containers create-repo
 deployer-%: prepare-deployers create-repo
 	@$(deployers_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@)))
 
-containers: create-repo prepare-containers
+containers-only:
 	@$(container_builder_dir)containers/build.sh
 
-deployers: create-repo prepare-deployers
+containers: create-repo prepare-containers containers-only
+
+deployers-only:
 	@$(deployers_builder_dir)containers/build.sh
 
-test-containers: create-repo prepare-test-containers
+deployers: create-repo prepare-deployers deployers-only
+
+test-containers-only:
 	@$(DE_DIR)scripts/build-test-containers.sh
+
+test-containers: create-repo prepare-test-containers test-containers-only
 
 # TODO: switch next job to using deployers
 deploy_contrail_kolla: containers
