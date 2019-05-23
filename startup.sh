@@ -210,7 +210,7 @@ if [[ "$own_vm" == '0' ]]; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
         exit 1
       fi
-      echo Failed to pull ${IMAGE}:${DEVENVTAG} with error $pull_result. Trying to build image.
+      echo Failed to pull ${IMAGE}:${DEVENVTAG}. Trying to build image.
       BUILD_DEV_ENV=1
     fi
 
