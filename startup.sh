@@ -84,9 +84,8 @@ if [ x"$distro" == x"centos" ]; then
 #  grep 'dm.basesize=20G' /etc/sysconfig/docker-storage || sed -i 's/DOCKER_STORAGE_OPTIONS=/DOCKER_STORAGE_OPTIONS=--storage-opt dm.basesize=20G /g' /etc/sysconfig/docker-storage
 #  systemctl restart docker
   yum install -y epel-release
-  yum install -y jq
 elif [ x"$distro" == x"ubuntu" ]; then
-  which docker || apt install -y jq docker.io
+  which docker || apt install -y docker.io
 fi
 touch /etc/docker/daemon.json
 
@@ -117,7 +116,7 @@ with open("/etc/docker/daemon.json", "w") as f:
 EOF
   docker_reload=1
 fi
-runtime_docker_mtu=`sudo docker network inspect bridge | jq '.[0]["Options"]["com.docker.network.driver.mtu"]' | sed 's/"//g'`
+runtime_docker_mtu=`sudo docker network inspect --format='{{index .Options "com.docker.network.driver.mtu"}}' bridge`
 if [[ "$defailt_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]]; then
   if [ x"$distro" == x"centos" ]; then
     systemctl restart docker
@@ -206,7 +205,7 @@ if [[ "$own_vm" == '0' ]]; then
       options="${options} -itd"
     fi
 
-    if [[ "$BUILD_DEV_ENV" != '1' ]] && ! docker pull ${IMAGE}:${DEVENVTAG}; then
+    if [[ "$BUILD_DEV_ENV" != '1' ]] && ! docker image inspect --format='{{.Id}}' ${IMAGE}:${DEVENVTAG} && ! docker pull ${IMAGE}:${DEVENVTAG}; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
         exit 1
       fi

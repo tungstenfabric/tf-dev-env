@@ -1,11 +1,13 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
-SITE_MIRROR=${SITE_MIRROR:-}
-echo SITE_MIRROR=${SITE_MIRROR}
-cd /root/contrail/third_party
-if [[ ! -z "${SITE_MIRROR}" ]]; then
-    python3 -u fetch_packages.py --site-mirror ${SITE_MIRROR} 2>&1 | grep -Ei 'Processing|patching'
-else
-    python3 -u fetch_packages.py 2>&1 | grep -Ei 'Processing|patching'
+opts=''
+if [[ -n "${SITE_MIRROR}" ]]; then
+  opts="--site-mirror ${SITE_MIRROR}"
 fi
+cd /root/contrail/third_party
+if ! output=`python3 -u fetch_packages.py $opts 2>&1` ; then
+  echo "$output"
+  exit 1
+fi
+
+echo "$output" | grep -Ei 'Processing|patching'
