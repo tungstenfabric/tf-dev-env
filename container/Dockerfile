@@ -19,6 +19,8 @@ COPY *.repo /etc/yum.repos.d/
 RUN yum -y install epel-release \
 &&  yum -y update \
 &&  yum -y install \
+    autoconf \
+    automake \
     createrepo \
     docker \
     docker-python \
@@ -26,6 +28,7 @@ RUN yum -y install epel-release \
     gdb \
     git \
     kernel \
+    libtool \
     make \
     python-devel \
     python-pip \
