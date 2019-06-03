@@ -68,7 +68,7 @@ function install_docker() {
 function check_docker_value() {
   local name=$1
   local value=$2
-  python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$val'));" | grep -q "$value"
+  python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$value'));" | grep -q "$value"
 }
 
 echo contrail-dev-env startup
