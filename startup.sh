@@ -68,7 +68,7 @@ function install_docker() {
 function check_docker_value() {
   local name=$1
   local value=$2
-  python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$value'));" | grep -q "$value"
+  python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$value'));" 2>/dev/null| grep -q "$value"
 }
 
 echo contrail-dev-env startup
@@ -99,7 +99,7 @@ fi
 defailt_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
 
 docker_reload=0
-if ! check_docker_value "insecure-registries" "${registry_ip}:${REGISTRY_PORT}" || ! check_docker_value mtu "$defailt_iface_mtu" ; then
+if ! check_docker_value "insecure-registries" "${registry_ip}:${REGISTRY_PORT}" || ! check_docker_value mtu "$defailt_iface_mtu" || ! check_docker_value "live-restore" "true" ; then
   python <<EOF
 import json
 data=dict()
@@ -110,6 +110,7 @@ except Exception:
   pass
 data.setdefault("insecure-registries", list()).append("${registry_ip}:${REGISTRY_PORT}")
 data["mtu"] = $defailt_iface_mtu
+data["live-restore"] = true
 with open("/etc/docker/daemon.json", "w") as f:
   data = json.dump(data, f, sort_keys=True, indent=4)
 EOF
