@@ -11,7 +11,6 @@ WORKDIR $CONTRAIL
 # Install android repo
 RUN curl -s https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/repo \
 &&  chmod a+x /usr/bin/repo \
-&&  mkdir -p /etc/yum.repos.d.save \
 &&  cp -R /etc/yum.repos.d /etc/yum.repos.d.save
 
 # Inject repositories that we might need
