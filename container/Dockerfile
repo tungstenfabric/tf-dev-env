@@ -10,7 +10,9 @@ WORKDIR $CONTRAIL
 
 # Install android repo
 RUN curl -s https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/repo \
-&&  chmod a+x /usr/bin/repo
+&&  chmod a+x /usr/bin/repo \
+&&  mkdir -p /etc/yum.repos.d.save \
+&&  cp -R /etc/yum.repos.d /etc/yum.repos.d.save
 
 # Inject repositories that we might need
 COPY *.repo /etc/yum.repos.d/
@@ -44,6 +46,8 @@ RUN yum -y install epel-release \
 # and fetch third parties
 RUN echo "Initializing repo from $BRANCH" \
 &&  repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $BRANCH \
+&&  rm -rf /etc/yum.repos.d \
+&&  mv /etc/yum.repos.d.save /etc/yum.repos.d \
 &&  yum clean all \
 &&  rm -rf /var/cache/yum
 
