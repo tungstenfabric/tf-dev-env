@@ -110,7 +110,7 @@ except Exception:
   pass
 data.setdefault("insecure-registries", list()).append("${registry_ip}:${REGISTRY_PORT}")
 data["mtu"] = $defailt_iface_mtu
-data["live-restore"] = true
+data["live-restore"] = True
 with open("/etc/docker/daemon.json", "w") as f:
   data = json.dump(data, f, sort_keys=True, indent=4)
 EOF
