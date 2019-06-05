@@ -24,21 +24,23 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
         make prepare-test-containers test-containers-only | sed "s/^/test_containers: /" &
         test_containers_pid=$!
 
+        wait $test_containers_pid
+        test_containers_status=$?
+        echo Build of test containers has finished with status $test_containers_status
+
+        if [[ "$test_containers_status" != "0" ]]; then
+            echo Termination build containers job
+            kill $containers_pid
+            exit $test_containers_status
+        fi
+
         wait $containers_pid
         containers_status=$?
 
-        wait $test_containers_pid
-        test_containers_status=$?
-
         echo Build of containers with deployers has finished with status $containers_status
-        echo Build of test containers has finished with status $test_containers_status
 
         if [[ "$containers_status" != "0" ]]; then
             exit $containers_status
-        fi
-
-        if [[ "$test_containers_status" != "0" ]]; then
-            exit $test_containers_status
         fi
     else
         make prepare-containers containers-only
