@@ -59,10 +59,11 @@ function is_up () {
 }
 
 function install_docker() {
-  (yum install -y yum-utils device-mapper-persistent-data lvm2 \
-  && yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
-  && yum install -y docker-ce docker-ce-cli containerd.io) \
-  || (echo Failed to install docker with error $? && exit 1)
+  yum install -y yum-utils device-mapper-persistent-data lvm2
+  if ! yum info docker-ce &> /dev/null ; then
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  fi
+  yum install -y docker-ce docker-ce-cli containerd.io
 }
 
 function check_docker_value() {
