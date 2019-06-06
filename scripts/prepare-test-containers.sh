@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPODIR=/root/src/${CANONICAL_HOSTNAME}/Juniper/contrail-test
+REPODIR=/root/src/${CANONICAL_HOSTNAME}/Juniper/third_party/contrail-test
 BRANCH=${SB_BRANCH:-master}
 
 [ -d ${REPODIR} ] || git clone https://github.com/Juniper/contrail-test -b ${BRANCH}  ${REPODIR}
