@@ -1,5 +1,4 @@
-#!/bin/bash
-set -u
+#!/bin/bash -ue
 
 SRC_DIR=/root/src/${CANONICAL_HOSTNAME}/Juniper/
 c_p_c_rev=c9524c72199

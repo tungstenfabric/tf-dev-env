@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 REPODIR=/root/src/${CANONICAL_HOSTNAME}/Juniper/contrail-deployers-containers
 BRANCH=${SB_BRANCH:-master}

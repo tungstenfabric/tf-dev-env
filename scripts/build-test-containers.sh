@@ -1,7 +1,6 @@
-#!/bin/bash
-set -e
+#!/bin/bash -e
 
-REPODIR=${test_containers_builder_dir:-"/root/src/${CANONICAL_HOSTNAME}/Juniper/third_party/contrail-test"}
+REPODIR=${test_containers_builder_dir:-"/root/src/${CANONICAL_HOSTNAME}/Juniper/contrail-test"}
 
 source ${REPODIR}/common.env
 
