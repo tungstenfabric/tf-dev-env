@@ -69,7 +69,7 @@ function install_docker() {
 function check_docker_value() {
   local name=$1
   local value=$2
-  python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$name'));" 2>/dev/null| grep -q "$value"
+  python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$name'));" 2>/dev/null| grep -qi "$value"
 }
 
 echo tf-dev-env startup
