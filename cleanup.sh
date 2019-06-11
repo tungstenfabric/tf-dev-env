@@ -13,10 +13,10 @@ while getopts ":v" opt; do
   esac
 done
 
-echo contrail-dev-env cleanup
+echo tf-dev-env cleanup
 echo
 echo '[containers]'
-for container in contrail-developer-sandbox contrail-dev-env-registry contrail-dev-env-rpm-repo; do
+for container in tf-developer-sandbox tf-dev-env-registry tf-dev-env-rpm-repo; do
   if docker ps -a --format '{{ .Names }}' | grep "$container" > /dev/null; then
     echo -ne "$(docker stop $container) stopped."\\r
     echo $(docker rm $container) removed.
@@ -28,7 +28,7 @@ done
 if [[ $remove_volume -eq 1 ]]; then
   echo
   echo '[volumes]'
-  volume_name=contrail-dev-env-rpms
+  volume_name=tf-dev-env-rpms
   if docker volume list --format '{{ .Name }}' | grep "$volume_name" >/dev/null; then
     echo $(docker volume rm $volume_name) removed.
   else

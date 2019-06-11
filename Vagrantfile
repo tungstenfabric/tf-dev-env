@@ -5,7 +5,7 @@ VAGRANTFILE_API_VERSION = "2"
 USER = "root"
 GROUP = "root"
 HOME_DIR = "/root"
-DEV_ENV_DIR = "#{HOME_DIR}/contrail-dev-env"
+DEV_ENV_DIR = "#{HOME_DIR}/tf-dev-env"
 REPOS_DIR = "#{HOME_DIR}/src/review.opencontrail.org/Juniper/"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

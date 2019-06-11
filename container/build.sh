@@ -15,6 +15,6 @@ done
 shift $((OPTIND-1))
 
 TAG=${1:-latest}
-echo Building contrail-dev-env image: ${IMAGE}:${TAG}
+echo Building tf-dev-env image: ${IMAGE}:${TAG}
 cp ../tpc.repo.template tpc.repo
 docker build --build-arg BRANCH=${BRANCH} --no-cache --tag ${IMAGE}:${TAG} .

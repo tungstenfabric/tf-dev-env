@@ -1,17 +1,16 @@
-# contrail-dev-env: Contrail Developer Environment
+# tf-dev-env: Tungsten Fabric Developer Environment
 
 ## Problems? Need Help?
 
-This repository is actively maintained via [Gerrit] so please let us know about
-any problems you find. You can ask for help on [Slack] but if no one replies
-right away, go ahead and open a bug on [JIRA] and label the bug with the
-label "dev-env" and it will get looked at soon. You can also post to the new
-[Google Group] if you're having trouble but don't know if the problem is a bug
-or a mistake on your part.
+This repository is a fork of existing juniper/contrail-dev-env repository which is
+actively maintained via [Gerrit]. This repository at the moment is not connected to
+gerrit and can be modified via github PRs.
+You can ask for help on [Slack] but if no one replies right away, you can also post
+to the new [Google Group].
 
 ## Documentation for dev-env components
 
-Since dev-env uses generally available contrail components, please refer to following documentation pages:
+Since dev-env uses generally available TF components, please refer to following documentation pages:
 
 1. for packages generation: [contrail-packages](https://github.com/Juniper/contrail-packages/blob/master/README.md)
 2. for building containers: [contrail-container-builder](https://github.com/Juniper/contrail-container-builder/blob/master/README.md) and [contrail-deployers-containers](https://github.com/Juniper/contrail-deployers-containers/blob/master/README.md)
@@ -48,8 +47,8 @@ Make sure that there is TCP connectivity allowed between the containers in the d
 
 ### 2. Clone dev setup repo
 ```
-git clone https://github.com/Juniper/contrail-dev-env
-cd contrail-dev-env
+git clone https://github.com/tungstenfabric/tf-dev-env
+cd tf-dev-env
 ```
 
 ### 3. Execute script to start 3 containers
@@ -65,15 +64,15 @@ default. You can specify different image and/or tag using flags, e.g.
 
 ##### docker ps -a should show these 3 containers #####
 ```
-contrail-developer-sandbox [For running scons, unit-tests etc]
-contrail-dev-env-rpm-repo  [Repo server for contrail RPMs after they are build]
-contrail-dev-env-registry  [Registry for contrail containers after they are built]
+tf-developer-sandbox [For running scons, unit-tests etc]
+tf-dev-env-rpm-repo  [Repo server for contrail RPMs after they are build]
+tf-dev-env-registry  [Registry for contrail containers after they are built]
 ```
 
 ### 4. Attach to developer-sandbox container
 
 ```
-docker attach contrail-developer-sandbox
+docker attach tf-developer-sandbox
 ```
 
 ### 5. Prepare developer-sandbox container
@@ -81,7 +80,7 @@ docker attach contrail-developer-sandbox
 Required first steps in the container:
 
 ```
-cd /root/contrail-dev-env
+cd /root/tf-dev-env
 make sync           # get latest code
 make fetch_packages # pull third_party dependencies
 make setup          # set up docker container
@@ -147,7 +146,7 @@ are headers for running kernel (`uname -r`). If you want to customize your manua
 use i.e newer kernel header take a look at below examples.
 
 In case you want to compile TungstenFabric with latest or another custom kernel headers installed
-in `contrail-developer-sandbox` container, then you have to run scons with extra arguments:
+in `tf-developer-sandbox` container, then you have to run scons with extra arguments:
 
 ```
 RTE_KERNELDIR=/path/to/custom_kernel_headers scons --kernel-dir=/path/to/custom_kernel_headers
@@ -173,16 +172,16 @@ RTE_KERNELDIR=/path/to/custom_kernel_headers scons --kernel-dir=/path/to/custom_
 
 ## Customizing dev-env container
 
-There are several options to change standard behaviour of `contrail-developer-sandbox` container:
+There are several options to change standard behaviour of `tf-developer-sandbox` container:
   - Build dev-env container instead of pulling it from registry
   - Attach external sources to container
   - Use external docker registry to store contrail-images
-  - Build contrail's rpms and containers on startup
+  - Build TF's rpms and containers on startup
 
 ### Building dev-env docker image
 
 There are several environment variables are used to build dev-env docker image:
-  - **BUILD_DEV_ENV** is used to build dev-env docker image and runing `contrail-developer-sandbox` container from it. To build new image set **BUILD_DEV_ENV** to 1.
+  - **BUILD_DEV_ENV** is used to build dev-env docker image and runing `tf-developer-sandbox` container from it. To build new image set **BUILD_DEV_ENV** to 1.
   - **BUILD_DEV_ENV_ON_PULL_FAIL** is used to build dev-env docker image if `docker pull` command has failed.
 
 ### External sources
@@ -197,11 +196,11 @@ There are special environment variables to set correct behaviour:
 
 ### External docker registry
 
-Environment variables **REGISTRY_IP** and **REGISTRY_PORT** stores external docker registry connection information where contrail's containers would be stored.
+Environment variables **REGISTRY_IP** and **REGISTRY_PORT** stores external docker registry connection information where TF's containers would be stored.
 
 ### Autobuild rpms and containers on startup
 
-There is an option to use `contrail-developer-sandbox` container just to build contrail's rpms and containers. **AUTOBUILD** environment variable manages this behaviour. `contrail-developer-sandbox` container builds and stores all artifacts and then exits if set **AUTOBUILD** to 1. So run contrail's build again just start `contrail-developer-sandbox` with the command `docker start -i contrail-developer-sandbox`.
+There is an option to use `tf-developer-sandbox` container just to build TF rpms and containers. **AUTOBUILD** environment variable manages this behaviour. `tf-developer-sandbox` container builds and stores all artifacts and then exits if set **AUTOBUILD** to 1. So run TF build again just start `tf-developer-sandbox` with the command `docker start -i tf-developer-sandbox`.
 
 ## Bring-your-own-VM (experimental)
 
@@ -209,12 +208,10 @@ There is an option to use `contrail-developer-sandbox` container just to build c
 
 1. Clone this repository to a directory on a VM.
 2. Run `vm-dev-env/init.sh` (you might be asked for your password as some steps require the use of sudo).
-  a. You can also run `vm-dev-env/init.sh -n` if you don't want to clone work directory on a VM. Then you have to mount sandbox to directory named `contrail` next to `contrail-dev-env`.
+  a. You can also run `vm-dev-env/init.sh -n` if you don't want to clone work directory on a VM. Then you have to mount sandbox to directory named `contrail` next to `tf-dev-env`.
 3. Run `make fetch_packages` to pull dependencies to `contrail/third_party`
 4. Run `sudo ./startup.sh -b` to start required containers.
 4. You can use the Makefile targets described above to build contrail.
 
-[Gerrit]: https://review.opencontrail.org/#/admin/projects/Juniper/contrail-dev-env
 [Slack]: https://tungstenfabric.slack.com/messages/C0DQ23SJF/
-[JIRA]: https://jira.tungsten.io/secure/Dashboard.jspa
 [Google Group]: https://groups.google.com/forum/#!forum/tungsten-dev

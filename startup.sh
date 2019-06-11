@@ -72,7 +72,7 @@ function check_docker_value() {
   python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$name'));" 2>/dev/null| grep -q "$value"
 }
 
-echo contrail-dev-env startup
+echo tf-dev-env startup
 echo
 echo '[docker install]'
 distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
@@ -135,7 +135,7 @@ if [[ ! -z "${SRC_ROOT}" ]]; then
   mkdir -p ${rpm_source}
   options="${options} -v ${SRC_ROOT}:/root/contrail -e SRC_MOUNTED=1"
 elif [[ "$own_vm" -eq 0 ]]; then
-  rpm_source=$(docker volume create --name contrail-dev-env-rpm-volume)
+  rpm_source=$(docker volume create --name tf-dev-env-rpm-volume)
   options="${options} -v ${rpm_source}:/root/contrail/RPMS"
 else
   contrail_dir=$(realpath ${scriptdir}/../contrail)
@@ -149,43 +149,43 @@ if [[ ! -z "${EXTERNAL_REPOS}" ]]; then
   options="${options} -v ${EXTERNAL_REPOS}:/root/src"
 fi
 
-if ! is_created "contrail-dev-env-rpm-repo"; then
-  docker run --privileged --name contrail-dev-env-rpm-repo \
+if ! is_created "tf-dev-env-rpm-repo"; then
+  docker run --privileged --name tf-dev-env-rpm-repo \
     -d -p 6667:80 \
     -v ${rpm_source}:/var/www/localhost/htdocs \
     sebp/lighttpd >/dev/null
-  echo contrail-dev-env-rpm-repo created.
+  echo tf-dev-env-rpm-repo created.
 else
-  if is_up "contrail-dev-env-rpm-repo"; then
-    echo "contrail-dev-env-rpm-repo already running."
+  if is_up "tf-dev-env-rpm-repo"; then
+    echo "tf-dev-env-rpm-repo already running."
   else
-    echo $(docker start contrail-dev-env-rpm-repo) started.
+    echo $(docker start tf-dev-env-rpm-repo) started.
   fi
 fi
 
-if ! is_created "contrail-dev-env-registry"; then
-  docker run --privileged --name contrail-dev-env-registry \
+if ! is_created "tf-dev-env-registry"; then
+  docker run --privileged --name tf-dev-env-registry \
     -d -p $REGISTRY_PORT:5000 \
     registry:2 >/dev/null
-  echo contrail-dev-env-registry created.
+  echo tf-dev-env-registry created.
 else
-  if is_up "contrail-dev-env-registry"; then
-    echo "contrail-dev-env-registry already running."
+  if is_up "tf-dev-env-registry"; then
+    echo "tf-dev-env-registry already running."
   else
-    echo $(docker start contrail-dev-env-registry) started.
+    echo $(docker start tf-dev-env-registry) started.
   fi
 fi
 
 echo
 echo '[configuration update]'
-rpm_repo_ip=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' contrail-dev-env-rpm-repo)
+rpm_repo_ip=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' tf-dev-env-rpm-repo)
 
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" common.env.tmpl > common.env
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/contrail-registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" vars.yaml.tmpl > vars.yaml
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" dev_config.yaml.tmpl > dev_config.yaml
 
 if [[ "$own_vm" == '0' ]]; then
-  if ! is_created "contrail-developer-sandbox"; then
+  if ! is_created "tf-developer-sandbox"; then
     if [[ "$BUILD_TEST_CONTAINERS" == "1" ]]; then
       options="${options} -e BUILD_TEST_CONTAINERS=1"
     fi
@@ -225,14 +225,14 @@ if [[ "$own_vm" == '0' ]]; then
     fi
 
     volumes="-v /var/run/docker.sock:/var/run/docker.sock"
-    volumes+=" -v ${scriptdir}:/root/contrail-dev-env"
+    volumes+=" -v ${scriptdir}:/root/tf-dev-env"
     volumes+=" -v ${scriptdir}/container/entrypoint.sh:/root/entrypoint.sh"
     if [[ -d "${scriptdir}/config" ]]; then
       volumes+=" -v ${scriptdir}/config:/config"
     fi
-    start_sandbox_cmd="docker run --privileged --name contrail-developer-sandbox \
+    start_sandbox_cmd="docker run --privileged --name tf-developer-sandbox \
       -w /root ${options} \
-      -e CONTRAIL_DEV_ENV=/root/contrail-dev-env \
+      -e CONTRAIL_DEV_ENV=/root/tf-dev-env \
       $volumes \
       ${IMAGE}:${DEVENVTAG}"
 
@@ -243,21 +243,21 @@ if [[ "$own_vm" == '0' ]]; then
     fi
 
     if [[ "${AUTOBUILD}" == '1' ]]; then
-      exit_code=$(docker inspect contrail-developer-sandbox --format='{{.State.ExitCode}}')
+      exit_code=$(docker inspect tf-developer-sandbox --format='{{.State.ExitCode}}')
       echo Build has compeleted with exit code $exit_code
       exit $exit_code
     else
-      echo contrail-developer-sandbox created.
+      echo tf-developer-sandbox created.
     fi
   else
-    if is_up "contrail-developer-sandbox"; then
-      echo "contrail-developer-sandbox already running."
+    if is_up "tf-developer-sandbox"; then
+      echo "tf-developer-sandbox already running."
     else
-      echo $(docker start contrail-developer-sandbox) started.
+      echo $(docker start tf-developer-sandbox) started.
     fi
   fi
 fi
 
 echo
 echo '[READY]'
-test "$own_vm" -eq 0 && echo "You can now connect to the sandbox container by using: $ docker attach contrail-developer-sandbox"
+test "$own_vm" -eq 0 && echo "You can now connect to the sandbox container by using: $ docker attach tf-developer-sandbox"

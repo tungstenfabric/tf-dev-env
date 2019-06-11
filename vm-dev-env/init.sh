@@ -69,7 +69,7 @@ else
 fi
 
 echo Sandbox directory: ${WORKDIR}/contrail
-echo dev-env directory: ${WORKDIR}/contrail-dev-env
+echo dev-env directory: ${WORKDIR}/tf-dev-env
 echo
-echo "use [sudo] contrail-dev-env/startup.sh -b to run dev-env without contrail-developer-sandbox container"
+echo "use [sudo] tf-dev-env/startup.sh -b to run dev-env without tf-developer-sandbox container"
 echo
