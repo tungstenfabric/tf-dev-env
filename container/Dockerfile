@@ -45,8 +45,6 @@ RUN yum -y install epel-release \
 # and fetch third parties
 RUN echo "Initializing repo from $BRANCH" \
 &&  repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $BRANCH \
-&&  rm -rf /etc/yum.repos.d \
-&&  mv /etc/yum.repos.d.save /etc/yum.repos.d \
 &&  yum clean all \
 &&  rm -rf /var/cache/yum
 
