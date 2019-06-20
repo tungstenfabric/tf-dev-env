@@ -130,7 +130,7 @@ test "$setup_only" -eq 1 && exit
 
 echo
 echo '[environment setup]'
-if [[ ! -z "${SRC_ROOT}" ]]; then
+if [[ -n "${SRC_ROOT}" ]]; then
   rpm_source=${SRC_ROOT}/RPMS
   mkdir -p ${rpm_source}
   options="${options} -v ${SRC_ROOT}:/root/contrail -e SRC_MOUNTED=1"
@@ -145,12 +145,12 @@ else
 fi
 echo "${rpm_source} created."
 
-if [[ ! -z "${EXTERNAL_REPOS}" ]]; then
+if [[ -n "${EXTERNAL_REPOS}" ]]; then
   options="${options} -v ${EXTERNAL_REPOS}:/root/src"
 fi
 
 if ! is_created "tf-dev-env-rpm-repo"; then
-  docker run --privileged --name tf-dev-env-rpm-repo \
+  docker run -t --name tf-dev-env-rpm-repo \
     -d -p 6667:80 \
     -v ${rpm_source}:/var/www/localhost/htdocs \
     sebp/lighttpd >/dev/null
@@ -164,7 +164,7 @@ else
 fi
 
 if ! is_created "tf-dev-env-registry"; then
-  docker run --privileged --name tf-dev-env-registry \
+  docker run --name tf-dev-env-registry \
     -d -p $REGISTRY_PORT:5000 \
     registry:2 >/dev/null
   echo tf-dev-env-registry created.
