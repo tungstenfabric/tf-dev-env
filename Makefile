@@ -22,6 +22,7 @@ fetch_packages:
 	@$(DE_DIR)scripts/fetch-packages.sh
 
 setup:
+	@yum -y install epel-release
 	@pip list | grep urllib3 >/dev/null && pip uninstall -y urllib3 || true
 	@pip -q uninstall -y setuptools || true
 	@yum -q reinstall -y python-setuptools
