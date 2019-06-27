@@ -178,7 +178,19 @@ fi
 
 echo
 echo '[configuration update]'
-rpm_repo_ip=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' tf-dev-env-rpm-repo)
+for ((i=0; i<3; ++i)); do
+  rpm_repo_ip=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' tf-dev-env-rpm-repo)
+  if [[ -n "$rpm_repo_ip" ]]; then
+    break;
+  fi
+  sleep 10
+done
+if [[ -z "$rpm_repo_ip" ]]; then
+  echo "ERROR: failed to obtain IP of local RPM repository"
+  docker ps -a
+  docker logs tf-dev-env-rpm-repo
+  exit 1
+fi
 
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" common.env.tmpl > common.env
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/contrail-registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" vars.yaml.tmpl > vars.yaml
