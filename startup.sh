@@ -232,7 +232,7 @@ if [[ "$own_vm" == '0' ]]; then
         cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
       fi
       cd ${scriptdir}/container
-      ./build.sh -i ${IMAGE} ${DEVENVTAG}
+      ./build.sh -i ${IMAGE} -b ${DEVENVTAG} ${DEVENVTAG}
       cd ${scriptdir}
     fi
 
