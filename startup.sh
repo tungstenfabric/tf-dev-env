@@ -46,6 +46,11 @@ while getopts ":t:i:sb" opt; do
   esac
 done
 
+VNC_BRANCH="master"
+if [[ "$DEVENVTAG" != "latest" ]]; then
+  VNC_BRANCH="$DEVENVTAG"
+fi
+
 function is_created () {
   local container=$1
   docker ps -a --format '{{ .Names }}' | grep "$container" > /dev/null
@@ -232,7 +237,7 @@ if [[ "$own_vm" == '0' ]]; then
         cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
       fi
       cd ${scriptdir}/container
-      ./build.sh -i ${IMAGE} -b ${DEVENVTAG} ${DEVENVTAG}
+      ./build.sh -i ${IMAGE} -b ${VNC_BRANCH} ${DEVENVTAG}
       cd ${scriptdir}
     fi
 
