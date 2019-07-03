@@ -17,10 +17,8 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
 
     echo "INFO: make setup  $(date)"
     make setup
-    echo "INFO: make dep  $(date)"
-    make dep
-    echo "INFO: make fetch_packages  $(date)"
-    make fetch_packages
+    echo "INFO: make dep fetch_packages  $(date)"
+    make -j 2 dep fetch_packages
     echo "INFO: make rpm  $(date)"
     make rpm
     echo "INFO: make create-repo  $(date)"
@@ -28,32 +26,33 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
 
     echo "INFO: make containers  $(date)"
     if [[ "${BUILD_TEST_CONTAINERS}" == "1" ]]; then
-        make prepare-containers containers-only prepare-deployers deployers-only | sed "s/^/containers: /" &
-        containers_pid=$!
-
-        make prepare-test-containers test-containers-only | sed "s/^/test_containers: /" &
-        test_containers_pid=$!
-
-        wait $test_containers_pid
-        test_containers_status=$?
-        echo Build of test containers has finished with status $test_containers_status
-
-        if [[ "$test_containers_status" != "0" ]]; then
-            echo Termination build containers job
-            kill $containers_pid
-            echo "INFO: make test containers failed  $(date)"
-            exit $test_containers_status
+        # prepare repos
+        make -j 3 prepare-containers prepare-deployers prepare-test-containers
+        build_status=$?
+        if [[ "$build_status" != "0" ]]; then
+            echo "INFO: make prepare containers failed with code $build_status  $(date)"
+            exit $build_status
+        fi
+        
+        # prebuild general base as it might be used by deployers and cannot be
+        # run in parallel 
+        make container-general-base | sed "s/^/containers: /"
+        build_status=$?
+        if [[ "$build_status" != "0" ]]; then
+            echo "INFO: make general-base container failed  $(date)"
+            exit $build_status
         fi
 
-        wait $containers_pid
-        containers_status=$?
+        # build repos in parallel
+        make -j 3 containers-only deployers-only test-containers-only | sed "s/^/containers: /"
+        build_status=$?
 
-        echo Build of containers with deployers has finished with status $containers_status
-
-        if [[ "$containers_status" != "0" ]]; then
-            echo "INFO: make containers failed  $(date)"
-            exit $containers_status
+        if [[ "$build_status" != "0" ]]; then
+            echo "INFO: make containers failed with code $build_status $(date)"
+            exit $build_status
         fi
+
+        echo Build of containers with deployers has finished successfully
     else
         make prepare-containers containers-only
         make prepare-deployers deployers-only
