@@ -1,52 +1,95 @@
-DE_DIR 	:= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-DE_TOP  := $(abspath $(DE_DIR)/../)/
+TF_DE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+TF_DE_TOP := $(abspath $(TF_DE_DIR)/../)/
 
 # include RPM-building targets
--include $(DE_TOP)contrail/tools/packages/Makefile
+-include $(TF_DE_TOP)contrail/tools/packages/Makefile
 
-repos_dir=$(DE_TOP)src/${CANONICAL_HOSTNAME}/Juniper/
+repos_dir=$(TF_DE_TOP)src/${CANONICAL_HOSTNAME}/Juniper/
 container_builder_dir=$(repos_dir)contrail-container-builder/
-deployers_builder_dir=$(repos_dir)contrail-deployers-containers/
 test_containers_builder_dir=$(repos_dir)contrail-test/
 ansible_playbook=ansible-playbook -i inventory --extra-vars @vars.yaml --extra-vars @dev_config.yaml
 
 all: dep rpm containers
 
-list-containers: prepare-containers
-	@$(container_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
-
-list-deployers: prepare-deployers
-	@$(deployers_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
-
 fetch_packages:
-	@$(DE_DIR)scripts/fetch-packages.sh
+	@$(TF_DE_DIR)scripts/fetch-packages.sh
 
 setup:
 	@pip list | grep urllib3 >/dev/null && pip uninstall -y urllib3 || true
 	@pip -q uninstall -y setuptools || true
 	@yum -q reinstall -y python-setuptools
 
-container-%: prepare-containers create-repo
-	@$(container_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@)))
+sync:
+	@cd $(TF_DE_TOP)contrail && repo sync -q --no-clone-bundle -j $(shell nproc)
 
-deployer-%: prepare-deployers create-repo
-	@$(deployers_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@)))
+##############################################################################
+# RPM repo targets
+create-repo:
+	@mkdir -p $(TF_DE_TOP)contrail/RPMS
+	@createrepo -C $(TF_DE_TOP)contrail/RPMS/
+
+clean-repo:
+	@test -d $(TF_DE_TOP)contrail/RPMS/repodata && rm -rf $(TF_DE_TOP)contrail/RPMS/repodata || true
+
+##############################################################################
+# Container builder targets
+prepare-containers:
+	@$(TF_DE_DIR)scripts/prepare-containers.sh
+
+list-containers: prepare-containers
+	@$(container_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
+
+container-%: create-repo prepare-containers
+	@$(container_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@)))
 
 containers-only:
 	@$(container_builder_dir)containers/build.sh
 
 containers: create-repo prepare-containers containers-only
 
-deployers-only:
-	@$(deployers_builder_dir)containers/build.sh
+clean-containers:
+	@test -d $(container_builder_dir) && rm -rf $(container_builder_dir) || true
 
-deployers: create-repo prepare-deployers deployers-only
+
+##############################################################################
+# Container deployers targets
+deployers_builder_dir=$(repos_dir)contrail-deployers-containers/
+deployers_builder_makefile=$(deployers_builder_dir)Makefile
+
+prepare-deployers:
+	@$(TF_DE_DIR)scripts/prepare-deployers.sh
+
+ifeq ($(wildcard $(deployers_builder_makefile)),)
+$(info DBG: there is no deployers makefile $(deployers_builder_makefile))
+list-deployers: prepare-deployers
+	@$(MAKE) -C $(TF_DE_DIR) $(@)
+
+deployer-%: create-repo prepare-deployers
+	@$(MAKE) -C $(TF_DE_DIR) $(@)
+else
+$(info DBG: include $(deployers_builder_makefile))
+-include $(deployers_builder_makefile)
+deployers-only: all-deployers
+endif
+
+deployers: create-repo prepare-deployers
+	@$(MAKE) -C $(TF_DE_DIR) deployers-only
+
+clean-deployers:
+	@test -d $(deployers_builder_dir) && rm -rf $(deployers_builder_dir) || true
+
+##############################################################################
+# Test container targets
+prepare-test-containers:
+	@$(TF_DE_DIR)scripts/prepare-test-containers.sh
 
 test-containers-only:
-	@$(DE_DIR)scripts/build-test-containers.sh
+	@$(TF_DE_DIR)scripts/build-test-containers.sh
 
 test-containers: create-repo prepare-test-containers test-containers-only
 
+
+##############################################################################
 # TODO: switch next job to using deployers
 deploy_contrail_kolla: containers
 	@$(ansible_playbook) $(repos_dir)contrail-project-config/playbooks/kolla/centos74-provision-kolla.yaml
@@ -55,6 +98,8 @@ deploy_contrail_kolla: containers
 deploy_contrail_k8s: containers
 	@$(ansible_playbook) $(repos_dir)contrail-project-config/playbooks/docker/centos74-systest-kubernetes.yaml
 
+
+##############################################################################
 unittests ut: build
 	@echo "$@: not implemented"
 
@@ -64,42 +109,17 @@ sanity: deploy
 build deploy:
 	@echo "$@: not implemented"
 
-# utility targets
-sync:
-	@cd $(DE_TOP)contrail && repo sync -q --no-clone-bundle -j $(shell nproc)
 
-prepare-containers:
-	@$(DE_DIR)scripts/prepare-containers.sh
-
-prepare-deployers:
-	@$(DE_DIR)scripts/prepare-deployers.sh
-
-prepare-test-containers:
-	@$(DE_DIR)scripts/prepare-test-containers.sh
-
-create-repo:
-	@mkdir -p $(DE_TOP)contrail/RPMS
-	@createrepo -C $(DE_TOP)contrail/RPMS/
-
-# Clean targets
-clean-containers:
-	@test -d $(container_builder_dir) && rm -rf $(container_builder_dir) || true
-
-clean-deployers:
-	@test -d $(deployers_builder_dir) && rm -rf $(deployers_builder_dir) || true
-
-clean-repo:
-	@test -d $(DE_TOP)contrail/RPMS/repodata && rm -rf $(DE_TOP)contrail/RPMS/repodata || true
-
+##############################################################################
+# Other clean targets
 clean-rpm:
-	@test -d $(DE_TOP)contrail/RPMS && rm -rf $(DE_TOP)contrail/RPMS/* || true
+	@test -d $(TF_DE_TOP)contrail/RPMS && rm -rf $(TF_DE_TOP)contrail/RPMS/* || true
 
 clean: clean-deployers clean-containers clean-repo clean-rpm
 	@true
 
 dbg:
-	@echo $(DE_TOP)
-	@echo $(DE_DIR)
-	@echo $(SB_TOP)
+	@echo $(TF_DE_TOP)
+	@echo $(TF_DE_DIR)
 
 .PHONY: clean-deployers clean-containers clean-repo clean-rpm setup build containers deployers createrepo unittests ut sanity all
