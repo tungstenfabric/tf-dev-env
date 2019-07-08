@@ -22,26 +22,18 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
     echo "INFO: make rpm  $(date)"
     make rpm
 
-    # Set MAKEFLAGS after make rpm as it looks fails with that
-    default_jobs="-j $(grep -c 'processor' /proc/cpuinfo)"
-    MAKE_JOBS="${MAKE_JOBS-$default_jobs}"
-    export MAKEFLAGS="${MAKEFLAGS} $MAKE_JOBS"
-    echo "INFO: MAKEFLAGS=$MAKEFLAGS  $(date)"
-
     echo "INFO: make containers  $(date)"
     if [[ "${BUILD_TEST_CONTAINERS}" == "1" ]]; then
         # prepare rpm repo and repos
         echo "INFO: make create-repo prepare-containers prepare-deployers prepare-test-containers  $(date)"
-        make create-repo prepare-containers prepare-deployers prepare-test-containers
+        make -j 4 create-repo prepare-containers prepare-deployers prepare-test-containers
         build_status=$?
         if [[ "$build_status" != "0" ]]; then
             echo "INFO: make prepare containers failed with code $build_status  $(date)"
             exit $build_status
         fi
         
-        # TODO: it be removed if makefiles be created for containers
-        # prebuild general base as it might be used by deployers and cannot be
-        # run in parallel 
+        # prebuild general base as it might be used by deployers
         echo "INFO: make container-general-base  $(date)"
         make container-general-base | sed "s/^/containers: /"
         build_status=$?
@@ -52,7 +44,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
 
         # build containers
         echo "INFO: make containers-only deployers-only test-containers-only  $(date)"
-        make containers-only deployers-only test-containers-only | sed "s/^/containers: /"
+        make -j 3 containers-only deployers-only test-containers-only | sed "s/^/containers: /"
         build_status=$?
         if [[ "$build_status" != "0" ]]; then
             echo "INFO: make containers failed with code $build_status $(date)"
@@ -62,8 +54,11 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
         echo Build of containers with deployers has finished successfully
     else
         echo "INFO: make create-repo prepare-containers prepare-deployers   $(date)"
-        make create-repo prepare-containers prepare-deployers 
-        make containers-only deployers-only
+        make -j 3 create-repo prepare-containers prepare-deployers 
+        echo "INFO: make container-general-base   $(date)"
+        make container-general-base
+        echo "INFO: make containers-only deployers-only   $(date)"
+        make -j 2 containers-only deployers-only
     fi
 
     echo "INFO: make successful  $(date)"

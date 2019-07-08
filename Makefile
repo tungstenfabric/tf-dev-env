@@ -54,23 +54,18 @@ clean-containers:
 ##############################################################################
 # Container deployers targets
 deployers_builder_dir=$(repos_dir)contrail-deployers-containers/
-deployers_builder_makefile=$(deployers_builder_dir)Makefile
 
 prepare-deployers:
 	@$(TF_DE_DIR)scripts/prepare-deployers.sh
 
-ifeq ($(wildcard $(deployers_builder_makefile)),)
-$(info DBG: there is no deployers makefile $(deployers_builder_makefile))
 list-deployers: prepare-deployers
-	@$(MAKE) -C $(TF_DE_DIR) $(@)
+	@$(deployers_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/deployer-/'
 
 deployer-%: create-repo prepare-deployers
-	@$(MAKE) -C $(TF_DE_DIR) $(@)
-else
-$(info DBG: include $(deployers_builder_makefile))
--include $(deployers_builder_makefile)
-deployers-only: all-deployers
-endif
+	@$(deployers_builder_dir)containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@)))
+
+deployers-only:
+	@$(deployers_builder_dir)containers/build.sh
 
 deployers: create-repo prepare-deployers
 	@$(MAKE) -C $(TF_DE_DIR) deployers-only
