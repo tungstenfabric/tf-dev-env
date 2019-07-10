@@ -186,7 +186,7 @@ echo '[configuration update]'
 for ((i=0; i<3; ++i)); do
   rpm_repo_ip=$(docker inspect --format '{{ .NetworkSettings.Gateway }}' tf-dev-env-rpm-repo)
   if [[ -n "$rpm_repo_ip" ]]; then
-    break;
+    break
   fi
   sleep 10
 done
