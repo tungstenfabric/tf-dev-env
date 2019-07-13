@@ -14,11 +14,12 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
         echo "INFO: make sync  $(date)"
         make sync
     fi
-    
+
     echo "INFO: make setup  $(date)"
     make setup
     echo "INFO: make dep fetch_packages  $(date)"
-    make -j 2 dep fetch_packages
+    # targets can use yum and will block each other. don't run them in parallel
+    make dep fetch_packages
     echo "INFO: make rpm  $(date)"
     make rpm
 
@@ -32,7 +33,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
             echo "INFO: make prepare containers failed with code $build_status  $(date)"
             exit $build_status
         fi
-        
+
         # prebuild general base as it might be used by deployers
         echo "INFO: make container-general-base  $(date)"
         make container-general-base
