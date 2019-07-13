@@ -40,10 +40,10 @@ list-containers: prepare-containers
 	@$(container_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
 
 container-%: create-repo prepare-containers
-	@$(container_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@)))
+	@$(container_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/container-%: /"
 
 containers-only:
-	@$(container_builder_dir)containers/build.sh
+	@$(container_builder_dir)containers/build.sh | sed "s/^/containers: /"
 
 containers: create-repo prepare-containers containers-only
 
@@ -62,10 +62,10 @@ list-deployers: prepare-deployers
 	@$(deployers_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/deployer-/'
 
 deployer-%: create-repo prepare-deployers
-	@$(deployers_builder_dir)containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@)))
+	@$(deployers_builder_dir)containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/deployer-%: /"
 
 deployers-only:
-	@$(deployers_builder_dir)containers/build.sh
+	@$(deployers_builder_dir)containers/build.sh | sed "s/^/deployers: /"
 
 deployers: create-repo prepare-deployers
 	@$(MAKE) -C $(TF_DE_DIR) deployers-only
@@ -79,7 +79,7 @@ prepare-test-containers:
 	@$(TF_DE_DIR)scripts/prepare-test-containers.sh
 
 test-containers-only:
-	@$(TF_DE_DIR)scripts/build-test-containers.sh
+	@$(TF_DE_DIR)scripts/build-test-containers.sh | sed "s/^/test-containers: /"
 
 test-containers: create-repo prepare-test-containers test-containers-only
 

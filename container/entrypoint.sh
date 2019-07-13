@@ -35,7 +35,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
         
         # prebuild general base as it might be used by deployers
         echo "INFO: make container-general-base  $(date)"
-        make container-general-base | sed "s/^/containers: /"
+        make container-general-base
         build_status=$?
         if [[ "$build_status" != "0" ]]; then
             echo "INFO: make general-base container failed with code $build_status $(date)"
@@ -44,7 +44,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
 
         # build containers
         echo "INFO: make containers-only deployers-only test-containers-only  $(date)"
-        make -j 3 containers-only deployers-only test-containers-only | sed "s/^/containers: /"
+        make -j 6 containers-only deployers-only test-containers-only
         build_status=$?
         if [[ "$build_status" != "0" ]]; then
             echo "INFO: make containers failed with code $build_status $(date)"
