@@ -9,7 +9,7 @@ setup_only=0
 own_vm=0
 IMAGE=${IMAGE:-"opencontrailnightly/developer-sandbox"}
 DEVENVTAG=${DEVENVTAG:-"latest"}
-options=""
+options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
 log_path=""
 
 # variables that can be redefined outside
