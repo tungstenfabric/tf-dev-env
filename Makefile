@@ -40,7 +40,7 @@ list-containers: prepare-containers
 	@$(container_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
 
 container-%: create-repo prepare-containers
-	@$(container_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/container-%: /"
+	@$(container_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 containers-only:
 	@$(container_builder_dir)containers/build.sh | sed "s/^/containers: /"
@@ -62,7 +62,7 @@ list-deployers: prepare-deployers
 	@$(deployers_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/deployer-/'
 
 deployer-%: create-repo prepare-deployers
-	@$(deployers_builder_dir)containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/deployer-%: /"
+	@$(deployers_builder_dir)containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 deployers-only:
 	@$(deployers_builder_dir)containers/build.sh | sed "s/^/deployers: /"
