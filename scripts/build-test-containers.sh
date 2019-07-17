@@ -19,15 +19,13 @@ openstack_versions=${OPENSTACK_VERSIONS:-"ocata,queens,rocky"}
 pushd ${REPODIR}
 
 echo Build base test container
-if ! ./build-container.sh base 2>&1 | tee ./contrail-test-base.log \
+if ! ./build-container.sh base \
         --registry-server ${CONTRAIL_REGISTRY} \
         --tag ${CONTRAIL_CONTAINER_TAG} ; then
   popd
   echo Failed to build base test container
   exit 1
 fi
-# remove log if success
-rm -f ./contrail-test-base.log
 
 declare -A jobs
 for openstack_version in ${openstack_versions//,/ } ; do
@@ -45,7 +43,7 @@ for openstack_version in ${openstack_versions//,/ } ; do
         --sku ${openstack_version} \
         --contrail-repo ${CONTRAIL_REPOSITORY} \
         ${openstack_repo_option} \
-        --post 2>&1 | tee ./contrail-test-${openstack_version}.log &
+        --post &
     jobs+=( [$openstack_version]=$! )
 done
 
@@ -58,9 +56,6 @@ for openstack_version in ${openstack_versions//,/ } ; do
   if ! wait ${jobs[$openstack_version]} ; then
     echo "ERROR: Faild to build test container for ${openstack_version}"
     res=1
-  else
-    # remove log if success
-    rm -f ./contrail-test-${openstack_version}.log
   fi
 done
 
