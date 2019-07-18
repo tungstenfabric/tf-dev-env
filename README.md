@@ -60,7 +60,7 @@ sudo ./startup.sh
 default. You can specify different image and/or tag using flags, e.g.
 
 1. to develop on nightly R5.0 container use: `sudo ./startup.sh -t R5.1`
-2. to develop code based on a tagged `r5.0` release, use: `sudo ./startup.sh -i opencontrail/developer-sandbox -t r5.1`
+2. to develop code based on a tagged `r5.1` release, use: `sudo ./startup.sh -i opencontrail/developer-sandbox -t r5.1`
 Also you can export BUILD_DEV_ENV=1 to explicit build of sandbox container locally if sandbox is not run yet.
 Please note - if you don't pass '-t' option (or pass it as 'latest') then latest tag for sandbox image and master branch of contrail-vnc repo will be used. If you pass something else then this tag will be used for sandbox image and contrail-vnc will be cloned by the same branch name.
 
