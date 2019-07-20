@@ -1,5 +1,6 @@
 TF_DE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TF_DE_TOP := $(abspath $(TF_DE_DIR)/../)/
+SHELL=/bin/bash -o pipefail
 
 # include RPM-building targets
 -include $(TF_DE_TOP)contrail/tools/packages/Makefile
