@@ -21,7 +21,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
     # targets can use yum and will block each other. don't run them in parallel
     make dep fetch_packages
     echo "INFO: make rpm  $(date)"
-    make rpm
+    make -j 8 rpm
 
     echo "INFO: make containers  $(date)"
     if [[ "${BUILD_TEST_CONTAINERS}" == "1" ]]; then
