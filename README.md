@@ -135,7 +135,7 @@ Set `CONTRAIL_REGISTRY` to `registry:5000` to use containers built in the previo
 
 ### Alternate build methods
 
-Instead of step 5 above (which runs `scons` inside `make`), you can use `scons` directly. The steps 1-4 are still required. 
+Instead of step 6 above (which runs `scons` inside `make`), you can use `scons` directly. The steps 1-4 are still required. 
 
 ```
 cd /root/contrail
