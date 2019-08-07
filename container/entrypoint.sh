@@ -5,6 +5,11 @@ CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 
 if [[ -d /config ]]; then
   cp -rf /config/* /
+  if [[ -d /config/etc/yum.repos.d ]]; then
+    # apply same repos for test containers
+    cp -f /config/etc/yum.repos.d/* /root/src/${CANONICAL_HOSTNAME}/Juniper/contrail-test/docker/base/
+    cp -f /config/etc/yum.repos.d/* /root/src/${CANONICAL_HOSTNAME}/Juniper/contrail-test/docker/base/
+  fi
 fi
 
 if [[ "${AUTOBUILD}" -eq 1 ]]; then
