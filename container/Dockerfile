@@ -26,6 +26,7 @@ COPY *.repo /etc/yum.repos.d/
 # Install basic packages
 RUN yum -y install epel-release \
 &&  yum -y update \
+&&  yum -y install python36 || yum -y install python34 \
 &&  yum -y install \
     autoconf \
     automake \
@@ -40,7 +41,6 @@ RUN yum -y install epel-release \
     make \
     python-devel \
     python-pip \
-    python36 \
     rpm-build \
     vim \
     wget \
