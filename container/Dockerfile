@@ -36,7 +36,6 @@ RUN yum -y install epel-release \
     gcc \
     gdb \
     git \
-    kernel \
     libtool \
     make \
     python-devel \
