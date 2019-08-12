@@ -24,6 +24,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
     make setup
 
     echo "INFO: Check variables used by makefile"
+    uname -a
     make info
     echo "INFO: make dep fetch_packages  $(date)"
     # targets can use yum and will block each other. don't run them in parallel
