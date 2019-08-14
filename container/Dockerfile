@@ -24,7 +24,6 @@ RUN mkdir -p $CONTRAIL && \
     yum -y install epel-release && \
     yum -y update && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
-    yum -y install kernel-3.10.0-957.21.3.el7 kernel-devel-3.10.0-957.21.3.el7 && \
     yum -y install autoconf automake createrepo docker docker-python gcc gdb git libtool make python-devel python-pip rpm-build vim wget yum-utils && \
     yum clean all && \
     rm -rf /var/cache/yum && \
