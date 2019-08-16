@@ -32,7 +32,12 @@ For mac:          https://docs.docker.com/docker-for-mac/install/#download-docke
 ```
 For CentOS/RHEL/Fedora linux host:
 ```
-yum install docker
+Setup the repo:
+sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+Install Docker CE:
+yum install docker-ce
 ```
 For Ubuntu linux host:
 ```
