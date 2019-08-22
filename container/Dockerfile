@@ -1,4 +1,4 @@
-FROM centos:7.5.1804
+FROM centos:7
 
 ENV USER root
 ENV HOME /root
