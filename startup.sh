@@ -138,7 +138,7 @@ echo '[environment setup]'
 if [[ -n "${SRC_ROOT}" ]]; then
   rpm_source=${SRC_ROOT}/RPMS
   mkdir -p ${rpm_source}
-  options="${options} -v ${SRC_ROOT}:/root/contrail -e SRC_MOUNTED=1"
+  options="${options} -v ${SRC_ROOT}:/root/contrail -e SRC_MOUNTED=1 -e CONTRAIL_SOURCE=$SRC_ROOT"
 elif [[ "$own_vm" -eq 0 ]]; then
   rpm_source=$(docker volume create --name tf-dev-env-rpm-volume)
   options="${options} -v ${rpm_source}:/root/contrail/RPMS"
