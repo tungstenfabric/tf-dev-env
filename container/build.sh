@@ -1,9 +1,12 @@
 #!/bin/bash -e
 BRANCH=master
 IMAGE=opencontrail/developer-sandbox
+LINUX_DISTR=centos
 
-while getopts ":b:i:" opt; do
+while getopts ":d:b:i:" opt; do
     case $opt in
+      d) LIUX_DISTR=$OPTARG
+         ;;
       b) BRANCH=$OPTARG
          ;;
       i) IMAGE=$OPTARG
@@ -22,7 +25,7 @@ echo Building tf-dev-env image: ${IMAGE}:${TAG} | tee $logfile
 cp ../tpc.repo.template tpc.repo
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
-build_opts+=" --build-arg BRANCH=${BRANCH} --no-cache --tag ${IMAGE}:${TAG} ."
+build_opts+=" --build-arg BRANCH=${BRANCH} --no-cache --tag ${IMAGE}:${TAG} -f Dockerfile.${LINUX_DISTR} ."
 
 if [[ "${CONTRAIL_KEEP_LOG_FILES,,}" != 'true' ]] ; then
    docker build $build_opts 2>&1 | tee -a $logfile
