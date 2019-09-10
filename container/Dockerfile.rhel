@@ -1,4 +1,4 @@
-FROM centos:7
+FROM registry.redhat.io/rhel7:latest
 
 ENV USER root
 ENV HOME /root
@@ -21,10 +21,12 @@ RUN mkdir -p $CONTRAIL && \
     curl -s https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/repo && \
     chmod a+x /usr/bin/repo && \
     cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
-    yum -y install epel-release && \
+    yum-config-manager --enable rhel-7-server-optional-rpms && \
+    yum-config-manager --enable rhel-7-server-extras-rpms && \
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     yum -y update && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
-    yum -y install autoconf automake createrepo docker docker-python gcc gdb git libtool make python-devel python-pip rpm-build vim wget yum-utils && \
+    yum -y install autoconf automake createrepo docker docker-python gcc gdb git libtool make python-devel python-pip python-lxml rpm-build vim wget yum-utils && \
     yum clean all && \
     rm -rf /var/cache/yum && \
     echo "INFO: Initializing repo from $BRANCH" && \
@@ -33,6 +35,6 @@ RUN mkdir -p $CONTRAIL && \
     echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc && \
     echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc
 
-ADD Dockerfile entrypoint.sh $HOME/
+ADD entrypoint.sh $HOME/
 
 ENTRYPOINT ["/root/entrypoint.sh"]

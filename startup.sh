@@ -71,6 +71,13 @@ function install_docker() {
   yum install -y docker-ce docker-ce-cli containerd.io
 }
 
+function install_docker_rhel() {
+  subscription-manager repos --enable=rhel-7-server-rpms
+  subscription-manager repos --enable=rhel-7-server-extras-rpms
+  subscription-manager repos --enable=rhel-7-server-optional-rpms
+  yum install -y docker device-mapper-libs device-mapper-event-libs
+}
+
 function check_docker_value() {
   local name=$1
   local value=$2
@@ -89,6 +96,10 @@ if [ x"$distro" == x"centos" ]; then
   systemctl start docker
 #  grep 'dm.basesize=20G' /etc/sysconfig/docker-storage || sed -i 's/DOCKER_STORAGE_OPTIONS=/DOCKER_STORAGE_OPTIONS=--storage-opt dm.basesize=20G /g' /etc/sysconfig/docker-storage
 #  systemctl restart docker
+elif [ x"$distro" == x"rhel" ]; then
+  which docker || install_docker_rhel
+  systemctl start docker
+  systemctl stop firewalld || true
 elif [ x"$distro" == x"ubuntu" ]; then
   which docker || apt install -y docker.io
 fi
@@ -158,7 +169,7 @@ if ! is_created "tf-dev-env-rpm-repo"; then
   docker run -t --name tf-dev-env-rpm-repo \
     -d -p 6667:80 \
     -v ${rpm_source}:/var/www/localhost/htdocs \
-    sebp/lighttpd >/dev/null
+    m4rcu5/lighttpd >/dev/null
   echo tf-dev-env-rpm-repo created.
 else
   if is_up "tf-dev-env-rpm-repo"; then
@@ -237,7 +248,7 @@ if [[ "$own_vm" == '0' ]]; then
         cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
       fi
       cd ${scriptdir}/container
-      ./build.sh -i ${IMAGE} -b ${VNC_BRANCH} ${DEVENVTAG}
+      ./build.sh -i ${IMAGE} -b ${VNC_BRANCH} -d ${distro} ${DEVENVTAG}
       cd ${scriptdir}
     fi
 
