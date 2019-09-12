@@ -1,11 +1,10 @@
 #!/bin/bash -e
 BRANCH=master
-IMAGE=opencontrail/developer-sandbox
 LINUX_DISTR=centos
 
 while getopts ":d:b:i:" opt; do
     case $opt in
-      d) LIUX_DISTR=$OPTARG
+      d) LINUX_DISTR=$OPTARG
          ;;
       b) BRANCH=$OPTARG
          ;;
@@ -17,6 +16,7 @@ done
 
 shift $((OPTIND-1))
 
+IMAGE="{${IMAGE:-opencontrail/developer-sandbox-${LINUX_DISTR}}"
 TAG=${1:-latest}
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
