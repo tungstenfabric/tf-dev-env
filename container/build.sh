@@ -16,7 +16,7 @@ done
 
 shift $((OPTIND-1))
 
-IMAGE="{${IMAGE:-opencontrail/developer-sandbox-${LINUX_DISTR}}"
+IMAGE="${IMAGE:-opencontrail/developer-sandbox-${LINUX_DISTR}}"
 TAG=${1:-latest}
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 

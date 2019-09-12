@@ -8,7 +8,7 @@ cd "$scriptdir"
 setup_only=0
 own_vm=0
 distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
-IMAGE=${IMAGE:-"opencontrailnightly/developer-sandbox-${distro}"}
+IMAGE=${IMAGE:-"opencontrailnightly/developer-sandbox-$distro"}
 DEVENVTAG=${DEVENVTAG:-"latest"}
 options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
 log_path=""
