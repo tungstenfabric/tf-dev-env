@@ -25,6 +25,7 @@ REGISTRY_IP=${REGISTRY_IP:-}
 BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-0}
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 SITE_MIRROR=${SITE_MIRROR:-}
+CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
 
 while getopts ":t:i:sb" opt; do
   case $opt in
@@ -146,21 +147,20 @@ test "$setup_only" -eq 1 && exit
 
 echo
 echo '[environment setup]'
+contrail_dir="${SRC_ROOT:-/root/contrail}"
+options="${options} -v ${contrail_dir}:/root/contrail"
 if [[ -n "${SRC_ROOT}" ]]; then
-  rpm_source=${SRC_ROOT}/RPMS
-  mkdir -p ${rpm_source}
-  options="${options} -v ${SRC_ROOT}:/root/contrail -e SRC_MOUNTED=1 -e CONTRAIL_SOURCE=$SRC_ROOT"
-elif [[ "$own_vm" -eq 0 ]]; then
-  rpm_source=$(docker volume create --name tf-dev-env-rpm-volume)
-  options="${options} -v ${rpm_source}:/root/contrail/RPMS"
-else
-  contrail_dir=$(realpath ${scriptdir}/../contrail)
-  rpm_source=${contrail_dir}/RPMS
-  mkdir -p ${rpm_source}
-  options="${options} -v ${rpm_source}:/root/contrail/RPMS"
+  options="${options} -e SRC_MOUNTED=1 -e CONTRAIL_SOURCE=$SRC_ROOT"
+elif [[ ! "$own_vm" -eq 0 ]]; then
+   contrail_dir=$(realpath ${scriptdir}/../contrail)
 fi
-echo "${rpm_source} created."
-
+options="${options} -v ${contrail_dir}:/root/contrail"
+if [ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]; then
+  options="${options} -e CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}"
+fi
+rpm_source="${contrail_dir}/RPMS"
+mkdir -p ${rpm_source}
+echo "${rpm_source} created." 
 if [[ -n "${EXTERNAL_REPOS}" ]]; then
   options="${options} -v ${EXTERNAL_REPOS}:/root/src"
 fi
