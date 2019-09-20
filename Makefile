@@ -9,6 +9,11 @@ REPODIR=$(TF_DE_TOP)contrail
 CONTAINER_BUILDER_DIR=$(REPODIR)/contrail-container-builder
 CONTRAIL_DEPLOYERS_DIR=$(REPODIR)/contrail-deployers-containers
 CONTRAIL_TEST_DIR=$(REPODIR)/third_party/contrail-test
+export REPODIR
+export CONTRAIL_DEPLOYERS_DIR
+export CONTRAIL_TEST_DIR
+export CONTAINER_BUILDER_DIR
+
 ansible_playbook=ansible-playbook -i inventory --extra-vars @vars.yaml --extra-vars @dev_config.yaml
 
 all: dep rpm containers
