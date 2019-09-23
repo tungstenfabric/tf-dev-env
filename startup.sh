@@ -161,9 +161,7 @@ else
 fi
 echo "${rpm_source} created."
 
-if [[ -n "${EXTERNAL_REPOS}" ]]; then
-  options="${options} -v ${EXTERNAL_REPOS}:/root/src"
-fi
+options="${options} -v /root/src:/root/src"
 
 if ! is_created "tf-dev-env-rpm-repo"; then
   docker run -t --name tf-dev-env-rpm-repo \
