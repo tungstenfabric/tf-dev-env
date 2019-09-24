@@ -1,11 +1,13 @@
 #!/bin/bash -e
 
-REPODIR=/root/src/${CANONICAL_HOSTNAME}/Juniper/contrail-deployers-containers
+REPODIR=${REPODIR:-"/root/src/${CANONICAL_HOSTNAME}/Juniper"}
+
+CONTRAIL_DEPLOYERS_DIR=${CONTRAIL_DEPLOYERS_DIR:-"${REPODIR}/contrail-deployers-containers"}
 BRANCH=${SB_BRANCH:-master}
 
-[ -d ${REPODIR} ] || git clone https://github.com/Juniper/contrail-deployers-containers -b ${BRANCH}  ${REPODIR}
+[ -d ${CONTRAIL_DEPLOYERS_DIR} ] || git clone https://github.com/Juniper/contrail-deployers-containers -b ${BRANCH}  ${CONTRAIL_DEPLOYERS_DIR}
 for file in tpc.repo.template common.env ; do
   if [ -f $file ]; then
-    cp $file ${REPODIR}
+    cp $file ${CONTRAIL_DEPLOYERS_DIR}
   fi
 done

@@ -1,8 +1,9 @@
 #!/bin/bash
 
-REPODIR=${test_containers_builder_dir:-"/root/src/${CANONICAL_HOSTNAME}/Juniper/contrail-test"}
+REPODIR=${REPODIR:-"/root/src/${CANONICAL_HOSTNAME}/Juniper"}
 
-source ${REPODIR}/common.env
+CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/contrail-test"}
+source ${CONTRAIL_TEST_DIR}/common.env
 
 if [[ -z "${CONTRAIL_REGISTRY}" ]]; then
     echo CONTRAIL_REGISTRY is not set && exit 1
@@ -17,7 +18,7 @@ CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"${CONTRAIL_VERSION}"}
 openstack_versions=${OPENSTACK_VERSIONS:-"ocata,queens,rocky"}
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
-pushd ${REPODIR}
+pushd ${CONTRAIL_TEST_DIR}
 
 function append_log() {
   local logfile=$1

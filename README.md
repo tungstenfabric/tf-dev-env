@@ -20,8 +20,8 @@ Since dev-env uses generally available TF components, please refer to following 
 
 There are 2 official sources of containers for dev-env:
 
-1. Released images on docker hub [opencontrail](https://hub.docker.com/r/opencontrail/developer-sandbox/), tagged with released version.
-2. Nightly images on docker hub [opencontrailnightly](https://hub.docker.com/r/opencontrailnightly/developer-sandbox/), tagged with corresponding development branch.
+1. Released images on docker hub [opencontrail](https://hub.docker.com/r/opencontrail/developer-sandbox-centos/), tagged with released version.
+2. Nightly images on docker hub [opencontrailnightly](https://hub.docker.com/r/opencontrailnightly/developer-sandbox-centos/), tagged with corresponding development branch.
    *Note:* tag `latest` points to `master` branch.
 
 You can also use your own image, built using `container/build.sh` script.
@@ -61,7 +61,7 @@ cd tf-dev-env
 sudo ./startup.sh
 ```
 
-**Note:** This command runs container `opencontrailnightly/developer-sandbox:master` from [opencontrailnightly docker hub](https://hub.docker.com/r/opencontrailnightly/developer-sandbox/) by
+**Note:** This command runs container `opencontrailnightly/developer-sandbox-centos:master` from [opencontrailnightly docker hub](https://hub.docker.com/r/opencontrailnightly/developer-sandbox/) by
 default. You can specify different image and/or tag using flags, e.g.
 
 1. to develop on nightly R5.0 container use: `sudo ./startup.sh -t R5.1`
