@@ -19,7 +19,7 @@ AUTOBUILD=${AUTOBUILD:-0}
 BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-0}
 SRC_ROOT=${SRC_ROOT:-}
-EXTERNAL_REPOS=${EXTERNAL_REPOS:-}
+EXTERNAL_REPOS=${EXTERNAL_REPOS:-/root/src}
 REGISTRY_PORT=${REGISTRY_PORT:-6666}
 REGISTRY_IP=${REGISTRY_IP:-}
 BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-0}
@@ -160,11 +160,8 @@ if [ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]; then
 fi
 rpm_source="${contrail_dir}/RPMS"
 mkdir -p ${rpm_source}
-echo "${rpm_source} created." 
-if [[ -n "${EXTERNAL_REPOS}" ]]; then
-  options="${options} -v ${EXTERNAL_REPOS}:/root/src"
-fi
-
+echo "${rpm_source} created."
+options="${options} -v ${EXTERNAL_REPOS}:${EXTERNAL_REPOS}"
 if ! is_created "tf-dev-env-rpm-repo"; then
   docker run -t --name tf-dev-env-rpm-repo \
     -d -p 6667:80 \
