@@ -74,9 +74,9 @@ function install_docker() {
 }
 
 function install_docker_rhel() {
-  subscription-manager repos --enable=rhel-7-server-rpms
-  subscription-manager repos --enable=rhel-7-server-extras-rpms
-  subscription-manager repos --enable=rhel-7-server-optional-rpms
+  subscription-manager repos \
+    --enable rhel-7-server-extras-rpms \
+    --enable rhel-7-server-optional-rpms
   yum install -y docker device-mapper-libs device-mapper-event-libs
 }
 
