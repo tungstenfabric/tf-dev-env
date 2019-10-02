@@ -31,6 +31,7 @@ REGISTRY_IP=${REGISTRY_IP:-}
 BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-0}
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 SITE_MIRROR=${SITE_MIRROR:-}
+CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
 
 while getopts ":t:i:sb" opt; do
   case $opt in
@@ -78,16 +79,6 @@ function install_docker() {
   yum install -y docker-ce docker-ce-cli containerd.io
 }
 
-<<<<<<< HEAD
-function install_docker_rhel() {
-  subscription-manager repos \
-    --enable rhel-7-server-extras-rpms \
-    --enable rhel-7-server-optional-rpms
-  yum install -y docker device-mapper-libs device-mapper-event-libs
-}
-
-=======
->>>>>>> Version to build and run RHEL8 containers
 function check_docker_value() {
   local name=$1
   local value=$2
@@ -200,19 +191,7 @@ else
   mkdir -p ${rpm_source}
   options="${options} -v ${rpm_source}:/root/contrail/RPMS"
 fi
-<<<<<<< HEAD
-rpm_source="${contrail_dir}/RPMS"
-mkdir -p ${rpm_source}
-echo "${rpm_source} created."
-options="${options} -v ${EXTERNAL_REPOS}:${EXTERNAL_REPOS}"
-=======
-echo "${rpm_source} created."
 
-if [[ -n "${EXTERNAL_REPOS}" ]]; then
-  options="${options} -v ${EXTERNAL_REPOS}:/root/src"
-fi
-
->>>>>>> Version to build and run RHEL8 containers
 if ! is_created "tf-dev-env-rpm-repo"; then
   docker run -t --name tf-dev-env-rpm-repo \
     -d -p 6667:80 \

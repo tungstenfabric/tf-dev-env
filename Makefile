@@ -5,21 +5,12 @@ SHELL=/bin/bash -o pipefail
 # include RPM-building targets
 -include $(TF_DE_TOP)contrail/tools/packages/Makefile
 
-<<<<<<< HEAD
 REPODIR=$(TF_DE_TOP)contrail
 CONTAINER_BUILDER_DIR=$(REPODIR)/contrail-container-builder
 CONTRAIL_DEPLOYERS_DIR=$(REPODIR)/contrail-deployers-containers
 CONTRAIL_TEST_DIR=$(REPODIR)/third_party/contrail-test
-export REPODIR
-export CONTRAIL_DEPLOYERS_DIR
-export CONTRAIL_TEST_DIR
-export CONTAINER_BUILDER_DIR
 
-=======
 repos_dir=$(TF_DE_TOP)src/${CANONICAL_HOSTNAME}/Juniper/
-container_builder_dir=$(repos_dir)contrail-container-builder/
-test_containers_builder_dir=$(repos_dir)contrail-test/
->>>>>>> Version to build and run RHEL8 containers
 ansible_playbook=ansible-playbook -i inventory --extra-vars @vars.yaml --extra-vars @dev_config.yaml
 
 all: dep rpm containers
@@ -50,41 +41,40 @@ prepare-containers:
 	@$(TF_DE_DIR)scripts/prepare-containers.sh
 
 list-containers: prepare-containers
-	@$(container_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
+	@$(CONTAINER_BUILDER_DIR)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
 
 container-%: create-repo prepare-containers
-	@$(container_builder_dir)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
+	@$(CONTAINER_BUILDER_DIR)containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 containers-only:
-	@$(container_builder_dir)containers/build.sh | sed "s/^/containers: /"
+	@$(CONTAINER_BUILDER_DIR)containers/build.sh | sed "s/^/containers: /"
 
 containers: create-repo prepare-containers containers-only
 
 clean-containers:
-	@test -d $(container_builder_dir) && rm -rf $(container_builder_dir) || true
+	@test -d $(CONTAINER_BUILDER_DIR) && rm -rf $(CONTAINER_BUILDER_DIR) || true
 
 
 ##############################################################################
 # Container deployers targets
-deployers_builder_dir=$(repos_dir)contrail-deployers-containers/
 
 prepare-deployers:
 	@$(TF_DE_DIR)scripts/prepare-deployers.sh
 
 list-deployers: prepare-deployers
-	@$(deployers_builder_dir)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/deployer-/'
+	@$(CONTRAIL_DEPLOYERS_DIR)containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/deployer-/'
 
 deployer-%: create-repo prepare-deployers
-	@$(deployers_builder_dir)containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
+	@$(CONTRAIL_DEPLOYERS_DIR)containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 deployers-only:
-	@$(deployers_builder_dir)containers/build.sh | sed "s/^/deployers: /"
+		@$(CONTRAIL_DEPLOYERS_DIR)containers/build.sh | sed "s/^/deployers: /"
 
 deployers: create-repo prepare-deployers
 	@$(MAKE) -C $(TF_DE_DIR) deployers-only
 
 clean-deployers:
-	@test -d $(deployers_builder_dir) && rm -rf $(deployers_builder_dir) || true
+	@test -d $(CONTRAIL_DEPLOYERS_DIR) && rm -rf $(CONTRAIL_DEPLOYERS_DIR) || true
 
 ##############################################################################
 # Test container targets
