@@ -6,7 +6,6 @@ set -o errexit
 scriptdir=$(realpath $(dirname "$0"))
 cd "$scriptdir"
 setup_only=0
-own_vm=0
 distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
 IMAGE=${IMAGE:-"opencontrailnightly/developer-sandbox-$distro"}
 DEVENVTAG=${DEVENVTAG:-"latest"}
@@ -27,7 +26,7 @@ CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 SITE_MIRROR=${SITE_MIRROR:-}
 CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
 
-while getopts ":t:i:sb" opt; do
+while getopts ":t:i:s" opt; do
   case $opt in
     i)
       IMAGE=$OPTARG
@@ -37,9 +36,6 @@ while getopts ":t:i:sb" opt; do
       ;;
     s)
       setup_only=1
-      ;;
-    b)
-      own_vm=1
       ;;
     \?)
       echo "Invalid option: $opt"
@@ -147,12 +143,10 @@ test "$setup_only" -eq 1 && exit
 
 echo
 echo '[environment setup]'
-contrail_dir="${SRC_ROOT:-/root/contrail}"
+contrail_dir="${SRC_ROOT:-${HOME}/contrail}"
 options="${options} -v ${contrail_dir}:/root/contrail"
 if [[ -n "${SRC_ROOT}" ]]; then
   options="${options} -e SRC_MOUNTED=1 -e CONTRAIL_SOURCE=$SRC_ROOT"
-elif [[ ! "$own_vm" -eq 0 ]]; then
-   contrail_dir=$(realpath ${scriptdir}/../contrail)
 fi
 options="${options} -v ${contrail_dir}:/root/contrail"
 if [ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]; then
@@ -211,79 +205,86 @@ cat common.env
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/contrail-registry/${registry_ip}/g" -e "s/6666/${REGISTRY_PORT}/g" vars.yaml.tmpl > vars.yaml
 sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" dev_config.yaml.tmpl > dev_config.yaml
 
-if [[ "$own_vm" == '0' ]]; then
-  if ! is_created "tf-developer-sandbox"; then
-    if [[ "$BUILD_TEST_CONTAINERS" == "1" ]]; then
-      options="${options} -e BUILD_TEST_CONTAINERS=1"
-    fi
+echo "INFO: Prepare repos"
+if [ ! -e ${contrail_dir}/repo ] ; then
+  echo "INFO: Download repo tool"
+  curl -s https://storage.googleapis.com/git-repo-downloads/repo > ${contrail_dir}/repo
+  chmod a+x ${contrail_dir}/repo
+  ${contrail_dir}/repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $VNC_BRANCH
+fi  
 
-    if [[ -n "${CANONICAL_HOSTNAME}" ]]; then
-      options="${options} -e CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME}"
-    fi
+if ! is_created "tf-developer-sandbox"; then
+  if [[ "$BUILD_TEST_CONTAINERS" == "1" ]]; then
+    options="${options} -e BUILD_TEST_CONTAINERS=1"
+  fi
 
-    if [[ -n "${SITE_MIRROR}" ]]; then
-      options="${options} -e SITE_MIRROR=${SITE_MIRROR}"
-    fi
+  if [[ -n "${CANONICAL_HOSTNAME}" ]]; then
+    options="${options} -e CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME}"
+  fi
 
-    if [[ "${AUTOBUILD}" == '1' ]]; then
-      options="${options} -t -e AUTOBUILD=1"
-      timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
-      log_path="/${HOME}/build_${timestamp}.log"
-    else
-      options="${options} -itd"
-    fi
+  if [[ -n "${SITE_MIRROR}" ]]; then
+    options="${options} -e SITE_MIRROR=${SITE_MIRROR}"
+  fi
 
-    if [[ "$BUILD_DEV_ENV" != '1' ]] && ! docker image inspect --format='{{.Id}}' ${IMAGE}:${DEVENVTAG} && ! docker pull ${IMAGE}:${DEVENVTAG}; then
-      if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
-        exit 1
-      fi
-      echo Failed to pull ${IMAGE}:${DEVENVTAG}. Trying to build image.
-      BUILD_DEV_ENV=1
-    fi
-
-    if [[ "$BUILD_DEV_ENV" == '1' ]]; then
-      echo Build ${IMAGE}:${DEVENVTAG} docker image
-      if [[ -d ${scriptdir}/config/etc/yum.repos.d ]]; then
-        cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
-      fi
-      cd ${scriptdir}/container
-      ./build.sh -i ${IMAGE} -b ${VNC_BRANCH} -d ${distro} ${DEVENVTAG}
-      cd ${scriptdir}
-    fi
-
-    volumes="-v /var/run/docker.sock:/var/run/docker.sock"
-    volumes+=" -v ${scriptdir}:/root/tf-dev-env"
-    volumes+=" -v ${scriptdir}/container/entrypoint.sh:/root/entrypoint.sh"
-    if [[ -d "${scriptdir}/config" ]]; then
-      volumes+=" -v ${scriptdir}/config:/config"
-    fi
-    start_sandbox_cmd="docker run --privileged --name tf-developer-sandbox \
-      -w /root ${options} \
-      -e CONTRAIL_DEV_ENV=/root/tf-dev-env \
-      $volumes \
-      ${IMAGE}:${DEVENVTAG}"
-
-    if [[ -z "${log_path}" ]]; then
-      eval $start_sandbox_cmd &>/dev/null
-    else
-      eval $start_sandbox_cmd |& tee ${log_path}
-    fi
-
-    if [[ "${AUTOBUILD}" == '1' ]]; then
-      exit_code=$(docker inspect tf-developer-sandbox --format='{{.State.ExitCode}}')
-      echo Build has compeleted with exit code $exit_code
-      exit $exit_code
-    else
-      echo tf-developer-sandbox created.
-    fi
+  if [[ "${AUTOBUILD}" == '1' ]]; then
+    options="${options} -t -e AUTOBUILD=1"
+    timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
+    log_path="/${HOME}/build_${timestamp}.log"
   else
-    if is_up "tf-developer-sandbox"; then
-      echo "tf-developer-sandbox already running."
-    else
-      echo $(docker start tf-developer-sandbox) started.
+    options="${options} -itd"
+  fi
+
+  if [[ "$BUILD_DEV_ENV" != '1' ]] && ! docker image inspect --format='{{.Id}}' ${IMAGE}:${DEVENVTAG} && ! docker pull ${IMAGE}:${DEVENVTAG}; then
+    if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
+      exit 1
     fi
+    echo Failed to pull ${IMAGE}:${DEVENVTAG}. Trying to build image.
+    BUILD_DEV_ENV=1
+  fi
+
+  if [[ "$BUILD_DEV_ENV" == '1' ]]; then
+    echo Build ${IMAGE}:${DEVENVTAG} docker image
+    if [[ -d ${scriptdir}/config/etc/yum.repos.d ]]; then
+      cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
+    fi
+    cd ${scriptdir}/container
+    ./build.sh -i ${IMAGE} -d ${distro} ${DEVENVTAG}
+    cd ${scriptdir}
+  fi
+
+  volumes="-v /var/run/docker.sock:/var/run/docker.sock"
+  volumes+=" -v ${scriptdir}:/root/tf-dev-env"
+  volumes+=" -v ${scriptdir}/container/entrypoint.sh:/root/entrypoint.sh"
+  if [[ -d "${scriptdir}/config" ]]; then
+    volumes+=" -v ${scriptdir}/config:/config"
+  fi
+  start_sandbox_cmd="docker run --privileged --name tf-developer-sandbox \
+    -w /root ${options} \
+    -e CONTRAIL_DEV_ENV=/root/tf-dev-env \
+    $volumes \
+    ${IMAGE}:${DEVENVTAG}"
+
+  if [[ -z "${log_path}" ]]; then
+    eval $start_sandbox_cmd &>/dev/null
+  else
+    eval $start_sandbox_cmd |& tee ${log_path}
+  fi
+
+  if [[ "${AUTOBUILD}" == '1' ]]; then
+    exit_code=$(docker inspect tf-developer-sandbox --format='{{.State.ExitCode}}')
+    echo Build has compeleted with exit code $exit_code
+    exit $exit_code
+  else
+    echo tf-developer-sandbox created.
+  fi
+else
+  if is_up "tf-developer-sandbox"; then
+    echo "tf-developer-sandbox already running."
+  else
+    echo $(docker start tf-developer-sandbox) started.
   fi
 fi
+
 
 echo
 echo '[READY]'

@@ -27,16 +27,16 @@ setup:
 	@yum -q reinstall -y python-setuptools
 
 sync:
-	@cd $(TF_DE_TOP)contrail && repo sync -q --no-clone-bundle -j $(shell nproc)
+	@cd $(REPODIR) && ./repo sync -q --no-clone-bundle -j $(shell nproc)
 
 ##############################################################################
 # RPM repo targets
 create-repo:
-	@mkdir -p $(TF_DE_TOP)contrail/RPMS
-	@createrepo -C $(TF_DE_TOP)contrail/RPMS/
+	@mkdir -p $(REPODIR)/RPMS
+	@createrepo -C $(REPODIR)/RPMS/
 
 clean-repo:
-	@test -d $(TF_DE_TOP)contrail/RPMS/repodata && rm -rf $(TF_DE_TOP)contrail/RPMS/repodata || true
+	@test -d $(REPODIR)/RPMS/repodata && rm -rf $(REPODIR)/RPMS/repodata || true
 
 ##############################################################################
 # Container builder targets
@@ -113,7 +113,7 @@ build deploy:
 ##############################################################################
 # Other clean targets
 clean-rpm:
-	@test -d $(TF_DE_TOP)contrail/RPMS && rm -rf $(TF_DE_TOP)contrail/RPMS/* || true
+	@test -d $(REPODIR)/RPMS && rm -rf $(REPODIR)/RPMS/* || true
 
 clean: clean-deployers clean-containers clean-repo clean-rpm
 	@true

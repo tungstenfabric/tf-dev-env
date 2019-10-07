@@ -209,16 +209,6 @@ Environment variables **REGISTRY_IP** and **REGISTRY_PORT** stores external dock
 
 There is an option to use `tf-developer-sandbox` container just to build TF rpms and containers. **AUTOBUILD** environment variable manages this behaviour. `tf-developer-sandbox` container builds and stores all artifacts and then exits if set **AUTOBUILD** to 1. So run TF build again just start `tf-developer-sandbox` with the command `docker start -i tf-developer-sandbox`.
 
-## Bring-your-own-VM (experimental)
-
-*Note:* only RedHat 7 and CentOS 7 are supported at this time!
-
-1. Clone this repository to a directory on a VM.
-2. Run `vm-dev-env/init.sh` (you might be asked for your password as some steps require the use of sudo).
-  a. You can also run `vm-dev-env/init.sh -n` if you don't want to clone work directory on a VM. Then you have to mount sandbox to directory named `contrail` next to `tf-dev-env`.
-3. Run `make fetch_packages` to pull dependencies to `contrail/third_party`
-4. Run `sudo ./startup.sh -b` to start required containers.
-4. You can use the Makefile targets described above to build contrail.
 
 [Slack]: https://tungstenfabric.slack.com/messages/C0DQ23SJF/
 [Google Group]: https://groups.google.com/forum/#!forum/tungsten-dev
