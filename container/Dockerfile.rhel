@@ -17,8 +17,7 @@ WORKDIR $CONTRAIL
 # Inject repositories that we might need
 COPY *.repo /etc/yum.repos.d/
 
-RUN mkdir -p $CONTRAIL && \
-    curl -s https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/repo && \
+RUN curl -s https://storage.googleapis.com/git-repo-downloads/repo > /usr/bin/repo && \
     chmod a+x /usr/bin/repo && \
     cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
@@ -29,8 +28,6 @@ RUN mkdir -p $CONTRAIL && \
     yum -y install autoconf automake createrepo docker docker-python gcc gdb git libtool make python-devel  python-lxml rpm-build vim wget yum-utils && \
     yum clean all && \
     rm -rf /var/cache/yum && \
-    echo "INFO: Initializing repo from $BRANCH" && \
-    repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $BRANCH && \
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
     python get-pip.py && \
     pip install --retries=10 --timeout=200 --upgrade tox geventhttpclient && \

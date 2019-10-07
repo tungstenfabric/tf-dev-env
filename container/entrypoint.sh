@@ -12,6 +12,19 @@ if [[ -d /config ]]; then
   fi
 fi
 
+if [[ "${SRC_MOUNTED}" != "1" ]]; then
+    cd $CONTRAIL
+    if [ ! -e .repo ] ; then
+        echo "INFO: Initializing repo from $BRANCH"
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        git config --global color.ui false
+        repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $BRANCH
+    else
+        echo "INFO: Repo from $BRANCH is already initialized"
+    fi
+fi
+
 if [[ "${AUTOBUILD}" -eq 1 ]]; then
     cd $CONTRAIL_DEV_ENV
 
