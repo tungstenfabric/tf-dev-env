@@ -18,6 +18,7 @@ COPY *.repo /etc/yum.repos.d/
 
 RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum -y install epel-release && \
+    yum -y remove ibrdkafka-devel &&\
     yum -y update && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
     yum -y install autoconf automake createrepo docker docker-python gcc gdb git libtool make python-devel python-pip python-lxml rpm-build vim wget yum-utils && \
