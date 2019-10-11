@@ -87,6 +87,9 @@ docker attach tf-developer-sandbox
 Required first steps in the container:
 
 ```
+cd /root/contrail
+./repo init -U https://github.com/Juniper/contrail-vnc
+
 cd /root/tf-dev-env
 make sync           # get latest code
 make fetch_packages # pull third_party dependencies
