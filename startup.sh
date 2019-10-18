@@ -71,7 +71,7 @@ function install_docker() {
 }
 
 function install_docker_rhel() {
-  if $ENABLE_RHSM_REPOS; then
+  if [[ "$ENABLE_RHSM_REPOS" == "0" ]]; then
     subscription-manager repos \
       --enable rhel-7-server-extras-rpms \
       --enable rhel-7-server-optional-rpms
