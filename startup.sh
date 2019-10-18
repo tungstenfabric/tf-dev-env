@@ -18,6 +18,7 @@ AUTOBUILD=${AUTOBUILD:-0}
 BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-0}
 SRC_ROOT=${SRC_ROOT:-}
+ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-1}
 EXTERNAL_REPOS=${EXTERNAL_REPOS:-/root/src}
 REGISTRY_PORT=${REGISTRY_PORT:-6666}
 REGISTRY_IP=${REGISTRY_IP:-}
@@ -70,9 +71,11 @@ function install_docker() {
 }
 
 function install_docker_rhel() {
-  subscription-manager repos \
-    --enable rhel-7-server-extras-rpms \
-    --enable rhel-7-server-optional-rpms
+  if [[ "$ENABLE_RHSM_REPOS" == "0" ]]; then
+    subscription-manager repos \
+      --enable rhel-7-server-extras-rpms \
+      --enable rhel-7-server-optional-rpms
+  fi
   yum install -y docker device-mapper-libs device-mapper-event-libs
 }
 
