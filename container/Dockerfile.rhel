@@ -13,8 +13,7 @@ ENV LANGUAGE=$LANGUAGE
 
 WORKDIR $CONTRAIL
 
-# Inject repositories that we might need
-COPY *.repo /etc/yum.repos.d/
+COPY tpc.repo /etc/yum.repos.d/
 
 RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
