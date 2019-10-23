@@ -14,7 +14,6 @@ export CONTRAIL_DEPLOYERS_DIR
 export CONTRAIL_TEST_DIR
 export CONTAINER_BUILDER_DIR
 
-ansible_playbook=ansible-playbook -i inventory --extra-vars @vars.yaml --extra-vars @dev_config.yaml
 
 all: dep rpm containers
 
@@ -90,27 +89,6 @@ test-containers: create-repo prepare-test-containers test-containers-only
 
 
 ##############################################################################
-# TODO: switch next job to using deployers
-deploy_contrail_kolla: containers
-	@$(ansible_playbook) $(REPODIR)/contrail-project-config/playbooks/kolla/centos74-provision-kolla.yaml
-
-# TODO: think about switch next job to deployers
-deploy_contrail_k8s: containers
-	@$(ansible_playbook) $(REPODIR)/contrail-project-config/playbooks/docker/centos74-systest-kubernetes.yaml
-
-
-##############################################################################
-unittests ut: build
-	@echo "$@: not implemented"
-
-sanity: deploy
-	@echo "$@: not implemented"
-
-build deploy:
-	@echo "$@: not implemented"
-
-
-##############################################################################
 # Other clean targets
 clean-rpm:
 	@test -d $(REPODIR)/RPMS && rm -rf $(REPODIR)/RPMS/* || true
@@ -122,4 +100,4 @@ dbg:
 	@echo $(TF_DE_TOP)
 	@echo $(TF_DE_DIR)
 
-.PHONY: clean-deployers clean-containers clean-repo clean-rpm setup build containers deployers createrepo unittests ut sanity all
+.PHONY: clean-deployers clean-containers clean-repo clean-rpm setup build containers deployers createrepo all

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+function is_container_created() {
+  local container=$1
+  if ! docker ps -a --format '{{ .Names }}' | grep "$container" > /dev/null 2>&1 ; then
+    return 1
+  fi
+}
+
+function is_container_up() {
+  local container=$1
+  if ! docker inspect --format '{{ .State.Status }}' $container | grep -q "running" > /dev/null 2>&1 ; then
+    return 1
+  fi
+}
+
+function ensure_root() {
+  local me=$(whoami)
+  if [ "$me" != 'root' ] ; then
+    echo "ERROR: this script requires root:"
+    echo "       sudo -E $0"
+    exit 1;
+  fi
+}
+
+function ensure_port_free() {
+  ensure_root
+  local port=$1
+  if lsof -Pn -sTCP:LISTEN -i :$port ; then
+    echo "ERROR: Port $port is already opened by another process"
+    exit 1
+  fi
+}
+
+function update_tf_devenv_profile() {
+  local file=${1:-$TF_DEVENV_PROFILE}
+  echo
+  echo '[update tf devenv configuration]'
+  mkdir -p "$(dirname $file)"
+  cat <<EOF > $file
+# build process options
+AUTOBUILD=$AUTOBUILD
+BUILD_DEV_ENV=$BUILD_DEV_ENV
+BUILD_DEV_ENV_ON_PULL_FAIL=$BUILD_DEV_ENV_ON_PULL_FAIL
+BUILD_TEST_CONTAINERS=$BUILD_TEST_CONTAINERS
+CONTRAIL_SYNC_REPOS=$CONTRAIL_SYNC_REPOS
+CONTRAIL_DEPLOY_REGISTRY=$CONTRAIL_DEPLOY_REGISTRY
+CONTRAIL_DEPLOY_RPM_REPO=$CONTRAIL_DEPLOY_RPM_REPO
+
+# contrail version & registry
+CONTRAIL_VERSION="${CONTRAIL_VERSION}"
+CONTRAIL_REGISTRY="${CONTRAIL_REGISTRY:-${REGISTRY_IP}:${REGISTRY_PORT}}"
+CONTRAIL_REPOSITORY="${CONTRAIL_REPOSITORY:-http://${RPM_REPO_IP}}"
+
+# others
+VENDOR_NAME="${VENDOR_NAME}"
+VENDOR_DOMAIN="${VENDOR_DOMAIN}"
+EOF
+  echo "tf setup profile $file"
+  cat ${file}
+}
