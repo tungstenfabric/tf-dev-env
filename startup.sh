@@ -113,10 +113,10 @@ if [ -z $registry_ip ]; then
   # use default ip as registry ip if it's not passed to the script
   registry_ip=`ip addr show dev $default_iface | awk '/inet /{print $2}' | cut -f '1' -d '/'`
 fi
-defailt_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
+default_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
 
 docker_reload=0
-if ! check_docker_value "insecure-registries" "${registry_ip}:${REGISTRY_PORT}" || ! check_docker_value mtu "$defailt_iface_mtu" || ! check_docker_value "live-restore" "true" ; then
+if ! check_docker_value "insecure-registries" "${registry_ip}:${REGISTRY_PORT}" || ! check_docker_value mtu "$default_iface_mtu" || ! check_docker_value "live-restore" "true" ; then
   python <<EOF
 import json
 data=dict()
@@ -126,7 +126,7 @@ try:
 except Exception:
   pass
 data.setdefault("insecure-registries", list()).append("${registry_ip}:${REGISTRY_PORT}")
-data["mtu"] = $defailt_iface_mtu
+data["mtu"] = $default_iface_mtu
 data["live-restore"] = True
 with open("/etc/docker/daemon.json", "w") as f:
   data = json.dump(data, f, sort_keys=True, indent=4)
@@ -134,8 +134,9 @@ EOF
   docker_reload=1
 fi
 runtime_docker_mtu=`sudo docker network inspect --format='{{index .Options "com.docker.network.driver.mtu"}}' bridge`
-if [[ "$defailt_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]]; then
-  if [ x"$distro" == x"centos" ]; then
+if [[ "$default_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]]; then
+  ifconfig docker0 mtu $default_iface_mtu || true
+  if [ x"$distro" == x"centos" -o x"$distro" == x"rhel" ]; then
     systemctl restart docker
   elif [ x"$distro" == x"ubuntu" ]; then
     service docker reload
