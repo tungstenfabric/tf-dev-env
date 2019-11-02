@@ -214,7 +214,7 @@ if [ ! -e ${contrail_dir}/repo ] ; then
   echo "INFO: Download repo tool"
   curl -s https://storage.googleapis.com/git-repo-downloads/repo > ${contrail_dir}/repo
   chmod a+x ${contrail_dir}/repo
-  ${contrail_dir}/repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $VNC_BRANCH
+  (cd ${contrail_dir} && ./repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $VNC_BRANCH)
 fi  
 
 if ! is_created "tf-developer-sandbox"; then
@@ -292,4 +292,4 @@ fi
 
 echo
 echo '[READY]'
-test "$own_vm" -eq 0 && echo "You can now connect to the sandbox container by using: $ docker attach tf-developer-sandbox"
+echo "You can now connect to the sandbox container by using: $ docker attach tf-developer-sandbox"

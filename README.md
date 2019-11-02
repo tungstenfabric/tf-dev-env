@@ -58,7 +58,7 @@ cd tf-dev-env
 
 ### 3. Execute script to start 3 containers
 ```
-sudo ./startup.sh
+sudo -E bash -c ./startup.sh
 ```
 
 **Note:** This command runs container `opencontrailnightly/developer-sandbox-centos:master` from [opencontrailnightly docker hub](https://hub.docker.com/r/opencontrailnightly/developer-sandbox/) by
