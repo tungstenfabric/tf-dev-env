@@ -212,9 +212,11 @@ sed -e "s/rpm-repo/${rpm_repo_ip}/g" -e "s/registry/${registry_ip}/g" dev_config
 echo "INFO: Prepare repos"
 if [ ! -e ${contrail_dir}/repo ] ; then
   echo "INFO: Download repo tool"
-  curl -s https://storage.googleapis.com/git-repo-downloads/repo > ${contrail_dir}/repo
-  chmod a+x ${contrail_dir}/repo
-  ${contrail_dir}/repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $VNC_BRANCH
+  pushd ${contrail_dir}
+  curl -s https://storage.googleapis.com/git-repo-downloads/repo > ./repo
+  chmod a+x ./repo
+  ./repo init --no-clone-bundle -q -u https://github.com/Juniper/contrail-vnc -b $VNC_BRANCH
+  popd
 fi  
 
 if ! is_created "tf-developer-sandbox"; then
