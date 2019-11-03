@@ -87,6 +87,15 @@ function check_docker_value() {
 
 echo tf-dev-env startup
 echo
+echo '[ensure python is present]'
+if [ x"$distro" == x"centos" ]; then
+  yum install python
+elif [ x"$distro" == x"rhel" ]; then
+  yum install python
+elif [ x"$distro" == x"ubuntu" ]; then
+  apt-get install python-minimal
+fi
+
 echo '[docker install]'
 echo $distro detected.
 if [ x"$distro" == x"centos" ]; then
@@ -254,7 +263,11 @@ if ! is_created "tf-developer-sandbox"; then
       cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
     fi
     cd ${scriptdir}/container
-    ./build.sh -i ${IMAGE} -d ${distro} ${DEVENVTAG}
+    dev_env_source=${distro}
+    if [[ "$dev_env_source" == 'ubuntu' ]]; then
+      dev_env_source='centos'
+    fi
+    ./build.sh -i ${IMAGE} -d ${dev_env_source} ${DEVENVTAG}
     cd ${scriptdir}
   fi
 
@@ -291,7 +304,6 @@ else
   fi
 fi
 
-
 echo
 echo '[READY]'
-test "$own_vm" -eq 0 && echo "You can now connect to the sandbox container by using: $ docker attach tf-developer-sandbox"
+echo "You can now connect to the sandbox container by using: $ docker attach tf-developer-sandbox"
