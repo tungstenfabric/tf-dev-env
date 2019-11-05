@@ -40,6 +40,10 @@ if [[ -z "${REGISTRY_IP}" || -z "${REGISTRY_PORT}" ]] ; then
 fi
 update_tf_devenv_profile
 
+echo "INFO: make common.env"
+cat $scriptdir/common.env.tmpl | envsubst > $scriptdir/common.env
+echo "INFO: common.env content:"
+cat $scriptdir/common.env
 
 test "$setup_only" -eq 1 && exit
 
