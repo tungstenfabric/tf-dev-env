@@ -99,6 +99,7 @@ if [[ "$default_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]
 else
   echo "no docker service restart required"
 fi
+echo "docker registry ip $registry_ip"
 
 export REGISTRY_IP=${registry_ip}
 update_tf_devenv_profile
