@@ -58,4 +58,4 @@ fi
 echo "rpm repo ip $rpm_repo_ip"
 
 export RPM_REPO_IP=$rpm_repo_ip
-update_tf_devenv_profile
+save_tf_devenv_profile

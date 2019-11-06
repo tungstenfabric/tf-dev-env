@@ -32,7 +32,7 @@ function ensure_port_free() {
   fi
 }
 
-function update_tf_devenv_profile() {
+function save_tf_devenv_profile() {
   local file=${1:-$TF_DEVENV_PROFILE}
   echo
   echo '[update tf devenv configuration]'
@@ -59,4 +59,8 @@ VENDOR_DOMAIN="${VENDOR_DOMAIN}"
 EOF
   echo "tf setup profile $file"
   cat ${file}
+}
+
+function load_tf_devenv_profile() {
+  [ -e "$TF_DEVENV_PROFILE" ] && source "$TF_DEVENV_PROFILE"
 }
