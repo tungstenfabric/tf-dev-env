@@ -102,4 +102,4 @@ fi
 echo "docker registry ip $registry_ip"
 
 export REGISTRY_IP=${registry_ip}
-update_tf_devenv_profile
+save_tf_devenv_profile

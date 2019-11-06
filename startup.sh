@@ -28,18 +28,9 @@ $scriptdir/common/setup_sources.sh
 sudo -E $scriptdir/common/setup_docker.sh
 sudo -E $scriptdir/common/setup_docker_registry.sh
 sudo -E $scriptdir/common/setup_rpm_repo.sh
-if [ -z "$RPM_REPO_IP" ] ; then
-  echo "ERROR: RPM_REPO_IP is not set.
-        Run setup_rpm_repo.sh first or provide RPM_REPO_IP env variable."
-  exit 1
-fi
-if [[ -z "${REGISTRY_IP}" || -z "${REGISTRY_PORT}" ]] ; then
-  echo "ERROR: REGISTRY_IP and/or REGISTRY_PORT is not set.
-        Run setup_docker.sh and setup_docker_registry.sh first or provide them manually via environment."
-  exit 1
-fi
-update_tf_devenv_profile
+load_tf_devenv_profile
 
+echo
 echo "INFO: make common.env"
 cat $scriptdir/common.env.tmpl | envsubst > $scriptdir/common.env
 echo "INFO: common.env content:"
