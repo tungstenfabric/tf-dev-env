@@ -5,7 +5,7 @@ set -o nounset
 set -o errexit
 
 # working environment 
-export WORKSPACE=${WORKSPACE:-$(pwd)}
+export WORKSPACE=${WORKSPACE:-$HOME}
 export TF_CONFIG_DIR="${WORKSPACE}/.tf"
 export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 
@@ -46,6 +46,6 @@ export DEVENV_IMAGE=${IMAGE}:${DEVENVTAG}
 export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-1}
 
 # versions info
-export CONTRAIL_VERSION=${CONTRAIL_VERSION:-'dev'}
+export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-'dev'}
 export VENDOR_NAME="Tungsten Fabric"
 export VENDOR_DOMAIN="tungsten.io"
