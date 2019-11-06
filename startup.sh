@@ -115,11 +115,15 @@ else
   fi
 fi
 
+result=0
 if [[ "${AUTOBUILD}" == '1' ]]; then
   $scriptdir/show_progress.sh 2>&1 | tee -a ${log_path}
+  result=${PIPESTATUS[0]}
 else
   echo
   echo '[READY]'
   echo "You can now connect to the sandbox container by using:"
   echo "  docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
 fi
+
+exit $result
