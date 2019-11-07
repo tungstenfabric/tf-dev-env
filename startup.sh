@@ -65,7 +65,9 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     options+=" -e SITE_MIRROR=${SITE_MIRROR}"
   fi
 
-  options+=" -e AUTOBUILD=1"
+  if [[ "${AUTOBUILD}" == "1" ]]; then
+    options+=" -e AUTOBUILD=1"
+  fi
 
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
     if ! docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! docker pull $DEVENV_IMAGE ; then
@@ -101,7 +103,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     --name $TF_DEVENV_CONTAINER_NAME \
     -w /root ${options} \
     -e CONTRAIL_DEV_ENV=/root/tf-dev-env \
-    $volumes \
+    $volumes -i \
     ${IMAGE}:${DEVENVTAG}"
 
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
