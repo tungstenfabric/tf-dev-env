@@ -23,21 +23,21 @@ if [ ! -d "${rpm_source}" ] ; then
     exit 1;
 fi
 
-is_container_up "$RPM_CONTAINER_NAME" && {
-    echo "$RPM_CONTAINER_NAME already running."
-    exit 0  
-}
+if ! is_container_up "$RPM_CONTAINER_NAME" ; then 
+  ensure_port_free 80
 
-ensure_port_free 80
+  if ! is_container_created "$RPM_CONTAINER_NAME"; then
+    docker run -t --name "$RPM_CONTAINER_NAME" \
+      -d -p ${RPM_REPO_PORT}:80 \
+      -v ${rpm_source}:/var/www/localhost/htdocs:z \
+      m4rcu5/lighttpd >/dev/null
+    echo "$RPM_CONTAINER_NAME created"
+  else
+    echo "$(docker start $RPM_CONTAINER_NAME) started"
+  fi
 
-if ! is_container_created "$RPM_CONTAINER_NAME"; then
-  docker run -t --name "$RPM_CONTAINER_NAME" \
-    -d -p ${RPM_REPO_PORT}:80 \
-    -v ${rpm_source}:/var/www/localhost/htdocs:z \
-    m4rcu5/lighttpd >/dev/null
-  echo "$RPM_CONTAINER_NAME created"
 else
-  echo "$(docker start $RPM_CONTAINER_NAME) started"
+    echo "$RPM_CONTAINER_NAME already running."
 fi
 
 echo
