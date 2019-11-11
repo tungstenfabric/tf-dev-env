@@ -33,7 +33,7 @@ ensure_port_free 80
 if ! is_container_created "$RPM_CONTAINER_NAME"; then
   docker run -t --name "$RPM_CONTAINER_NAME" \
     -d -p ${RPM_REPO_PORT}:80 \
-    -v ${rpm_source}:/var/www/localhost/htdocs \
+    -v ${rpm_source}:/var/www/localhost/htdocs:z \
     m4rcu5/lighttpd >/dev/null
   echo "$RPM_CONTAINER_NAME created"
 else
