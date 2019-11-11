@@ -45,7 +45,7 @@ echo
 echo '[environment setup]'
 if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
-  options+=" -v ${CONTRAIL_DIR}:/root/contrail"
+  options+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
   if [[ -n "${SRC_ROOT}" ]]; then
     options+=" -e SRC_MOUNTED=1 -e CONTRAIL_SOURCE=$SRC_ROOT"
   fi
