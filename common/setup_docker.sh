@@ -6,15 +6,26 @@ source ${scriptdir}/functions.sh
 
 ensure_root
 
-function install_docker() {
+function install_docker_ubuntu() {
+  which docker && return
+  apt-get update
+  apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  add-apt-repository -y -u "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
+}
+
+function install_docker_centos() {
+  which docker && return
   yum install -y yum-utils device-mapper-persistent-data lvm2
   if ! yum info docker-ce &> /dev/null ; then
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   fi
-  yum install -y docker-ce docker-ce-cli containerd.io
+  yum install -y docker-ce-18.03.1.ce
 }
 
 function install_docker_rhel() {
+  which docker && return
   if [[ "$ENABLE_RHSM_REPOS" == "0" ]]; then
     subscription-manager repos \
       --enable rhel-7-server-extras-rpms \
@@ -35,7 +46,7 @@ echo "$DISTRO detected"
 if ! which docker >/dev/null 2>&1 ; then
   if [ x"$DISTRO" == x"centos" ]; then
     systemctl stop firewalld || true
-    install_docker
+    install_docker_centos
     systemctl start docker
   #  grep 'dm.basesize=20G' /etc/sysconfig/docker-storage || sed -i 's/DOCKER_STORAGE_OPTIONS=/DOCKER_STORAGE_OPTIONS=--storage-opt dm.basesize=20G /g' /etc/sysconfig/docker-storage
   #  systemctl restart docker
@@ -47,7 +58,7 @@ if ! which docker >/dev/null 2>&1 ; then
     docker pull registry.redhat.io/rhel7:latest
     docker tag registry.redhat.io/rhel7:latest rhel7:latest
   elif [ x"$DISTRO" == x"ubuntu" ]; then
-    apt install -y docker.io
+    install_docker_ubuntu
   fi
 else
   echo "docker installed: $(docker --version)"
