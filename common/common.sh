@@ -18,7 +18,7 @@ export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d 
 export AUTOBUILD=${AUTOBUILD:-0}
 export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 export BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-1}
-export BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-0}
+export BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-${AUTOBUILD}}
 export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
 
 # working build directories
