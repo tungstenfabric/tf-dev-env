@@ -16,11 +16,11 @@ echo tf-dev-env startup
 echo
 echo '[ensure python is present]'
 if [ x"$DISTRO" == x"centos" ]; then
-  yum install -y python
+  yum install -y python lsof
 elif [ x"$DISTRO" == x"rhel" ]; then
-  yum install -y python
+  yum install -y python lsof
 elif [ x"$DISTRO" == x"ubuntu" ]; then
-  apt-get install -y python-minimal
+  apt-get install -y python-minimal lsof
 fi
 
 # prepare env
