@@ -28,6 +28,12 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
     echo "INFO: make rpm  $(date)"
     make rpm
 
+    if [[ "${RUN_UNIT_TESTS}" -eq 1 ]]; then
+      echo "INFO: make dep fetch_packages"
+      make  unit-tests
+    fi
+
+
     echo "INFO: make containers  $(date)"
     if [[ "${BUILD_TEST_CONTAINERS}" == "1" ]]; then
         # prepare rpm repo and repos
