@@ -32,16 +32,17 @@ For mac:          https://docs.docker.com/docker-for-mac/install/#download-docke
 ```
 For CentOS/RHEL/Fedora linux host:
 ```
-Setup the repo:
-sudo yum-config-manager \
-    --add-repo \
-    https://download.docker.com/linux/centos/docker-ce.repo
-Install Docker CE:
-yum install docker-ce
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install -y docker-ce-18.03.1.ce
 ```
 For Ubuntu linux host:
 ```
-apt install docker.io
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository -y -u "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
 ```
 
 NOTE (only if you hit any issues):
@@ -51,6 +52,7 @@ Make sure that there is TCP connectivity allowed between the containers in the d
 (for example disable firewall).
 
 ### 2. Clone dev setup repo
+Install git if needed first and then:
 ```
 git clone https://github.com/tungstenfabric/tf-dev-env
 cd tf-dev-env
@@ -58,14 +60,14 @@ cd tf-dev-env
 
 ### 3. Execute script to start 3 containers
 ```
-sudo ./startup.sh
+sudo -E ./startup.sh
 ```
 
 **Note:** This command runs container `opencontrailnightly/developer-sandbox-centos:master` from [opencontrailnightly docker hub](https://hub.docker.com/r/opencontrailnightly/developer-sandbox/) by
 default. You can specify different image and/or tag using flags, e.g.
 
-1. to develop on nightly R5.0 container use: `sudo ./startup.sh -t R5.1`
-2. to develop code based on a tagged `r5.1` release, use: `sudo ./startup.sh -i opencontrail/developer-sandbox -t r5.1`
+1. to develop on nightly R5.0 container use: `sudo -E ./startup.sh -t R5.1`
+2. to develop code based on a tagged `r5.1` release, use: `sudo -E ./startup.sh -i opencontrail/developer-sandbox -t r5.1`
 Also you can export BUILD_DEV_ENV=1 to explicit build of sandbox container locally if sandbox is not run yet.
 Please note - if you don't pass '-t' option (or pass it as 'latest') then latest tag for sandbox image and master branch of contrail-vnc repo will be used. If you pass something else then this tag will be used for sandbox image and contrail-vnc will be cloned by the same branch name.
 
@@ -79,7 +81,7 @@ tf-dev-env-registry  [Registry for contrail containers after they are built]
 ### 4. Attach to developer-sandbox container
 
 ```
-docker attach tf-developer-sandbox
+sudo docker attach tf-developer-sandbox
 ```
 
 ### 5. Prepare developer-sandbox container

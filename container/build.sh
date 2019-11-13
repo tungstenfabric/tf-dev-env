@@ -33,6 +33,7 @@ if [[ "${CONTRAIL_KEEP_LOG_FILES,,}" != 'true' ]] ; then
 else
    # skip output into terminal
    docker build $build_opts >> $logfile 2>&1
+   result=${PIPESTATUS[0]}
 fi
 
 exit $result

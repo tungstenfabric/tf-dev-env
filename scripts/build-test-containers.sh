@@ -3,6 +3,7 @@
 REPODIR=${REPODIR:-"/root/src/${CANONICAL_HOSTNAME}/Juniper"}
 
 CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/contrail-test"}
+CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-""}
 source ${CONTRAIL_TEST_DIR}/common.env
 
 if [[ -z "${CONTRAIL_REGISTRY}" ]]; then
@@ -13,12 +14,16 @@ if [[ -z "${CONTRAIL_REPOSITORY}" ]]; then
     echo CONTRAIL_REPOSITORY is not set && exit 1
 fi
 
-CONTRAIL_VERSION=${CONTRAIL_VERSION:-"dev"}
-CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"${CONTRAIL_VERSION}"}
+CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"dev"}
 openstack_versions=${OPENSTACK_VERSIONS:-"ocata,queens,rocky"}
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
 pushd ${CONTRAIL_TEST_DIR}
+
+if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d" ]] ; then
+  # apply same repos for test containers
+  cp -f ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/* ./docker/base/
+fi
 
 function append_log() {
   local logfile=$1

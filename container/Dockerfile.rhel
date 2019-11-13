@@ -13,8 +13,7 @@ ENV LANGUAGE=$LANGUAGE
 
 WORKDIR $CONTRAIL
 
-# Inject repositories that we might need
-COPY *.repo /etc/yum.repos.d/
+COPY tpc.repo /etc/yum.repos.d/
 
 RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
@@ -22,11 +21,9 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     yum -y update && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
-    yum -y install autoconf automake createrepo docker docker-python gcc gdb git libtool make python-devel  python-lxml rpm-build vim wget yum-utils && \
+    yum -y install autoconf automake createrepo docker docker-python gcc gdb git libtool make python-devel python-pip python-lxml rpm-build vim wget yum-utils && \
     yum clean all && \
     rm -rf /var/cache/yum && \
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py && \
     pip install --retries=10 --timeout=200 --upgrade tox geventhttpclient && \
     echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc && \
     echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc
