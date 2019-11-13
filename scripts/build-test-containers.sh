@@ -15,7 +15,7 @@ if [[ -z "${CONTRAIL_REPOSITORY}" ]]; then
 fi
 
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"dev"}
-openstack_versions=${OPENSTACK_VERSIONS:-"ocata,queens,rocky"}
+openstack_versions=${OPENSTACK_VERSIONS:-"queens,rocky"}
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
 pushd ${CONTRAIL_TEST_DIR}
