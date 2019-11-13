@@ -77,7 +77,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     options+=" -e DEBUG=${DEBUG}"
   fi
 
-  if [[ "$RUN_UNIT_TESTS" == '1' ]] ; then
+  if [[ "${RUN_UNIT_TESTS}" == '1' ]] ; then
     options+=" -e RUN_UNIT_TESTS=1"
   fi
 
