@@ -29,7 +29,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
     make rpm
 
     if [[ "${RUN_UNIT_TESTS}" -eq 1 ]]; then
-      echo "INFO: make dep fetch_packages"
+      echo "INFO: run unit tests"
       make  unit-tests
     fi
 
