@@ -8,7 +8,7 @@ if [[ -d /config ]]; then
   export CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-"/config"}
 fi
 
-if [[ "${AUTOBUILD}" -eq 1 ]]; then
+if [[ "${BUILD}" == true ]]; then
     cd $CONTRAIL_DEV_ENV
 
     if [[ "${SRC_MOUNTED}" != "1" ]]; then

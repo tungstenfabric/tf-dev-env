@@ -31,7 +31,6 @@ SITE_MIRROR=${SITE_MIRROR:-}
 # for compatibility (depricated)
 if [ -n "$AUTOBUILD" ] ; then
   [ "$AUTOBUILD" == 1 ] && BUILD=true || BUILD=false
-  export AUTOBUILD
 fi
 
 
@@ -89,7 +88,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   fi
 
   if [[ "${BUILD}" == true ]]; then
-    options+=" -e AUTOBUILD=1"
+    options+=" -e BUILD=$BUILD"
   fi
 
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
@@ -141,7 +140,7 @@ else
 fi
 
 result=0
-if [[ "${AUTOBUILD}" == '1' ]]; then
+if [[ "${BUILD}" == true ]]; then
   $scriptdir/show_progress.sh 2>&1 | tee -a ${log_path}
   result=${PIPESTATUS[0]}
 else
