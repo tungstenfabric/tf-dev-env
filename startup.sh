@@ -39,11 +39,11 @@ echo tf-dev-env startup
 echo
 echo '[ensure python is present]'
 if [ x"$DISTRO" == x"centos" ]; then
-  yum install -y python lsof
+  sudo yum install -y python lsof
 elif [ x"$DISTRO" == x"rhel" ]; then
-  yum install -y python lsof
+  sudo yum install -y python lsof
 elif [ x"$DISTRO" == x"ubuntu" ]; then
-  apt-get install -y python-minimal lsof
+  sudo apt-get install -y python-minimal lsof
 fi
 
 # prepare env
@@ -112,7 +112,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     if [[ "$dev_env_source" == 'ubuntu' ]]; then
       dev_env_source='centos'
     fi
-    ./build.sh -i ${IMAGE} -d ${dev_env_source} ${DEVENVTAG}
+    sudo -E ./build.sh -i ${IMAGE} -d ${dev_env_source} ${DEVENVTAG}
     cd ${scriptdir}
   fi
 
@@ -122,7 +122,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config"
   fi
-  start_sandbox_cmd="docker run --network host --privileged --detach \
+  start_sandbox_cmd="sudo -E docker run --network host --privileged --detach \
     --name $TF_DEVENV_CONTAINER_NAME \
     -w /root ${options} \
     -e CONTRAIL_DEV_ENV=/root/tf-dev-env \
@@ -136,7 +136,7 @@ else
   if is_container_up "$TF_DEVENV_CONTAINER_NAME"; then
     echo "$TF_DEVENV_CONTAINER_NAME already running."
   else
-    echo $(docker start $TF_DEVENV_CONTAINER_NAME) started.
+    echo $(sudo -E docker start $TF_DEVENV_CONTAINER_NAME) started.
   fi
 fi
 

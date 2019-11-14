@@ -1,7 +1,6 @@
 #!/bin/bash
 
 [ -n "$DEBUG" ] && set -x
-set -o nounset
 set -o errexit
 
 # working environment 

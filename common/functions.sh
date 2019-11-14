@@ -2,14 +2,14 @@
 
 function is_container_created() {
   local container=$1
-  if ! docker ps -a --format '{{ .Names }}' | grep "$container" > /dev/null 2>&1 ; then
+  if ! sudo docker ps -a --format '{{ .Names }}' | grep "$container" > /dev/null 2>&1 ; then
     return 1
   fi
 }
 
 function is_container_up() {
   local container=$1
-  if ! docker inspect --format '{{ .State.Status }}' $container | grep -q "running" > /dev/null 2>&1 ; then
+  if ! sudo docker inspect --format '{{ .State.Status }}' $container | grep -q "running" > /dev/null 2>&1 ; then
     return 1
   fi
 }
