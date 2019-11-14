@@ -19,13 +19,16 @@ pushd $CONTRAIL_DIR
 CONTRAIL_INIT_REPOS_OPTS=${CONTRAIL_INIT_REPOS_OPTS:-'--depth=1 -q'}
 CONTRAIL_SYNC_REPOS_OPTS=${CONTRAIL_SYNC_REPOS_OPTS:-'--current-branch --no-tags --no-clone-bundle -q'}
 
+pkgs=''
+which git >/dev/null 2>&1  || pkgs+="git"
+which git-review >/dev/null 2>&1 || pkgs+=" git-review"
+[ -n "$pkgs" ] && yum install -y $pkgs || true
+
 if [ ! -e ./repo ] ; then
   echo "INFO: Download repo tool"
   curl -s https://storage.googleapis.com/git-repo-downloads/repo > ./repo
   chmod a+x ./repo
-fi  
-
-[ $CONTRAIL_SYNC_REPOS != 1 ] && { echo "INFO: TF git repos sync skipped" && exit ; }
+fi
 
 if [ ! -e ./.repo ] ; then
   echo "INFO: Init contrail sources git repos"

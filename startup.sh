@@ -5,12 +5,35 @@ source ${scriptdir}/common/common.sh
 source ${scriptdir}/common/functions.sh
 
 cd "$scriptdir"
-setup_only=0
 
-# variables that can be redefined outside
+# Build options
+
+# enable build
+export BUILD=${BUILD:-false}
+# enable sync contrail source repositories
+export CONTRAIL_SYNC_REPOS=${CONTRAIL_SYNC_REPOS:-true}
+
+# enable build of test containers
+export BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-${AUTOBUILD}}
+
+# enable build of development sandbox 
+export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
+export BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-1}
+
+# enable build from sources (w/o RPMs)
+export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
+
+# variables that can be redefined outside (for CI)
 EXTERNAL_REPOS=${EXTERNAL_REPOS:-/root/src}
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 SITE_MIRROR=${SITE_MIRROR:-}
+
+# for compatibility (depricated)
+if [ -n "$AUTOBUILD" ] ; then
+  [ "$AUTOBUILD" == 1 ] && BUILD=true || BUILD=false
+  export AUTOBUILD
+fi
+
 
 echo tf-dev-env startup
 echo
@@ -24,7 +47,9 @@ elif [ x"$DISTRO" == x"ubuntu" ]; then
 fi
 
 # prepare env
-$scriptdir/common/setup_sources.sh
+if [ "$CONTRAIL_SYNC_REPOS" == true ] ; then  
+  $scriptdir/common/setup_sources.sh
+fi
 sudo -E $scriptdir/common/setup_docker.sh
 sudo -E $scriptdir/common/setup_docker_registry.sh
 sudo -E $scriptdir/common/setup_rpm_repo.sh
@@ -35,8 +60,6 @@ echo "INFO: make common.env"
 cat $scriptdir/common.env.tmpl | envsubst > $scriptdir/common.env
 echo "INFO: common.env content:"
 cat $scriptdir/common.env
-
-test "$setup_only" -eq 1 && exit
 
 timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
 log_path="${WORKSPACE}/build_${timestamp}.log"
@@ -65,7 +88,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     options+=" -e SITE_MIRROR=${SITE_MIRROR}"
   fi
 
-  if [[ "${AUTOBUILD}" == "1" ]]; then
+  if [[ "${BUILD}" == true ]]; then
     options+=" -e AUTOBUILD=1"
   fi
 

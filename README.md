@@ -51,16 +51,22 @@ see here: https://stackoverflow.com/questions/37100065/resize-disk-usage-of-a-do
 Make sure that there is TCP connectivity allowed between the containers in the default docker bridge network,
 (for example disable firewall).
 
-### 2. Clone dev setup repo
+### 2. Make a workspace directory (will be used for contrail sources and build artifacts)
+Note, the volume should have at least 64GB of free space for build purposes.
+```
+mkdir tf
+cd tf
+```
+
+### 3. Clone dev setup repo
 Install git if needed first and then:
 ```
 git clone https://github.com/tungstenfabric/tf-dev-env
-cd tf-dev-env
 ```
 
-### 3. Execute script to start 3 containers
+### 4. Execute startup script to start all required containers
 ```
-sudo -E ./startup.sh
+sudo -E ./tf-dev-env/startup.sh
 ```
 
 **Note:** This command runs container `opencontrailnightly/developer-sandbox-centos:master` from [opencontrailnightly docker hub](https://hub.docker.com/r/opencontrailnightly/developer-sandbox/) by
@@ -78,13 +84,13 @@ tf-dev-env-rpm-repo  [Repo server for contrail RPMs after they are build]
 tf-dev-env-registry  [Registry for contrail containers after they are built]
 ```
 
-### 4. Attach to developer-sandbox container
+### 5. Attach to developer-sandbox container
 
 ```
 sudo docker attach tf-developer-sandbox
 ```
 
-### 5. Prepare developer-sandbox container
+### 6. Prepare developer-sandbox container
 
 Required first steps in the container:
 
@@ -104,7 +110,7 @@ The descriptions of targets:
 * `make dep` - installs all build dependencies
 * `make dep-<pkg_name>` - installs build dependencies for <pkg_name>
 
-### 6. Make artifacts
+### 7. Make artifacts
 
 #### RPM packages
 
@@ -135,7 +141,7 @@ The descriptions of targets:
 
 * `make clean{-containers,-deployers,-repo,-rpm}` - delete artifacts
 
-### 7. Testing the deployment
+### 8. Testing the deployment
 
 See https://github.com/Juniper/contrail-ansible-deployer/wiki/Contrail-with-Openstack-Kolla .
 Set `CONTRAIL_REGISTRY` to `registry:5000` to use containers built in the previous step.
@@ -207,9 +213,9 @@ There are special environment variables to set correct behaviour:
 
 Environment variables **REGISTRY_IP** and **REGISTRY_PORT** stores external docker registry connection information where TF's containers would be stored.
 
-### Autobuild rpms and containers on startup
+### Run build of rpms and containers on startup
 
-There is an option to use `tf-developer-sandbox` container just to build TF rpms and containers. **AUTOBUILD** environment variable manages this behaviour. `tf-developer-sandbox` container builds and stores all artifacts and then exits if set **AUTOBUILD** to 1. So run TF build again just start `tf-developer-sandbox` with the command `docker start -i tf-developer-sandbox`.
+There is an option to use `tf-developer-sandbox` container just to build TF rpms and containers. **BUILD** environment variable manages this behaviour. `tf-developer-sandbox` container builds and stores all artifacts and then exits if set **BUILD** to **'true'**. So run TF build again just start `tf-developer-sandbox` with the command `docker start -i tf-developer-sandbox`.
 
 
 [Slack]: https://tungstenfabric.slack.com/messages/C0DQ23SJF/
