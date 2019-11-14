@@ -17,7 +17,7 @@ mkdir -p "${CONTRAIL_DIR}/RPMS"
 pushd $CONTRAIL_DIR
 
 CONTRAIL_INIT_REPOS_OPTS=${CONTRAIL_INIT_REPOS_OPTS:-'--depth=1 -q'}
-CONTRAIL_SYNC_REPOS_OPTS=${CONTRAIL_SYNC_REPOS_OPTS:-'--current-branch --no-tags --no-clone-bundle -q'}
+FETCH_OPTS=${FETCH_OPTS:-'--current-branch --no-tags --no-clone-bundle -q'}
 
 pkgs=''
 which git >/dev/null 2>&1  || pkgs+="git"
@@ -45,6 +45,6 @@ fi
 
 echo "INFO: Sync contrail sources git repos"
 threads=$(( $(nproc) * 2 ))
-./repo sync $CONTRAIL_SYNC_REPOS_OPTS -j $threads
+./repo sync $FETCH_OPTS -j $threads
 
 popd

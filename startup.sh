@@ -11,10 +11,10 @@ cd "$scriptdir"
 # enable build
 export BUILD=${BUILD:-false}
 # enable sync contrail source repositories
-export CONTRAIL_SYNC_REPOS=${CONTRAIL_SYNC_REPOS:-true}
+export FETCH=${FETCH:-true}
 
 # enable build of test containers
-export BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-${AUTOBUILD}}
+export BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-${BUILD}}
 
 # enable build of development sandbox 
 export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
@@ -47,7 +47,7 @@ elif [ x"$DISTRO" == x"ubuntu" ]; then
 fi
 
 # prepare env
-if [ "$CONTRAIL_SYNC_REPOS" == true ] ; then  
+if [ "$FETCH" == true ] ; then  
   $scriptdir/common/setup_sources.sh
 fi
 sudo -E $scriptdir/common/setup_docker.sh
@@ -76,7 +76,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     options+=" -e CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}"
   fi
 
-  if [[ "$BUILD_TEST_CONTAINERS" == "1" ]]; then
+  if [[ "$BUILD_TEST_CONTAINERS" == "1" || "$BUILD_TEST_CONTAINERS" == "true" ]]; then
     options+=" -e BUILD_TEST_CONTAINERS=1"
   fi
 

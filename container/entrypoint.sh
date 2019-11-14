@@ -29,7 +29,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
     make rpm
 
     echo "INFO: make containers  $(date)"
-    if [[ "${BUILD_TEST_CONTAINERS}" == "1" ]]; then
+    if [[ "${BUILD_TEST_CONTAINERS}" == "1" || "${BUILD_TEST_CONTAINERS}" == "true" ]]; then
         # prepare rpm repo and repos
         echo "INFO: make create-repo prepare-containers prepare-deployers prepare-test-containers  $(date)"
         make -j 4 create-repo prepare-containers prepare-deployers prepare-test-containers
