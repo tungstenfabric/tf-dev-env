@@ -8,13 +8,14 @@ if [[ -d /config ]]; then
   export CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-"/config"}
 fi
 
-if [[ "${BUILD}" == true ]]; then
-    cd $CONTRAIL_DEV_ENV
+cd $CONTRAIL_DEV_ENV
 
-    if [[ "${SRC_MOUNTED}" != "1" ]]; then
-        echo "INFO: make sync  $(date)"
-        make sync
-    fi
+if [[ "$FETCH" == true && "${SRC_MOUNTED}" != "1" ]]; then
+    echo "INFO: make sync  $(date)"
+    make sync
+fi
+
+if [[ "${BUILD}" == true ]]; then
 
     echo "INFO: make setup  $(date)"
     make setup

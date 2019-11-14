@@ -26,7 +26,7 @@ setup:
 	@yum -q reinstall -y python-setuptools
 
 sync:
-	@cd $(REPODIR) && ./repo sync -q --no-clone-bundle -j $(shell nproc)
+	@$(TF_DE_DIR)scripts/sync-sources.sh
 
 ##############################################################################
 # RPM repo targets

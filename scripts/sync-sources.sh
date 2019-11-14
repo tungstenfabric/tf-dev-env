@@ -1,28 +1,17 @@
 #!/bin/bash
 
-scriptdir=$(realpath $(dirname "$0"))
-source ${scriptdir}/common.sh
-source ${scriptdir}/functions.sh
-
 echo
 echo '[setup contrail git sources]'
 
-if [ -z "${CONTRAIL_DIR}" ] ; then
-  echo "ERROR: env variable CONTRAIL_DIR is required"\
+if [ -z "${REPODIR}" ] ; then
+  echo "ERROR: env variable REPODIR is required"\
   exit 1
 fi
 
+cd $REPODIR
 
-mkdir -p "${CONTRAIL_DIR}/RPMS"
-pushd $CONTRAIL_DIR
-
-CONTRAIL_INIT_REPOS_OPTS=${CONTRAIL_INIT_REPOS_OPTS:-'--depth=1 -q'}
+INIT_FETCH_OPTS=${INIT_FETCH_OPTS:-'--depth=1 -q'}
 FETCH_OPTS=${FETCH_OPTS:-'--current-branch --no-tags --no-clone-bundle -q'}
-
-pkgs=''
-which git >/dev/null 2>&1  || pkgs+="git"
-which git-review >/dev/null 2>&1 || pkgs+=" git-review"
-[ -n "$pkgs" ] && yum install -y $pkgs || true
 
 if [ ! -e ./repo ] ; then
   echo "INFO: Download repo tool"
@@ -40,11 +29,9 @@ if [ ! -e ./.repo ] ; then
   # use a default for repo sync if not
   git config --get user.name >/dev/null  2>&1 || git config --global user.name "tf-dev-env"
   git config --get user.email >/dev/null 2>&1 || git config --global user.email "tf-dev-env@tf"
-  ./repo init $CONTRAIL_INIT_REPOS_OPTS -u https://github.com/Juniper/contrail-vnc -b $vnc_branch
+  yes | ./repo init $INIT_FETCH_OPTS -u https://github.com/Juniper/contrail-vnc -b $vnc_branch
 fi
 
 echo "INFO: Sync contrail sources git repos"
 threads=$(( $(nproc) * 2 ))
 ./repo sync $FETCH_OPTS -j $threads
-
-popd
