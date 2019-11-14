@@ -12,6 +12,8 @@ cd "$scriptdir"
 export BUILD=${BUILD:-false}
 # enable sync contrail source repositories
 export FETCH=${FETCH:-true}
+# exit from container after build
+export QUIT=${QUIT:-false}
 
 # enable build of test containers
 export BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-${BUILD}}
@@ -66,7 +68,7 @@ echo '[environment setup]'
 if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   options+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
-  options+=" -e DEVENVTAG=$DEVENVTAG -e FETCH=$FETCH"
+  options+=" -e DEVENVTAG=$DEVENVTAG -e FETCH=$FETCH -e QUIT=$QUIT"
   
   if [[ -n "${SRC_ROOT}" ]]; then
     options+=" -e SRC_MOUNTED=1 -e CONTRAIL_SOURCE=$SRC_ROOT"
