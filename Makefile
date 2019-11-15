@@ -91,8 +91,8 @@ test-containers: create-repo prepare-test-containers test-containers-only
 # Решено было забить на вызов из make , а  делать все в энтрипоинте
 # но я пока забью на то что мы забили и сделаю по аналогии
 
-unit-tests:
-	@$(TF_DE_DIR)scripts/run-unit-tests.sh
+test:
+	@$(TF_DE_DIR)scripts/make-test.sh
 
 ##############################################################################
 # Other clean targets
