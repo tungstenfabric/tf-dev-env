@@ -129,9 +129,14 @@ echo "run stages $stages"
 sudo -E docker exec -i $TF_DEVENV_CONTAINER_NAME /root/startup.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
-echo
-echo '[DONE]'
-echo "If needed You can now connect to the sandbox container by using:"
-echo "  docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
+if [[ $result == 0 ]] ; then
+  echo
+  echo '[DONE]'
+  echo "If needed You can now connect to the sandbox container by using:"
+  echo "  docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
+else
+  echo
+  echo 'ERROR: There were failures. See logs for details.'
+fi
 
 exit $result
