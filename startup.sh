@@ -121,6 +121,7 @@ else
   fi
 fi
 
+echo "run stages $stages" 
 sudo -E docker exec -it $TF_DEVENV_CONTAINER_NAME /root/startup.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
