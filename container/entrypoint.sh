@@ -30,7 +30,7 @@ if [[ "${AUTOBUILD}" -eq 1 ]]; then
 
     if [[ "${RUN_UNIT_TESTS}" -eq 1 ]]; then
       echo "INFO: run unit tests"
-      make  unit-tests
+      make  test
     fi
 
 
