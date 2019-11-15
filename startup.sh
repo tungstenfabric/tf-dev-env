@@ -58,7 +58,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   options+=" -e DEVENVTAG=$DEVENVTAG"
   
   if [[ -n "${SRC_ROOT}" ]]; then
-    options+=" CONTRAIL_SOURCE=$SRC_ROOT"
+    options+=" -e CONTRAIL_SOURCE=$SRC_ROOT"
   fi
 
   if [ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]; then
@@ -112,7 +112,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     -w /root ${options} \
     -e CONTRAIL_DEV_ENV=/root/tf-dev-env \
     $volumes -it \
-    ${IMAGE}:${DEVENVTAG}"
+    ${DEVENV_IMAGE}"
 
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
 
