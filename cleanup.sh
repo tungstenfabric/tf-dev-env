@@ -47,8 +47,8 @@ if [[ $remove_containers -eq 1 ]] ; then
   echo '[containers]'
   for container in tf-developer-sandbox $RPM_CONTAINER_NAME $REGISTRY_CONTAINER_NAME; do
     if is_container_created "$container" ; then
-      echo -ne "$(docker stop $container) stopped."\\r
-      echo $(docker rm $container) removed.
+      echo -ne "$(sudo docker stop $container) stopped."\\r
+      echo $(sudo docker rm $container) removed.
     else
       echo "$container not running."
     fi
@@ -58,20 +58,20 @@ fi
 if [[ $remove_image -eq 1 ]] ; then
   echo
   echo '[images]'
-  docker inspect ${DEVENV_IMAGE} >/dev/null 2>&1 && docker rmi -f ${DEVENV_IMAGE}
+  sudo -E docker inspect ${DEVENV_IMAGE} >/dev/null 2>&1 && sudo docker rmi -f ${DEVENV_IMAGE}
   echo "image $DEVENV_IMAGE removed"
 fi
 
 if [[ $remove_sources -eq 1 ]] ; then
   echo
   echo '[folder]'
-  [ -d "$CONTRAIL_DIR" ] && rm -rf "$CONTRAIL_DIR"
+  [ -d "$CONTRAIL_DIR" ] && sudo -E rm -rf "$CONTRAIL_DIR"
 fi
 
 if [[ $remove_tf_dev_config -eq 1 ]] ; then
   echo
   echo '[tf dev config]'
-  [ -d "$TF_CONFIG_DIR" ] && rm -rf "$TF_CONFIG_DIR"
+  [ -d "$TF_CONFIG_DIR" ] && sudo -E rm -rf "$TF_CONFIG_DIR"
 fi
 
 echo tf-dev-env cleanup finished
