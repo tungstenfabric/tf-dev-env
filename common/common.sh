@@ -25,6 +25,7 @@ export RPM_REPO_PORT=${RPM_REPO_PORT:-'6667'}
 export REGISTRY_CONTAINER_NAME=${REGISTRY_CONTAINER_NAME:-"tf-dev-env-registry"}
 export RPM_CONTAINER_NAME=${RPM_CONTAINER_NAME:-"tf-dev-env-rpm-repo"}
 export TF_DEVENV_CONTAINER_NAME=${TF_DEVENV_CONTAINER_NAME:-"tf-developer-sandbox"}
+export CONTRAIL_PARALLEL_BUILD=${CONTRAIL_PARALLEL_BUILD:-true}
 
 # tf-dev-env sandbox parameters
 export IMAGE=${IMAGE:-"tungstenfabric/developer-sandbox"}
