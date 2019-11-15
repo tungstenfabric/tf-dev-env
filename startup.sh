@@ -4,19 +4,11 @@ scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common/common.sh
 source ${scriptdir}/common/functions.sh
 
+stages="$@"
+
 cd "$scriptdir"
 
 # Build options
-
-# enable build
-export BUILD=${BUILD:-false}
-# enable sync contrail source repositories
-export FETCH=${FETCH:-true}
-# exit from container after build
-export QUIT=${QUIT:-false}
-
-# enable build of test containers
-export BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-${BUILD}}
 
 # enable build of development sandbox 
 export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
@@ -29,11 +21,6 @@ export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
 EXTERNAL_REPOS=${EXTERNAL_REPOS:-/root/src}
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 SITE_MIRROR=${SITE_MIRROR:-}
-
-# for compatibility (depricated)
-if [ -n "$AUTOBUILD" ] ; then
-  [ "$AUTOBUILD" == 1 ] && BUILD=true || BUILD=false
-fi
 
 
 echo tf-dev-env startup
@@ -68,17 +55,14 @@ echo '[environment setup]'
 if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   options+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
-  options+=" -e DEVENVTAG=$DEVENVTAG -e FETCH=$FETCH -e QUIT=$QUIT"
+  options+=" -e DEVENVTAG=$DEVENVTAG"
   
   if [[ -n "${SRC_ROOT}" ]]; then
-    options+=" -e SRC_MOUNTED=1 -e CONTRAIL_SOURCE=$SRC_ROOT"
-  fi
-  if [ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]; then
-    options+=" -e CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}"
+    options+=" CONTRAIL_SOURCE=$SRC_ROOT"
   fi
 
-  if [[ "$BUILD_TEST_CONTAINERS" == "1" || "$BUILD_TEST_CONTAINERS" == "true" ]]; then
-    options+=" -e BUILD_TEST_CONTAINERS=1"
+  if [ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]; then
+    options+=" -e CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}"
   fi
 
   if [[ -n "${CANONICAL_HOSTNAME}" ]]; then
@@ -87,10 +71,6 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
 
   if [[ -n "${SITE_MIRROR}" ]]; then
     options+=" -e SITE_MIRROR=${SITE_MIRROR}"
-  fi
-
-  if [[ "${BUILD}" == true ]]; then
-    options+=" -e BUILD=$BUILD"
   fi
 
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
@@ -141,15 +121,12 @@ else
   fi
 fi
 
-result=0
-if [[ "${BUILD}" == true ]]; then
-  $scriptdir/show_progress.sh 2>&1 | tee -a ${log_path}
-  result=${PIPESTATUS[0]}
-else
-  echo
-  echo '[READY]'
-  echo "You can now connect to the sandbox container by using:"
-  echo "  docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
-fi
+sudo -E docker exec -it $TF_DEVENV_CONTAINER_NAME /root/startup.sh $stages | tee -a ${log_path}
+result=${PIPESTATUS[0]}
+
+echo
+echo '[DONE]'
+echo "If needed You can now connect to the sandbox container by using:"
+echo "  docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
 
 exit $result
