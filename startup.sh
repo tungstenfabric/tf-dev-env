@@ -73,6 +73,10 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     options+=" -e SITE_MIRROR=${SITE_MIRROR}"
   fi
 
+  if [[ -n "$DEBUG" ]] ; then
+    options+=" -e DEBUG=${DEBUG}"
+  fi
+
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
     if ! docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! docker pull $DEVENV_IMAGE ; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then

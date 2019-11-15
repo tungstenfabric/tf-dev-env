@@ -1,4 +1,7 @@
 #!/bin/bash
+
+[ -n "$DEBUG" ] && set -x
+
 set -eo pipefail
 
 stages=${1//,/ }
