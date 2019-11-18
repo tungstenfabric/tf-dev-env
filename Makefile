@@ -21,9 +21,11 @@ fetch_packages:
 	@$(TF_DE_DIR)scripts/fetch-packages.sh
 
 setup:
-	@pip list | grep urllib3 >/dev/null && pip uninstall -y urllib3 || true
+	@yum autoremove -y python-requests python-urllib3
+	@pip list | grep urllib3 >/dev/null && pip uninstall -y urllib3 requests chardet || true
 	@pip -q uninstall -y setuptools || true
 	@yum -q reinstall -y python-setuptools
+	@yum -q install -y python-requests python-urllib3
 
 sync:
 	@$(TF_DE_DIR)scripts/sync-sources.sh
