@@ -42,7 +42,7 @@ function compile() {
     make create-repo
 }
 
-function test () {
+function test() {
     echo "INFO: Starting unit tests"
     uname -a
     make test
