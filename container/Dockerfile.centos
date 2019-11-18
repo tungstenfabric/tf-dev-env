@@ -22,7 +22,7 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
     curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | sudo python36
 #Install testrunner requirements
-    python36 -m pip install lxml jinja2 && \
+    pip3 install lxml jinja2 && \
     yum -y install autoconf automake createrepo docker docker-python gcc gdb git git-review libtool make python-devel python-pip python-lxml rpm-build vim wget yum-utils && \
     yum clean all && \
     rm -rf /var/cache/yum && \
