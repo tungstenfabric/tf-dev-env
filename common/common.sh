@@ -1,10 +1,11 @@
 #!/bin/bash
 
 [ -n "$DEBUG" ] && set -x
+set -o nounset
 set -o errexit
 
 # working environment 
-export WORKSPACE=${WORKSPACE:-$(pwd)}
+export WORKSPACE=${WORKSPACE:-$HOME}
 export TF_CONFIG_DIR="${WORKSPACE}/.tf"
 export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 
@@ -12,6 +13,14 @@ export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 
 # determined variables
 export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+
+# build options
+export AUTOBUILD=${AUTOBUILD:-0}
+export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
+export BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-1}
+export BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS:-${AUTOBUILD}}
+export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
+export RUN_UNIT_TESTS=${RUN_UNIT_TESTS:-1}
 
 # working build directories
 export SRC_ROOT=${SRC_ROOT:-}
@@ -28,7 +37,6 @@ export RPM_REPO_PORT=${RPM_REPO_PORT:-'6667'}
 export REGISTRY_CONTAINER_NAME=${REGISTRY_CONTAINER_NAME:-"tf-dev-env-registry"}
 export RPM_CONTAINER_NAME=${RPM_CONTAINER_NAME:-"tf-dev-env-rpm-repo"}
 export TF_DEVENV_CONTAINER_NAME=${TF_DEVENV_CONTAINER_NAME:-"tf-developer-sandbox"}
-export CONTRAIL_PARALLEL_BUILD=${CONTRAIL_PARALLEL_BUILD:-true}
 
 # tf-dev-env sandbox parameters
 export IMAGE=${IMAGE:-"tungstenfabric/developer-sandbox"}
