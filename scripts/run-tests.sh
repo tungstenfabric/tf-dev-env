@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/bash -e
 
-PACKAGE=${$1:-"."}
+PACKAGE=${1:-"."}
 JOBS=${JOBS:-1}
 
 cd /root/contrail/
