@@ -22,9 +22,11 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
 #Install testrunner requirements
     yum -y install autoconf automake createrepo docker docker-python gcc gdb git git-review libtool make python-devel python-pip python-lxml rpm-build vim wget yum-utils && \
+    echo pip -V
     curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py  |  python3    && \
     yum clean all && \
     rm -rf /var/cache/yum && \
+    echo pip -V
     pip install --retries=10 --timeout 200 --upgrade tox geventhttpclient && \
     pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2  && \
     echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc && \
