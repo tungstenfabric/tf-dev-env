@@ -45,7 +45,7 @@ function compile() {
 function test() {
     echo "INFO: Starting unit tests"
     uname -a
-    make test
+    make test $1
 }
 
 function package() {
