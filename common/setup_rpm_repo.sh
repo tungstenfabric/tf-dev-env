@@ -5,7 +5,7 @@ source ${scriptdir}/common.sh
 source ${scriptdir}/functions.sh
 
 CONTRAIL_DEPLOY_RPM_REPO=${CONTRAIL_DEPLOY_RPM_REPO-1}
-[ $CONTRAIL_DEPLOY_RPM_REPO != 1 ] && { echo "INFO: RPM repo deployment skipped" && exit ; }
+[[ "$CONTRAIL_DEPLOY_RPM_REPO" != 1 ]] && { echo "INFO: RPM repo deployment skipped" && exit ; }
 
 ensure_root
 
