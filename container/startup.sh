@@ -42,6 +42,12 @@ function compile() {
     make create-repo
 }
 
+function test() {
+    echo "INFO: Starting unit tests"
+    uname -a
+    make test
+}
+
 function package() {
     echo "INFO: Check variables used by makefile"
     uname -a
