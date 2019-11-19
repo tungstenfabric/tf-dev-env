@@ -23,7 +23,6 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
 #Install testrunner requirements
     yum -y install autoconf automake createrepo docker docker-python gcc gdb git git-review libtool make python-devel python-pip python-lxml rpm-build vim wget yum-utils && \
     pip install --retries=10 --timeout 200 --upgrade tox geventhttpclient && \
-    curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py  |  python3    && \
     yum clean all && \
     rm -rf /var/cache/yum && \
     pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2  && \
