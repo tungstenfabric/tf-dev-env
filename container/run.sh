@@ -6,7 +6,7 @@ set -eo pipefail
 
 stages=${1//,/ }
 
-declare -a all_stages=(fetch configure compile package)
+declare -a all_stages=(fetch configure compile package test)
 
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 
@@ -40,6 +40,12 @@ function compile() {
     echo "INFO: make rpm  $(date)"
     make rpm
     make create-repo
+}
+
+function test() {
+    echo "INFO: Starting unit tests"
+    uname -a
+    TEST_PACKAGE=$1 make test
 }
 
 function package() {
@@ -78,7 +84,7 @@ function package() {
 }
 
 function run_stage() {
-    $1
+    $1 $2
     touch $STAGES_DIR/$1
 }
 
@@ -96,25 +102,25 @@ function enabled() {
 }
 
 # select default stages
-if [[ -z "$stages" ]] ; then 
-    if ! finished_stage 'fetch' ; then 
+if [[ -z "$stages" ]] ; then
+    if ! finished_stage 'fetch' ; then
         run_stage fetch
     fi
     if ! finished_stage 'configure' ; then
         run_stage configure
     fi
-elif [[ "$stages" =~ 'build' ]] ; then 
+elif [[ "$stages" =~ 'build' ]] ; then
     # run default stages for 'build' option
     for stage in ${all_stages[@]} ; do
-        if ! finished_stage "$stage" ; then 
-            run_stage $stage
+        if ! finished_stage "$stage" ; then
+            run_stage $stage $2
         fi
     done
 else
     # run selected stages
     for stage in ${stages} ; do
         if [[ "$stages" =~ $stage ]] ; then
-            run_stage $stage
+          run_stage $stage $2
         fi
     done
 fi
