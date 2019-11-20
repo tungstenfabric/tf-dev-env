@@ -4,8 +4,8 @@ scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common.sh
 source ${scriptdir}/functions.sh
 
-CONTRAIL_DEPLOY_REGISTRY=${CONTRAIL_DEPLOY_REGISTRY-1}
-[ $CONTRAIL_DEPLOY_REGISTRY != 1 ] && { echo "INFO: Docker registry deployment skipped" && exit ; }
+CONTRAIL_DEPLOY_REGISTRY=${CONTRAIL_DEPLOY_REGISTRY:-1}
+[[ "$CONTRAIL_DEPLOY_REGISTRY" != 1 ]] && { echo "INFO: Docker registry deployment skipped" && exit ; }
 
 ensure_root
 
