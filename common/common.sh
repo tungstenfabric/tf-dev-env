@@ -5,7 +5,7 @@ set -o errexit
 
 # working environment
 export WORKSPACE=${WORKSPACE:-$(pwd)}
-export TF_CONFIG_DIR="${WORKSPACE}/.tf"
+export TF_CONFIG_DIR=${TF_CONFIG_DIR:-"${HOME}/.tf"}
 export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 
 [ -e "$TF_DEVENV_PROFILE" ] && source "$TF_DEVENV_PROFILE"

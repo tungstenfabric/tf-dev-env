@@ -6,16 +6,15 @@ source ${scriptdir}/common/functions.sh
 
 function print_help() {
   echo -e "Usage:\n"\
-    "./cleanup.sh               # cleanup build artefacts\n"\
-    "             [-b | false ] # cleanup build artefacts and dev-env container & image\n"\
-    "             [-a ] false ] # cleanup all (build artefacts, containers, iamges, configuration\n"\
+    "./cleanup.sh               # cleanup build artefacts (sandbox container, sources, saved configuration)\n"\
+    "             [-a ] false ] # cleanup all (build artefacts, dev-env image\n"\
     "             [-h ]         # print help\n"
 }
 
 remove_sources=1
-remove_containers=0
+remove_containers=1
 remove_image=0
-remove_tf_dev_config=0
+remove_tf_dev_config=1
 while getopts ":abh" opt; do
   case $opt in
     a)
@@ -24,20 +23,15 @@ while getopts ":abh" opt; do
       remove_image=1
       remove_tf_dev_config=1
       ;;
-    b)
-      remove_sources=1
-      remove_containers=1
-      remove_image=1
-      ;;
     h)
       print_help
       exit
       ;;
     *)
+      print_help
       echo "Invalid option: -$opt. Exiting..." >&2
       exit 1
       ;;
-
   esac
 done
 
