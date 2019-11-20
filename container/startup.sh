@@ -5,7 +5,6 @@
 set -eo pipefail
 
 stages=${1//,/ }
-second_arg=${2}
 
 declare -a all_stages=(fetch configure compile package test)
 
@@ -113,7 +112,8 @@ if [[ -z "$stages" ]] ; then
 elif [[ "$stages" =~ 'build' ]] ; then 
     # run default stages for 'build' option
     for stage in ${all_stages[@]} ; do
-        if ! finished_stage "$stage" ; then 
+        if ! finished_stage "$stage" ; then
+            echo "INFO RUN STAGE FIRST" $1 $2
             run_stage $stage
         fi
     done
@@ -121,7 +121,8 @@ else
     # run selected stages
     for stage in ${stages} ; do
         if [[ "$stages" =~ $stage ]] ; then
-            run_stage $stage $second_arg
+          echo "INFO RUN STAGE SECOND" $1 $2
+          run_stage $stage
         fi
     done
 fi
