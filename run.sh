@@ -78,7 +78,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   fi
 
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
-    if ! docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! docker pull $DEVENV_IMAGE ; then
+    if ! sudo docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! sudo docker pull $DEVENV_IMAGE ; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
         exit 1
       fi
@@ -97,7 +97,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     if [[ "$dev_env_source" == 'ubuntu' ]]; then
       dev_env_source='centos'
     fi
-    sudo -E ./build.sh -i ${IMAGE} -d ${dev_env_source} ${DEVENVTAG}
+    ./build.sh -i ${IMAGE} -d ${dev_env_source} ${DEVENVTAG}
     cd ${scriptdir}
   fi
 
@@ -126,14 +126,14 @@ else
 fi
 
 echo "run stages $stages" 
-sudo -E docker exec -i $TF_DEVENV_CONTAINER_NAME /root/run.sh $stages | tee -a ${log_path}
+sudo -E docker exec -i $TF_DEVENV_CONTAINER_NAME /root/startup.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
 if [[ $result == 0 ]] ; then
   echo
   echo '[DONE]'
   echo "If needed You can now connect to the sandbox container by using:"
-  echo "  docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
+  echo "  sudo docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
 else
   echo
   echo 'ERROR: There were failures. See logs for details.'

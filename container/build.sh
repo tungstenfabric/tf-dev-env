@@ -1,5 +1,6 @@
 #!/bin/bash -e
-LINUX_DISTR=centos
+
+LINUX_DISTR=${LINUX_DISTR:-'centos'}
 
 while getopts ":d:i:" opt; do
     case $opt in
@@ -25,14 +26,14 @@ build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-
 build_opts+=" --no-cache --tag ${IMAGE}:${TAG} -f Dockerfile.${LINUX_DISTR} ."
 
 if [[ "${CONTRAIL_KEEP_LOG_FILES,,}" != 'true' ]] ; then
-   docker build $build_opts 2>&1 | tee -a $logfile
+   sudo docker build $build_opts 2>&1 | tee -a $logfile
    result=${PIPESTATUS[0]}
    if [ $result -eq 0 ]; then
       rm -f $logfile
    fi
 else
    # skip output into terminal
-   docker build $build_opts >> $logfile 2>&1
+   sudo docker build $build_opts >> $logfile 2>&1
    result=${PIPESTATUS[0]}
 fi
 

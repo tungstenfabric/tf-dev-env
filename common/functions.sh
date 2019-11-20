@@ -24,9 +24,8 @@ function ensure_root() {
 }
 
 function ensure_port_free() {
-  ensure_root
   local port=$1
-  if lsof -Pn -sTCP:LISTEN -i :$port ; then
+  if sudo lsof -Pn -sTCP:LISTEN -i :$port ; then
     echo "ERROR: Port $port is already opened by another process"
     exit 1
   fi

@@ -52,7 +52,7 @@ fi
 if [[ $remove_image -eq 1 ]] ; then
   echo
   echo '[images]'
-  sudo -E docker inspect ${DEVENV_IMAGE} >/dev/null 2>&1 && sudo docker rmi -f ${DEVENV_IMAGE}
+  sudo docker inspect ${DEVENV_IMAGE} >/dev/null 2>&1 && sudo docker rmi -f ${DEVENV_IMAGE}
   echo "image $DEVENV_IMAGE removed"
 fi
 
