@@ -5,6 +5,7 @@
 set -eo pipefail
 
 stages=${1//,/ }
+second_arg=${2}
 
 declare -a all_stages=(fetch configure compile package test)
 
@@ -120,7 +121,7 @@ else
     # run selected stages
     for stage in ${stages} ; do
         if [[ "$stages" =~ $stage ]] ; then
-            run_stage $stage
+            run_stage $stage $second_arg
         fi
     done
 fi
