@@ -89,6 +89,8 @@ test-containers-only:
 
 test-containers: create-repo prepare-test-containers test-containers-only
 
+test:
+	@$(TF_DE_DIR)scripts/run-tests.sh $(TEST_PACKAGE)
 
 ##############################################################################
 # Other clean targets
