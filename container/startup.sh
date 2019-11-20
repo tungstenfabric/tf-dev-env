@@ -113,7 +113,6 @@ elif [[ "$stages" =~ 'build' ]] ; then
     # run default stages for 'build' option
     for stage in ${all_stages[@]} ; do
         if ! finished_stage "$stage" ; then
-            echo "INFO RUN STAGE FIRST" $1 $2
             run_stage $stage $2
         fi
     done
@@ -121,7 +120,6 @@ else
     # run selected stages
     for stage in ${stages} ; do
         if [[ "$stages" =~ $stage ]] ; then
-          echo "INFO RUN STAGE SECOND" $1 $2
           run_stage $stage $2
         fi
     done
