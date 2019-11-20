@@ -84,7 +84,7 @@ function package() {
 }
 
 function run_stage() {
-    $1
+    $1 $2
     touch $STAGES_DIR/$1
 }
 
@@ -114,7 +114,7 @@ elif [[ "$stages" =~ 'build' ]] ; then
     for stage in ${all_stages[@]} ; do
         if ! finished_stage "$stage" ; then
             echo "INFO RUN STAGE FIRST" $1 $2
-            run_stage $stage
+            run_stage $stage $2
         fi
     done
 else
@@ -122,7 +122,7 @@ else
     for stage in ${stages} ; do
         if [[ "$stages" =~ $stage ]] ; then
           echo "INFO RUN STAGE SECOND" $1 $2
-          run_stage $stage
+          run_stage $stage $2
         fi
     done
 fi
