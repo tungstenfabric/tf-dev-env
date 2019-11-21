@@ -126,7 +126,7 @@ else
 fi
 
 echo "run stages $stages" 
-sudo -E docker exec -i $TF_DEVENV_CONTAINER_NAME /root/startup.sh $stages | tee -a ${log_path}
+sudo -E docker exec -i $TF_DEVENV_CONTAINER_NAME /root/run.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
 if [[ $result == 0 ]] ; then
