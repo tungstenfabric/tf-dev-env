@@ -35,10 +35,9 @@ elif [ x"$DISTRO" == x"ubuntu" ]; then
 fi
 
 # prepare env
-mkdir -p "${CONTRAIL_DIR}/RPMS"
-sudo -E $scriptdir/common/setup_docker.sh
-sudo -E $scriptdir/common/setup_docker_registry.sh
-sudo -E $scriptdir/common/setup_rpm_repo.sh
+$scriptdir/common/setup_docker.sh
+$scriptdir/common/setup_docker_registry.sh
+$scriptdir/common/setup_rpm_repo.sh
 load_tf_devenv_profile
 
 echo
@@ -107,7 +106,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config"
   fi
-  start_sandbox_cmd="sudo -E docker run --network host --privileged --detach \
+  start_sandbox_cmd="sudo docker run --network host --privileged --detach \
     --name $TF_DEVENV_CONTAINER_NAME \
     -w /root ${options} \
     -e CONTRAIL_DEV_ENV=/root/tf-dev-env \
@@ -121,12 +120,12 @@ else
   if is_container_up "$TF_DEVENV_CONTAINER_NAME"; then
     echo "$TF_DEVENV_CONTAINER_NAME already running."
   else
-    echo $(sudo -E docker start $TF_DEVENV_CONTAINER_NAME) started.
+    echo $(sudo docker start $TF_DEVENV_CONTAINER_NAME) started.
   fi
 fi
 
 echo "run stages $stages" 
-sudo -E docker exec -i $TF_DEVENV_CONTAINER_NAME /root/run.sh $stages | tee -a ${log_path}
+sudo docker exec -i $TF_DEVENV_CONTAINER_NAME /root/run.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
 if [[ $result == 0 ]] ; then

@@ -59,13 +59,13 @@ fi
 if [[ $remove_sources -eq 1 ]] ; then
   echo
   echo '[folder]'
-  [ -d "$CONTRAIL_DIR" ] && sudo -E rm -rf "$CONTRAIL_DIR"
+  [ -d "$CONTRAIL_DIR" ] && sudo rm -rf "$CONTRAIL_DIR"
 fi
 
 if [[ $remove_tf_dev_config -eq 1 ]] ; then
   echo
   echo '[tf dev config]'
-  [ -d "$TF_CONFIG_DIR" ] && sudo -E rm -rf "$TF_CONFIG_DIR"
+  [ -d "$TF_CONFIG_DIR" ] && sudo rm -rf "$TF_CONFIG_DIR"
 fi
 
 echo tf-dev-env cleanup finished
