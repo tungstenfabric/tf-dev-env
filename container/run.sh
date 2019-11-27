@@ -7,6 +7,7 @@ set -eo pipefail
 stages=${1//,/ }
 
 declare -a all_stages=(fetch configure compile package test)
+declare -a build_stages=(fetch configure compile package)
 
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 
@@ -111,7 +112,7 @@ if [[ -z "$stages" ]] ; then
     fi
 elif [[ "$stages" =~ 'build' ]] ; then
     # run default stages for 'build' option
-    for stage in ${all_stages[@]} ; do
+    for stage in ${build_stages[@]} ; do
         if ! finished_stage "$stage" ; then
             run_stage $stage $2
         fi
