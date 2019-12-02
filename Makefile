@@ -9,10 +9,15 @@ REPODIR=$(TF_DE_TOP)contrail
 CONTAINER_BUILDER_DIR=$(REPODIR)/contrail-container-builder
 CONTRAIL_DEPLOYERS_DIR=$(REPODIR)/contrail-deployers-containers
 CONTRAIL_TEST_DIR=$(REPODIR)/third_party/contrail-test
+export DEBUG
 export REPODIR
 export CONTRAIL_DEPLOYERS_DIR
 export CONTRAIL_TEST_DIR
 export CONTAINER_BUILDER_DIR
+# for applying custome patches from review
+export GERRIT_CHANGE_ID
+export GERRIT_CHANGE_URL
+export GERRIT_BRANCH
 
 
 all: dep rpm containers

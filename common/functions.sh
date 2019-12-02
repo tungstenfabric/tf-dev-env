@@ -37,12 +37,6 @@ function save_tf_devenv_profile() {
   echo '[update tf devenv configuration]'
   mkdir -p "$(dirname $file)"
   cat <<EOF > $file
-# build process options
-BUILD_DEV_ENV=\${BUILD_DEV_ENV:-${BUILD_DEV_ENV}}
-BUILD_DEV_ENV_ON_PULL_FAIL=\${BUILD_DEV_ENV_ON_PULL_FAIL:-${BUILD_DEV_ENV_ON_PULL_FAIL}}
-CONTRAIL_DEPLOY_REGISTRY=\${CONTRAIL_DEPLOY_REGISTRY:-${CONTRAIL_DEPLOY_REGISTRY}}
-CONTRAIL_DEPLOY_RPM_REPO=\${CONTRAIL_DEPLOY_RPM_REPO:-${CONTRAIL_DEPLOY_RPM_REPO}}
-
 # dev env options
 CONTRAIL_CONTAINER_TAG=\${CONTRAIL_CONTAINER_TAG:-${CONTRAIL_CONTAINER_TAG}}
 REGISTRY_IP=\${REGISTRY_IP:-${REGISTRY_IP}}
@@ -63,7 +57,9 @@ function load_tf_devenv_profile() {
   if [ -e "$TF_DEVENV_PROFILE" ] ; then
     echo
     echo '[load tf devenv configuration]'
+    set -o allexport
     source "$TF_DEVENV_PROFILE"
+    set +o allexport
   else
     echo
     echo '[there is no tf devenv configuration to load]'

@@ -11,6 +11,6 @@ for test in $(jq -r ".[].scons_test_targets[]"  controller/ci_unittests.json| so
     then continue
   fi
 echo "INFO: Starting unit tests for package " $test
-python3 $scriptdir/run-tests.py -j $JOBS $test
+$scriptdir/run-tests.py -j $JOBS $test
 done;
 

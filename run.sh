@@ -49,33 +49,27 @@ cat $scriptdir/common.env
 timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
 log_path="${WORKSPACE}/build_${timestamp}.log"
 
+# make env profile for run inside container
+cat <<EOF > ${CONTRAIL_DIR}/tf-developer-sandbox.env
+CONTRAIL_DEV_ENV=/root/tf-dev-env
+DEVENVTAG=$DEVENVTAG
+CONTRAIL_SOURCE="$SRC_ROOT"
+CONTRAIL_BUILD_FROM_SOURCE="${CONTRAIL_BUILD_FROM_SOURCE}"
+CANONICAL_HOSTNAME="${CANONICAL_HOSTNAME}"
+SITE_MIRROR="${SITE_MIRROR}"
+DEBUG="${DEBUG}"
+# code review system options
+GERRIT_CHANGE_ID="$GERRIT_CHANGE_ID"
+GERRIT_CHANGE_URL="$GERRIT_CHANGE_URL"
+GERRIT_BRANCH="$GERRIT_BRANCH"
+EOF
+
 echo
 echo '[environment setup]'
 if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
-  options+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
-  options+=" -e DEVENVTAG=$DEVENVTAG"
+  options+=" -v ${CONTRAIL_DIR}:/root/contrail:z" 
   
-  if [[ -n "${SRC_ROOT}" ]]; then
-    options+=" -e CONTRAIL_SOURCE=$SRC_ROOT"
-  fi
-
-  if [ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]; then
-    options+=" -e CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}"
-  fi
-
-  if [[ -n "${CANONICAL_HOSTNAME}" ]]; then
-    options+=" -e CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME}"
-  fi
-
-  if [[ -n "${SITE_MIRROR}" ]]; then
-    options+=" -e SITE_MIRROR=${SITE_MIRROR}"
-  fi
-
-  if [[ -n "$DEBUG" ]] ; then
-    options+=" -e DEBUG=${DEBUG}"
-  fi
-
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
     if ! sudo docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! sudo docker pull $DEVENV_IMAGE ; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
@@ -100,17 +94,17 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     cd ${scriptdir}
   fi
 
-  volumes="-v /var/run/docker.sock:/var/run/docker.sock"
+  volumes="-v /var/run:/var/run"
   volumes+=" -v ${scriptdir}:/root/tf-dev-env"
-  volumes+=" -v ${scriptdir}/container/entrypoint.sh:/root/entrypoint.sh"
+  volumes+=" -v ${scriptdir}/container:/root/container"
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config"
   fi
   start_sandbox_cmd="sudo docker run --network host --privileged --detach \
     --name $TF_DEVENV_CONTAINER_NAME \
     -w /root ${options} \
-    -e CONTRAIL_DEV_ENV=/root/tf-dev-env \
     $volumes -it \
+    --env-file ${CONTRAIL_DIR}/tf-developer-sandbox.env \
     ${DEVENV_IMAGE}"
 
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
@@ -131,7 +125,15 @@ result=${PIPESTATUS[0]}
 if [[ $result == 0 ]] ; then
   echo
   echo '[DONE]'
-  echo "If needed You can now connect to the sandbox container by using:"
+  echo "There are stages avalable to run ./run.sh <stage>:"
+  echo "  build     - perform sequence of stages: fetch, configure, compile, package"
+  echo "              (if stage was run previously it be skipped)"
+  echo "  fetch     - sync TF git repos"
+  echo "  configure - fetch third party packages and install dependencies"
+  echo "  compile   - buld contrail"
+  echo "  package   - package contrail into docker containers"
+  echo "  test      - run unittests"
+  echo "For advanced usage You can now connect to the sandbox container by using:"
   echo "  sudo docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
 else
   echo

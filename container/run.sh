@@ -1,15 +1,24 @@
 #!/bin/bash
 
+stages=${1//,/ }
+
+echo "INFO: run stages $stages"
+
+if [[ -e ${CONTRAIL}/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from ${CONTRAIL}/tf-developer-sandbox.env"
+    set -o allexport
+    source ${CONTRAIL}/tf-developer-sandbox.env
+    set +o allexport
+fi
+
 [ -n "$DEBUG" ] && set -x
 
 set -eo pipefail
 
-stages=${1//,/ }
-
 declare -a all_stages=(fetch configure compile package test)
 declare -a build_stages=(fetch configure compile package)
 
-CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
+export CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 
 if [[ -d /config ]]; then
   cp -rf /config/* /
