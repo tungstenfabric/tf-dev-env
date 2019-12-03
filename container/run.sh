@@ -1,6 +1,7 @@
 #!/bin/bash
 
 stages=${1//,/ }
+shift
 
 echo "INFO: run stages $stages"
 
@@ -123,21 +124,21 @@ elif [[ "$stages" =~ 'build' ]] ; then
     # run default stages for 'build' option
     for stage in ${build_stages[@]} ; do
         if ! finished_stage "$stage" ; then
-            run_stage $stage $2
+            run_stage $stage $@
         fi
     done
 elif [[ "$stages" =~ 'test' ]] ; then
     # run default stages for 'build' option
     for stage in ${test_stages[@]} ; do
         if ! finished_stage "$stage" ; then
-            run_stage $stage $2
+            run_stage $stage $@
         fi
     done
 else
     # run selected stages
     for stage in ${stages} ; do
         if [[ "$stages" =~ $stage ]] ; then
-          run_stage $stage $2
+          run_stage $stage $@
         fi
     done
 fi
