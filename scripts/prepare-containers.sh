@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-REPODIR=${REPODIR:-"/root/src/${CANONICAL_HOSTNAME}/Juniper"}
+REPODIR=${REPODIR:-"."}
 CONTAINER_BUILDER_DIR=${CONTAINER_BUILDER_DIR:-"${REPODIR}/contrail-container-builder"}
 
 for file in $CONTRAIL_CONFIG_DIR/etc/yum.repos.d/*.repo tpc.repo.template; do

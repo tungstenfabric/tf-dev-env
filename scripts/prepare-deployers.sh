@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-REPODIR=${REPODIR:-"/root/src/${CANONICAL_HOSTNAME}/Juniper"}
+REPODIR=${REPODIR:-"."}
 CONTRAIL_DEPLOYERS_DIR=${CONTRAIL_DEPLOYERS_DIR:-"${REPODIR}/contrail-deployers-containers"}
 
 for file in tpc.repo.template common.env ; do
