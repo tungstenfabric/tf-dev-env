@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-REPODIR=${REPODIR:-"/root/src/${CANONICAL_HOSTNAME}/Juniper"}
+REPODIR=${REPODIR:-"."}
 CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/contrail-test"}
 
 cp common.env ${CONTRAIL_TEST_DIR}
