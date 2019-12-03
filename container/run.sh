@@ -20,9 +20,8 @@ declare -a build_stages=(fetch configure compile package)
 
 export CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 
-if [[ -d /config ]]; then
-  cp -rf /config/* /
-  export CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-"/config"}
+if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" ]]; then
+  cp -rf ${CONTRAIL_CONFIG_DIR}/* /
 fi
 
 cd $CONTRAIL_DEV_ENV

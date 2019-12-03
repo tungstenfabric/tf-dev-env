@@ -60,6 +60,12 @@ CANONICAL_HOSTNAME="${CANONICAL_HOSTNAME}"
 SITE_MIRROR="${SITE_MIRROR}"
 EOF
 
+if [[ -d "${scriptdir}/config" ]]; then
+  cat <<EOF >> ${CONTRAIL_DIR}/tf-developer-sandbox.env
+CONTRAIL_CONFIG_DIR="$CONTRAIL_CONFIG_DIR"
+EOF
+fi
+
 if [[ -n "$GERRIT_CHANGE_ID" && -n "$GERRIT_CHANGE_URL" && -n "$GERRIT_BRANCH" ]] ; then
   cat <<EOF >> ${CONTRAIL_DIR}/tf-developer-sandbox.env
 # code review system options
@@ -67,6 +73,7 @@ GERRIT_CHANGE_ID="$GERRIT_CHANGE_ID"
 GERRIT_CHANGE_URL="$GERRIT_CHANGE_URL"
 GERRIT_BRANCH="$GERRIT_BRANCH"
 EOF
+fi
 
 echo
 echo '[environment setup]'
@@ -98,11 +105,10 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     cd ${scriptdir}
   fi
 
-  volumes="-v /var/run:/var/run"
-  volumes+=" -v ${scriptdir}:/root/tf-dev-env"
-  volumes+=" -v ${scriptdir}/container:/root/container"
+  volumes="-v /var/run:/var/run:z"
+  volumes+=" -v ${scriptdir}:/root/tf-dev-env:z"
   if [[ -d "${scriptdir}/config" ]]; then
-    volumes+=" -v ${scriptdir}/config:/config"
+    volumes+=" -v ${scriptdir}/config:/config:z"
   fi
   start_sandbox_cmd="sudo docker run --network host --privileged --detach \
     --name $TF_DEVENV_CONTAINER_NAME \
