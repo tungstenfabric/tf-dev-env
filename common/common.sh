@@ -14,8 +14,15 @@ export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
 
 # working build directories
-export SRC_ROOT=${SRC_ROOT:-}
-export CONTRAIL_DIR="${SRC_ROOT:-${WORKSPACE}/contrail}"
+if [ -z "${CONTRAIL_DIR+x}" ] ; then
+  # not defined => use default
+  CONTRAIL_DIR=${WORKSPACE}/contrail 
+elif [ -z "$CONTRAIL_DIR" ] ; then
+  # defined empty => dont bind contrail dir to host: tf jenkins
+  CONTRAIL_DIR=${WORKSPACE}/contrail 
+  BIND_CONTRAIL_DIR=false
+fi
+export CONTRAIL_DIR
 
 # build environment preparation options
 export REGISTRY_PORT=${REGISTRY_PORT:-5000}

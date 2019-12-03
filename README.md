@@ -204,7 +204,7 @@ There are several environment variables are used to build dev-env docker image:
 You can attach you host contrail-vnc sources instead of syncing them from github.com.
 
 There are special environment variables to set correct behaviour:
-  - **SRC_ROOT** stores host's path to initialized contrail-vnc repository.
+  - **CONTRAIL_DIR** stores host's path to initialized contrail-vnc repository.
   - **EXTERNAL_REPOS** stores path to external repositories like *contrail-containers-builder*, *contrail-deployers-containers* and *contrail-test*. These repositories must be placed there in format `<server_name>/<namespace>/<project_name>` (for example `review.opencontrail.org/Juniper/contrail-containers-builder`)
   - **CANONICAL_HOSTNAME** stores `<server_name>`. It used to find required repositories in **EXTERNAL_REPOS**.
   - **SITE_MIRROR** stores contrail third-party repository url. It used to collect external packages required by *contrail-third-party* tools.

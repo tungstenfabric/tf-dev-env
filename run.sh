@@ -52,12 +52,12 @@ log_path="${WORKSPACE}/build_${timestamp}.log"
 # make env profile for run inside container
 tf_container_env_dir=${CONTRAIL_DIR}/.env
 mkdir -p $tf_container_env_dir
-tf_container_env_file=${CONTRAIL_DIR}/.env/tf-developer-sandbox.env
+tf_container_env_file=${tf_container_env_dir}/tf-developer-sandbox.env
 cat <<EOF > $tf_container_env_file
 DEBUG=${DEBUG}
 CONTRAIL_DEV_ENV=/root/tf-dev-env
 DEVENVTAG=$DEVENVTAG
-CONTRAIL_SOURCE=$SRC_ROOT
+CONTRAIL_SOURCE=$CONTRAIL_DIR
 CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
 CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME}
 SITE_MIRROR="${SITE_MIRROR}"
@@ -108,15 +108,18 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   volumes="-v /var/run:/var/run:z"
   volumes+=" -v ${scriptdir}:/root/tf-dev-env:z"
-  volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
+  if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
+    volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
+  fi
   volumes+=" -v ${CONTRAIL_DIR}/RPMS:/root/contrail/RPMS:z"
   volumes+=" -v ${tf_container_env_dir}:/root/contrail/.env:z"
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config:z"
   fi
-  # Still use env variables because there is backward compatibility case
-  # with manual doing docker exec into container and user of make.
-  # Recommended way to use ./run.sh [<target>] supports overoading of env vars
+  # Provide env variables because:
+  #  - there is backward compatibility case with manual doing docker exec
+  #  into container and user of make.
+  #  - TF Jenkins CI use non-bind folder for sources
   start_sandbox_cmd="sudo docker run --network host --privileged --detach \
     --name $TF_DEVENV_CONTAINER_NAME \
     -w /root ${options} \
