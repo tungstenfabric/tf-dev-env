@@ -16,11 +16,6 @@ fi
 
 cd $REPODIR
 
-vnc_branch="master"
-if [[ "$DEVENVTAG" != "latest" ]]; then
-  vnc_branch="$DEVENVTAG"
-fi
-
 repo_init_defauilts='--depth=1'
 repo_sync_defauilts='--current-branch --no-tags --no-clone-bundle'
 if [ -n "$GERRIT_CHANGE_URL" ] ; then
@@ -29,7 +24,9 @@ if [ -n "$GERRIT_CHANGE_URL" ] ; then
 fi
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
-REPO_INIT_MANIFEST_OPTS=${REPO_INIT_MANIFEST_OPTS:-"-u https://github.com/Juniper/contrail-vnc -b $vnc_branch"}
+
+REPO_INIT_MANIFEST_BRANCH=${REPO_INIT_MANIFEST_BRANCH:-'master'}
+REPO_INIT_MANIFEST_URL=${REPO_INIT_MANIFEST_URL:-"https://github.com/Juniper/contrail-vnc"}
 REPO_INIT_OPTS=${REPO_INIT_OPTS:-${repo_init_defauilts}}
 REPO_SYNC_OPTS=${REPO_SYNC_OPTS:-${repo_sync_defauilts}}
 REPO_TOOL=${REPO_TOOL:-"./repo"}
@@ -45,10 +42,12 @@ echo "INFO: Init contrail sources git repos"
 # use a default for repo sync if not
 git config --get user.name >/dev/null  2>&1 || git config --global user.name "tf-dev-env"
 git config --get user.email >/dev/null 2>&1 || git config --global user.email "tf-dev-env@tf"
-echo "INFO: cmd: $REPO_TOOL init $REPO_INIT_OPTS $REPO_INIT_MANIFEST_OPTS"
+
+REPO_INIT_OPTS+=" -u $REPO_INIT_MANIFEST_URL -b $REPO_INIT_MANIFEST_BRANCH"
+echo "INFO: cmd: $REPO_TOOL init $REPO_INIT_OPTS"
 # disable pipefail because 'yes' fails if repo init doesnt read at least once 
 set +o pipefail
-yes | $REPO_TOOL init $REPO_INIT_OPTS $REPO_INIT_MANIFEST_OPTS
+yes | $REPO_TOOL init $REPO_INIT_OPTS
 if [[ $? != 0 ]] ; then
   echo  "ERROR: repo init failed"
   exit 1
