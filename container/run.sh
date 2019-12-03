@@ -4,10 +4,10 @@ stages=${1//,/ }
 
 echo "INFO: run stages $stages"
 
-if [[ -e ${CONTRAIL}/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from ${CONTRAIL}/tf-developer-sandbox.env"
+if [[ -e ${CONTRAIL}/.env/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from ${CONTRAIL}/.env/tf-developer-sandbox.env"
     set -o allexport
-    source ${CONTRAIL}/tf-developer-sandbox.env
+    source ${CONTRAIL}/.env/tf-developer-sandbox.env
     set +o allexport
 fi
 
