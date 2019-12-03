@@ -51,13 +51,17 @@ log_path="${WORKSPACE}/build_${timestamp}.log"
 
 # make env profile for run inside container
 cat <<EOF > ${CONTRAIL_DIR}/tf-developer-sandbox.env
+DEBUG=${DEBUG}
 CONTRAIL_DEV_ENV=/root/tf-dev-env
 DEVENVTAG=$DEVENVTAG
 CONTRAIL_SOURCE=$SRC_ROOT
-CONTRAIL_BUILD_FROM_SOURCE="${CONTRAIL_BUILD_FROM_SOURCE}"
+CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
 CANONICAL_HOSTNAME="${CANONICAL_HOSTNAME}"
 SITE_MIRROR="${SITE_MIRROR}"
-DEBUG=${DEBUG}
+EOF
+
+if [[ -n "$GERRIT_CHANGE_ID" && -n "$GERRIT_CHANGE_URL" && -n "$GERRIT_BRANCH" ]] ; then
+  cat <<EOF >> ${CONTRAIL_DIR}/tf-developer-sandbox.env
 # code review system options
 GERRIT_CHANGE_ID="$GERRIT_CHANGE_ID"
 GERRIT_CHANGE_URL="$GERRIT_CHANGE_URL"
