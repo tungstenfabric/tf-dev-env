@@ -50,7 +50,10 @@ timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
 log_path="${WORKSPACE}/build_${timestamp}.log"
 
 # make env profile for run inside container
-cat <<EOF > ${CONTRAIL_DIR}/tf-developer-sandbox.env
+tf_container_env_dir=${CONTRAIL_DIR}/.env
+mkdir -p $tf_container_env_dir
+tf_container_env_file=${CONTRAIL_DIR}/.env/tf-developer-sandbox.env
+cat <<EOF > $tf_container_env_file
 DEBUG=${DEBUG}
 CONTRAIL_DEV_ENV=/root/tf-dev-env
 DEVENVTAG=$DEVENVTAG
@@ -61,13 +64,13 @@ SITE_MIRROR="${SITE_MIRROR}"
 EOF
 
 if [[ -d "${scriptdir}/config" ]]; then
-  cat <<EOF >> ${CONTRAIL_DIR}/tf-developer-sandbox.env
+  cat <<EOF >> $tf_container_env_file
 CONTRAIL_CONFIG_DIR="$CONTRAIL_CONFIG_DIR"
 EOF
 fi
 
 if [[ -n "$GERRIT_CHANGE_ID" && -n "$GERRIT_CHANGE_URL" && -n "$GERRIT_BRANCH" ]] ; then
-  cat <<EOF >> ${CONTRAIL_DIR}/tf-developer-sandbox.env
+  cat <<EOF >> $tf_container_env_file
 # code review system options
 GERRIT_CHANGE_ID="$GERRIT_CHANGE_ID"
 GERRIT_CHANGE_URL="$GERRIT_CHANGE_URL"
@@ -78,9 +81,6 @@ fi
 echo
 echo '[environment setup]'
 if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
-  options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
-  options+=" -v ${CONTRAIL_DIR}:/root/contrail:z" 
-  
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
     if ! sudo docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! sudo docker pull $DEVENV_IMAGE ; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
@@ -105,19 +105,31 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     cd ${scriptdir}
   fi
 
+  options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   volumes="-v /var/run:/var/run:z"
   volumes+=" -v ${scriptdir}:/root/tf-dev-env:z"
+  volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
+  volumes+=" -v ${CONTRAIL_DIR}/RPMS:/root/contrail/RPMS:z"
+  volumes+=" -v ${tf_container_env_dir}:/root/contrail/.env:z"
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config:z"
   fi
+  # Still use env variables because there is backward compatibility case
+  # with manual doing docker exec into container and user of make.
+  # Recommended way to use ./run.sh [<target>] supports overoading of env vars
   start_sandbox_cmd="sudo docker run --network host --privileged --detach \
     --name $TF_DEVENV_CONTAINER_NAME \
     -w /root ${options} \
     $volumes -it \
-    --env-file ${CONTRAIL_DIR}/tf-developer-sandbox.env \
+    --env-file $tf_container_env_file \
     ${DEVENV_IMAGE}"
 
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
+  if [[ ${PIPESTATUS[0]} != 0 ]] ; then
+    echo
+    echo "ERROR: Failed to run $TF_DEVENV_CONTAINER_NAME container."
+    exit 1
+  fi
 
   echo $TF_DEVENV_CONTAINER_NAME created.
 else
