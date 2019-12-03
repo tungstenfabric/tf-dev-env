@@ -69,8 +69,11 @@ if [[ -n "$GERRIT_CHANGE_URL" ]] ; then
 fi
 
 echo "INFO: Sync contrail sources git repos"
+threads=$(( $(nproc) * 8 ))
+if (( threads > 16 )) ; then
+  threads=16
+fi
 echo "INFO: cmd: $REPO_TOOL sync $REPO_SYNC_OPTS -j $threads"
-threads=$(( $(nproc) * 2 ))
 $REPO_TOOL sync $REPO_SYNC_OPTS -j $threads
 if [[ $? != 0 ]] ; then
   echo  "ERROR: repo sync failed"
