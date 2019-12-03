@@ -17,7 +17,7 @@ set -eo pipefail
 
 declare -a all_stages=(fetch configure compile package test)
 declare -a build_stages=(fetch configure compile package)
-declare -a test_stages=(fetch configure compile package test)
+declare -a test_stages=(fetch configure test)
 
 export CANONICAL_HOSTNAME=${CANONICAL_HOSTNAME:-"review.opencontrail.org"}
 
