@@ -139,6 +139,11 @@ else
   fi
 fi
 
+if [[ "$stages" == 'none' ]] ; then
+  echo "INFO: dont run any stages"
+  exit 0
+fi
+
 echo "run stages $stages" 
 sudo docker exec -i $TF_DEVENV_CONTAINER_NAME /root/run.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
