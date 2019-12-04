@@ -61,7 +61,7 @@ EOF
 
 if [[ -d "${scriptdir}/config" ]]; then
   cat <<EOF >> $tf_container_env_file
-CONTRAIL_CONFIG_DIR="$CONTRAIL_CONFIG_DIR"
+CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-"/config"}
 EOF
 fi
 
