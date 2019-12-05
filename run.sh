@@ -71,6 +71,9 @@ if [[ -n "$GERRIT_CHANGE_ID" && -n "$GERRIT_CHANGE_URL" && -n "$GERRIT_BRANCH" ]
 GERRIT_CHANGE_ID=$GERRIT_CHANGE_ID
 GERRIT_CHANGE_URL=$GERRIT_CHANGE_URL
 GERRIT_BRANCH=$GERRIT_BRANCH
+GERRIT_CHANGE_NUMBER=$GERRIT_CHANGE_NUMBER
+GERRIT_PATCHSET_NUMBER=$GERRIT_PATCHSET_NUMBER
+GERRIT_PROJECT=$GERRIT_PROJECT
 EOF
 fi
 
@@ -144,7 +147,7 @@ if [[ "$stages" == 'none' ]] ; then
   exit 0
 fi
 
-echo "run stages $stages" 
+echo "run stages $stages"
 sudo docker exec -i $TF_DEVENV_CONTAINER_NAME /root/run.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
