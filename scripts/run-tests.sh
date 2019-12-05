@@ -7,8 +7,8 @@ JOBS=${JOBS:-1}
 scriptdir=$(realpath $(dirname "$0"))
 cd /root/contrail/
 
-if [[ -f /root/tf-dev-env/ut_targets ]] ; then
-  for utest in $(cat /root/tf-dev-env/ut_targets) ; do
+if [[ -f unittest_targets ]] ; then
+  for utest in $(cat unittest_targets) ; do
     $scriptdir/run-tests.py -j $JOBS $utest
   done
 else

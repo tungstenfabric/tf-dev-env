@@ -84,7 +84,7 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
     echo "ERROR: GERRIT_CHANGE_ID is provided but GERRIT_CHANGE_URL is not"
     exit 1
   }
-  gather-unittest-targets.py > /root/tf-dev-env/ut_targets
+  ${scriptdir}/gather-unittest-targets.py > /root/contrail/unittest_targets  || exit 1
   # apply patches
   ${scriptdir}/resolve-patchsets.py \
     --gerrit $gerrit \
