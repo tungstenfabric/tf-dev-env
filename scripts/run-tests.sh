@@ -5,9 +5,10 @@ JOBS=${JOBS:-1}
 
 scriptdir=$(realpath $(dirname "$0"))
 
+cd /root/contrail 
 res=0
-if [[ -f /root/contrail/unittest_targets ]] ; then
-  for utest in $(cat unittest_targets) ; do
+if [[ -f ./unittest_targets ]] ; then
+  for utest in $(cat ./unittest_targets) ; do
     echo "INFO: Starting unit tests for package $utest"
     if ! $scriptdir/run-tests.py -j $JOBS $utest ; then
       res=1
