@@ -15,6 +15,7 @@ if [ -z "${REPODIR}" ] ; then
 fi
 
 cd $REPODIR
+echo "INFO: current folder is ${pwd}"
 
 repo_init_defauilts='--depth=1'
 repo_sync_defauilts='--current-branch --no-tags --no-clone-bundle'
@@ -84,7 +85,10 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
     echo "ERROR: GERRIT_CHANGE_ID is provided but GERRIT_CHANGE_URL is not"
     exit 1
   }
-  ${scriptdir}/gather-unittest-targets.py > /root/contrail/unittest_targets  || exit 1
+  echo "INFO: gathering UT targets"
+  ${scriptdir}/gather-unittest-targets.py > ./unittest_targets || exit 1
+  cat ./unittest_targets
+  echo "INFO: resolve patchsets"
   # apply patches
   ${scriptdir}/resolve-patchsets.py \
     --gerrit $gerrit \
