@@ -35,6 +35,9 @@ if [[ "$res" != '0' ]]; then
   echo "ERROR: some UT failed"
 fi
 
-tar -czvf ../tf-dev-env/logs.tgz ../tf-dev-env/build_*
+pushd ../tf-dev-env
+ls -l
+tar -czvf logs.tgz build_*
+popd
 
 exit $res
