@@ -2,8 +2,9 @@
 
 REPODIR=${REPODIR:-"."}
 CONTAINER_BUILDER_DIR=${CONTAINER_BUILDER_DIR:-"${REPODIR}/contrail-container-builder"}
+COPY_REPO_GLOB=${COPY_REPO_GLOB:-"config/etc/yum.repos.d/*.repo"}	
 
-for file in $CONTRAIL_CONFIG_DIR/etc/yum.repos.d/*.repo tpc.repo.template; do
+for file in $COPY_REPO_GLOB tpc.repo.template; do
   if [ -e $file ]; then
     if ! echo $file | egrep -q '.template$'; then
       cp $file ${CONTAINER_BUILDER_DIR}/$(basename $file).template
