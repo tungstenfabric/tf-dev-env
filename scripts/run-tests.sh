@@ -8,8 +8,11 @@ scriptdir=$(realpath $(dirname "$0"))
 cd /root/contrail 
 res=0
 if [[ -f ./unittest_targets ]] ; then
+  echo "INFO: targets to run:"
+  cat ./unittest_targets
+  echo ; echo
   for utest in $(cat ./unittest_targets) ; do
-    echo "INFO: Starting unit tests for package $utest"
+    echo "INFO: Starting unit tests for target $utest"
     if ! $scriptdir/run-tests.py -j $JOBS $utest ; then
       res=1
       echo "ERROR: $utest failed"
@@ -20,7 +23,7 @@ else
     if [[ -n "$TARGET" && "$utest" != *"$TARGET"* ]]; then
       continue
     fi
-    echo "INFO: Starting unit tests for package $utest"
+    echo "INFO: Starting unit tests for target $utest"
     if ! $scriptdir/run-tests.py -j $JOBS $utest ; then
       res=1
       echo "ERROR: $utest failed"
