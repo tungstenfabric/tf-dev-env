@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TARGET=${1:-}
-JOBS=${JOBS:-1}
+JOBS=${JOBS:-$(nproc)}
 
 scriptdir=$(realpath $(dirname "$0"))
 
