@@ -37,7 +37,8 @@ fi
 
 pushd ../tf-dev-env
 ls -l
-tar -czvf logs.tgz build_*
+# there are no files build_*
+# tar -czvf logs.tgz build_* 
 popd
 
 exit $res
