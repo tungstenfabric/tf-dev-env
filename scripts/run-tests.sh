@@ -35,10 +35,4 @@ if [[ "$res" != '0' ]]; then
   echo "ERROR: some UT failed"
 fi
 
-pushd ../tf-dev-env
-ls -l
-# there are no files build_*
-# tar -czvf logs.tgz build_* 
-popd
-
 exit $res
