@@ -6,6 +6,9 @@ JOBS=${JOBS:-$(nproc)}
 scriptdir=$(realpath $(dirname "$0"))
 
 cd /root/contrail
+
+if [ ! -d logs ] ; then mkdir logs  ; fi
+
 res=0
 if [[ -f ./unittest_targets ]] ; then
   echo "INFO: targets to run:"
