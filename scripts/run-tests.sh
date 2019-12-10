@@ -24,7 +24,7 @@ else
       continue
     fi
     echo "INFO: Starting unit tests for target $utest"
-    if ! $scriptdir/run-tests.py -j $JOBS $utest ; then
+    if ! $scriptdir/run-tests.py -j $JOBS $utest >> /root/contrail/logs/unit_test.log; then
       res=1
       echo "ERROR: $utest failed"
     fi
