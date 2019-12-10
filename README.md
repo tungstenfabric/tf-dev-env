@@ -1,98 +1,116 @@
 # tf-dev-env: Tungsten Fabric Developer Environment
 
-## Problems? Need Help?
+## Full TF dev suite
 
-This repository is a fork of existing juniper/contrail-dev-env repository which is
-actively maintained via [Gerrit]. This repository at the moment is not connected to
-gerrit and can be modified via github PRs.
-You can ask for help on [Slack] but if no one replies right away, you can also post
-to the new [Google Group].
+IMPORTANT: some of the parts and pieces are still under construction
 
-## Documentation for dev-env components
+Full TF dev suite consists of:
 
-Since dev-env uses generally available TF components, please refer to following documentation pages:
+- [tf-dev-env](https://github.com/tungstenfabric/tf-dev-env) - develop and build TF
+- [tf-devstack](https://github.com/tungstenfabric/tf-devstack) - deploy TF
+- [tf-test](https://github.com/tungstenfabric/tf-test) - test deployed TF
 
-1. for packages generation: [contrail-packages](https://github.com/Juniper/contrail-packages/blob/master/README.md)
-2. for building containers: [contrail-container-builder](https://github.com/Juniper/contrail-container-builder/blob/master/README.md) and [contrail-deployers-containers](https://github.com/Juniper/contrail-deployers-containers/blob/master/README.md)
-3. for deployments: [contrail-ansible-deployer](https://github.com/Juniper/contrail-ansible-deployer/blob/master/README.md)
+Each of these tools can be used separately or in conjunction with the other two. They are supposed to be invoked in the sequence they were listed and produce environment (conf files and variables) seamlessly consumable by the next tool.
 
-## Container-based (standard)
+They provide two main scripts:
 
-There are 2 official sources of containers for dev-env:
+- run.sh
+- cleanup.sh
 
-1. Released images on docker hub [opencontrail](https://hub.docker.com/r/opencontrail/developer-sandbox-centos/), tagged with released version.
-2. Nightly images on docker hub [opencontrailnightly](https://hub.docker.com/r/opencontrailnightly/developer-sandbox-centos/), tagged with corresponding development branch.
-   *Note:* tag `latest` points to `master` branch.
+Both these scripts accept targets (like ``run.sh build``) for various actions.
 
-You can also use your own image, built using `container/build.sh` script.
+Typical scenarios is (examples are given for centos):
 
-### 1. Install docker
+### 1. Preparation part
+
+Run a machine, for example AWS instance or a VirtualBox (at least 4 cores is recommended - the more CPUs the faster build; memory - 16GB+ recommended, at least 64GB of free disk space)
+
+Enable passwordless sudo for your user
+(for centos example: [serverfault page](https://serverfault.com/questions/160581/how-to-setup-passwordless-sudo-on-linux))
+
+Make a workspace directory. This directory be used for storing build artifacts.
+``` bash
+mkdir ~/tf
+cd ~/tf
 ```
-For mac:          https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac
+Note: tf-dev-env uses current dir as a workspace byt default, in order to run tf-dev-env scripts from different folders it is needed to export WORKSPACE env variable to point to the workspace, e.g.:
+``` bash
+export WORKSPACE=~/tf
 ```
-For CentOS/RHEL/Fedora linux host:
-```
-sudo yum install -y yum-utils device-mapper-persistent-data lvm2
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum install -y docker-ce-18.03.1.ce
-```
-For Ubuntu linux host:
-```
-sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository -y -u "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-sudo apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
-```
+(to make it permanent add this line into the end of your ~/.bashrc)
 
-NOTE (only if you hit any issues):
-Make sure that your docker engine supports images bigger than 10GB. For instructions,
-see here: https://stackoverflow.com/questions/37100065/resize-disk-usage-of-a-docker-container
-Make sure that there is TCP connectivity allowed between the containers in the default docker bridge network,
-(for example disable firewall).
+Install git and make a folder for a workspace:
 
-### 2. Make a workspace directory (will be used for contrail sources and build artifacts)
-Note, the volume should have at least 64GB of free space for build purposes.
+``` bash
+sudo yum install -y git
 ```
-mkdir tf
-cd tf
+The volume should have at least 64GB of free space for build purposes.
+
+### 2. Download tf-dev-env
+
+``` bash
+git clone http://github.com/tungstenfabric/tf-dev-env
 ```
 
-### 3. Clone dev setup repo
-Install git if needed first and then:
+Prepare the build container and fetch TF sources:
+
+``` bash
+tf-dev-env/run.sh
 ```
-git clone https://github.com/tungstenfabric/tf-dev-env
+Note: The sources are fetched into the directory $WORKSPACE/contrail.
+The tool https://storage.googleapis.com/git-repo-downloads/repo is used for fetching.
+The directory structure corresponds to the 
+https://github.com/Juniper/contrail-vnc/blob/master/default.xml
+
+
+### 3. Make changes (if any needed)
+
+Make required changes in sources fetched to contrail directory. For example, fetch particular review for controller (you can find download link in the gerrit review):
+
+``` bash
+cd contrail/controller
+git fetch "https://review.opencontrail.org/Juniper/contrail-controller" refs/changes/..... && git checkout FETCH_HEAD
+cd ../../
 ```
 
-### 4. Execute startup script to start all required containers
-```
-./tf-dev-env/run.sh
-```
+### 3. Build artifact
 
-**Note:** This command runs container `opencontrailnightly/developer-sandbox-centos:master` from [opencontrailnightly docker hub](https://hub.docker.com/r/opencontrailnightly/developer-sandbox/) by
-default. You can specify different image and/or tag using flags, e.g.
-
-1. to develop on nightly R5.0 container use: `./run.sh -t R5.1`
-2. to develop code based on a tagged `r5.1` release, use: `./run.sh -i opencontrail/developer-sandbox -t r5.1`
-Also you can export BUILD_DEV_ENV=1 to explicit build of sandbox container locally if sandbox is not run yet.
-Please note - if you don't pass '-t' option (or pass it as 'latest') then latest tag for sandbox image and master branch of contrail-vnc repo will be used. If you pass something else then this tag will be used for sandbox image and contrail-vnc will be cloned by the same branch name.
-
-##### docker ps -a should show these 3 containers #####
+``` bash
+tf-dev-env/run.sh build
 ```
-tf-developer-sandbox [For running scons, unit-tests etc]
-tf-dev-env-rpm-repo  [Repo server for contrail RPMs after they are build]
-tf-dev-env-registry  [Registry for contrail containers after they are built]
+The target 'build' is a sequence of fetch, configure, compile and package targets. Each target is executed once and would be skipped on next runs of the build target.
+Any tartet can be run again explicitely if needed like:
+``` bash
+./run.sh compile
+./run.sh package
 ```
 
-### 5. Attach to developer-sandbox container
+Supported targets:
+  * fetch     - sync TF git repos
+  * configure - fetch third party packages and install dependencies
+  * compile   - buld TF binaries
+  * package   - package TF into docker containers
+  * test      - run unittests
 
+
+## Advanced usage
+
+It is possible to use  more finegraned build process via running make tool for building artifacts manually.
+Note: the described way below uses internal commands and might be changed in future.
+
+### 1. Prepare developer-sandbox container and dont run any targets
+
+```bash
+./run.sh none
 ```
+
+### 2. Attach to developer-sandbox container
+
+```bash
 sudo docker attach tf-developer-sandbox
 ```
 
-### 6. Prepare developer-sandbox container
-
-Required first steps in the container:
+### 3. Prepare developer-sandbox container
 
 ```
 cd /root/tf-dev-env
@@ -110,7 +128,7 @@ The descriptions of targets:
 * `make dep` - installs all build dependencies
 * `make dep-<pkg_name>` - installs build dependencies for <pkg_name>
 
-### 7. Make artifacts
+### 4. Building artifacts
 
 #### RPM packages
 
@@ -141,14 +159,10 @@ The descriptions of targets:
 
 * `make clean{-containers,-deployers,-repo,-rpm}` - delete artifacts
 
-### 8. Testing the deployment
 
-See https://github.com/Juniper/contrail-ansible-deployer/wiki/Contrail-with-Openstack-Kolla .
-Set `CONTRAIL_REGISTRY` to `registry:5000` to use containers built in the previous step.
+#### Alternate build methods
 
-### Alternate build methods
-
-Instead of step 6 above (which runs `scons` inside `make`), you can use `scons` directly. The steps 1-4 are still required. 
+Instead of step 4 above (which runs `scons` inside `make`), you can use `scons` directly. The steps 1-3 are still required.
 
 ```
 cd /root/contrail
@@ -188,16 +202,8 @@ RTE_KERNELDIR=/path/to/custom_kernel_headers scons --kernel-dir=/path/to/custom_
 ## Customizing dev-env container
 
 There are several options to change standard behaviour of `tf-developer-sandbox` container:
-  - Build dev-env container instead of pulling it from registry
   - Attach external sources to container
-  - Use external docker registry to store contrail-images
-  - Build TF's rpms and containers on startup
-
-### Building dev-env docker image
-
-There are several environment variables are used to build dev-env docker image:
-  - **BUILD_DEV_ENV** is used to build dev-env docker image and runing `tf-developer-sandbox` container from it. To build new image set **BUILD_DEV_ENV** to 1.
-  - **BUILD_DEV_ENV_ON_PULL_FAIL** is used to build dev-env docker image if `docker pull` command has failed.
+  - Use external docker registry to store TF container images
 
 ### External sources
 
@@ -205,17 +211,24 @@ You can attach you host contrail-vnc sources instead of syncing them from github
 
 There are special environment variables to set correct behaviour:
   - **CONTRAIL_DIR** stores host's path to initialized contrail-vnc repository.
-  - **EXTERNAL_REPOS** stores path to external repositories like *contrail-containers-builder*, *contrail-deployers-containers* and *contrail-test*. These repositories must be placed there in format `<server_name>/<namespace>/<project_name>` (for example `review.opencontrail.org/Juniper/contrail-containers-builder`)
-  - **SITE_MIRROR** stores contrail third-party repository url. It used to collect external packages required by *contrail-third-party* tools.
+  - **SITE_MIRROR** stores contrail third-party repository url. It used to collect external packages required by *contrail-third-party* tools. There is an example:
+```bash
+export CONTRAIL_DIR=$HOME/my-tf-sources
+./run.sh configure
+./run.sh compile
+./run.sh package
+```
 
 ### External docker registry
 
 Environment variables **REGISTRY_IP** and **REGISTRY_PORT** stores external docker registry connection information where TF's containers would be stored.
-
-### Run build of rpms and containers on startup
-
-There is an option to use `tf-developer-sandbox` container just to build TF rpms and containers. **BUILD** environment variable manages this behaviour. `tf-developer-sandbox` container builds and stores all artifacts and then exits if set **BUILD** to **'true'**. So run TF build again just start `tf-developer-sandbox` with the command `docker start -i tf-developer-sandbox`.
-
+There is an example:
+```bash
+export CONTRAIL_DEPLOY_REGISTRY=0
+export REGISTRY_IP=10.1.1.190
+export REGISTRY_PORT=5000
+./run.sh build
+```
 
 [Slack]: https://tungstenfabric.slack.com/messages/C0DQ23SJF/
 [Google Group]: https://groups.google.com/forum/#!forum/tungsten-dev
