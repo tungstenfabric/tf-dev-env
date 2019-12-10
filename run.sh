@@ -110,6 +110,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
   fi
+  volumes+=" -v ${CONTRAIL_DIR}/logs:/root/contrail/logs:z"
   volumes+=" -v ${CONTRAIL_DIR}/RPMS:/root/contrail/RPMS:z"
   volumes+=" -v ${tf_container_env_dir}:/root/contrail/.env:z"
   if [[ -d "${scriptdir}/config" ]]; then
