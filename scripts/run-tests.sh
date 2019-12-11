@@ -7,7 +7,7 @@ scriptdir=$(realpath $(dirname "$0"))
 
 cd /root/contrail
 
-if [ ! -d logs ] ; then mkdir logs  ; fi
+mkdir -p logs
 
 res=0
 if [[ -f ./unittest_targets ]] ; then
