@@ -7,7 +7,7 @@ scriptdir=$(realpath $(dirname "$0"))
 
 cd /root/contrail
 
-mkdir -p logs
+mkdir -p ut_logs
 
 res=0
 if [[ -f ./unittest_targets ]] ; then
@@ -17,11 +17,11 @@ if [[ -f ./unittest_targets ]] ; then
   for utest in $(cat ./unittest_targets) ; do
     echo "INFO: Starting unit tests for target $utest"
     logfilename=$( echo $utest |  cut -f1 -d ':' | rev | cut -f1 -d'/' | rev )
-    if ! $scriptdir/run-tests.py -j $JOBS $utest  &> /root/contrail/logs/$logfilename ; then
+    if ! $scriptdir/run-tests.py -j $JOBS $utest  &> /root/contrail/ut_logs/$logfilename ; then
       res=1
       echo "ERROR: $utest failed"
     fi
-    echo "INFO: Unit test log is available at /root/contrail/logs/$logfilename"
+    echo "INFO: Unit test log is available at /root/contrail/ut_logs/$logfilename"
   done
 else
   for utest in $(jq -r ".[].scons_test_targets[]"  controller/ci_unittests.json| sort | uniq) ; do
@@ -30,11 +30,11 @@ else
       continue
     fi
     echo "INFO: Starting unit tests for target $utest"
-    if ! $scriptdir/run-tests.py -j $JOBS $utest &> /root/contrail/logs/$logfilename ; then
+    if ! $scriptdir/run-tests.py -j $JOBS $utest &> /root/contrail/ut_logs/$logfilename ; then
       res=1
       echo "ERROR: $utest failed"
     fi
-    echo "INFO: Unit test log is available at /root/contrail/logs/$logfilename"
+    echo "INFO: Unit test log is available at /root/contrail/ut_logs/$logfilename"
   done
 fi
 
