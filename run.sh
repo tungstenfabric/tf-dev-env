@@ -28,7 +28,8 @@ if [ x"$DISTRO" == x"centos" ]; then
 elif [ x"$DISTRO" == x"rhel" ]; then
   sudo yum install -y python lsof
 elif [ x"$DISTRO" == x"ubuntu" ]; then
-  sudo apt-get install -y python-minimal lsof
+  export DEBIAN_FRONTEND=noninteractive
+  sudo -E apt-get install -y python-minimal lsof
 fi
 
 # prepare env
