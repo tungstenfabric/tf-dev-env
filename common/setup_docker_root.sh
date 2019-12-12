@@ -7,6 +7,7 @@ source ${scriptdir}/functions.sh
 ensure_root
 
 function install_docker_ubuntu() {
+  export DEBIAN_FRONTEND=noninteractive
   which docker && return
   apt-get update
   apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
