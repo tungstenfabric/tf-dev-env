@@ -38,7 +38,7 @@ class Session(object):
     def _make_url(self, request):
         return self._url + request
 
-    def get(self, request, params = None):
+    def get(self, request, params=None):
         url = self._make_url(request)
         res = requests.get(url, params=params)
         if not res.ok:
@@ -111,14 +111,20 @@ class Gerrit(object):
         return self._session.get('/changes/', params=params)
 
     def get_current_change(self, review_id, branch=None):
+        # request all branches for review_id to
+        # allow cross branches dependencies between projects
         res = self._get_current_change(review_id, None)
+        if len(res) == 1:
+            # there is no ambiguite, so return the found change 
+            return Change(res[0])
+        # there is ambiquity - try to resolve it by branch
         for i in res:
             if i.get('branch') == branch:
                 return Change(res[0])
         raise GerritRequestError("Review %s (branch=%s) not found" %(review_id, branch))
 
 
-def resolve_dependencies(gerrit, change, parent_ids = []):
+def resolve_dependencies(gerrit, change, parent_ids=[]):
     result = [ change ]
     parent_ids.append(change.id)
     depends_on_list = change.depends_on
