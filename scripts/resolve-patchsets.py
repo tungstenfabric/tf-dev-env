@@ -120,7 +120,7 @@ class Gerrit(object):
         # there is ambiquity - try to resolve it by branch
         for i in res:
             if i.get('branch') == branch:
-                return Change(res[0])
+                return Change(i)
         raise GerritRequestError("Review %s (branch=%s) not found" %(review_id, branch))
 
 
