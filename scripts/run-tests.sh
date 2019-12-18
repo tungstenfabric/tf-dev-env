@@ -7,6 +7,7 @@ scriptdir=$(realpath $(dirname "$0"))
 
 if [[ "$TARGET" == 'ui' ]]; then
   echo "INFO: Running web ui tests"
+  $scriptdir/webui_ut/run-tests.sh
 elif [[ "$TARGET" == 'vcenter' ]]; then
   echo "INFO: Running vcenter tests"
 else
