@@ -107,7 +107,7 @@ Note: the described way below uses internal commands and might be changed in fut
 ### 2. Attach to developer-sandbox container
 
 ```bash
-sudo docker attach tf-developer-sandbox
+sudo docker exec -it tf-developer-sandbox bash
 ```
 
 ### 3. Prepare developer-sandbox container
