@@ -35,22 +35,24 @@ for utest in $(cat "$targets_file") ; do
   fi
   echo "INFO: Unit test log is available at $logs_path/$logfilename"
 
-# gather scons logs
-scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > log_paths
-
-input="log_paths"
-while IFS= read -r line
-do
-  file=$(echo $line | jq -r ".log_path" 2>/dev/null)
-  if [[ -f $file ]]; then
-     cp $file $(echo $file | sed  "s~/root/contrail~$logs_path~g")
-  fi
-  file=$(echo $line | jq -r ".xml_path" 2>/dev/null)
-  if [[ -f $file ]]; then
-     cp $file $(echo $file | sed  "s~/root/contrail~$logs_path~g")
-  fi
-
-done < "$input"
+  # gather scons logs
+  input="$logs_path/scons_describe_tests.txt"
+  scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $input
+  while IFS= read -r line
+  do
+    src_file=$(echo $line | jq -r ".log_path" 2>/dev/null)
+    if [[ -f $src_file ]]; then
+      dst_file=$(echo $src_file | sed "s~/root/contrail~$logs_path~g")
+      mkdir -p $(dirname $dst_file)
+      cp $src_file $dst_file
+    fi
+    src_file=$(echo $line | jq -r ".xml_path" 2>/dev/null)
+    if [[ -f $src_file ]]; then
+      dst_file=$(echo $src_file | sed "s~/root/contrail~$logs_path~g")
+      mkdir -p $(dirname $dst_file)
+      cp $src_file $dst_file
+    fi
+  done < "$input"
 
   # TODO: remove this hack. it's added to speed up testing for now
   break
