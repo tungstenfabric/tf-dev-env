@@ -17,8 +17,8 @@ fi
 set -eo pipefail
 
 declare -a all_stages=(fetch configure compile package test)
+declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
-declare -a test_stages=(fetch configure test)
 
 if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" ]]; then
   cp -rf ${CONTRAIL_CONFIG_DIR}/* /
@@ -112,22 +112,14 @@ function enabled() {
 
 # select default stages
 if [[ -z "$stages" ]] ; then
-    if ! finished_stage 'fetch' ; then
-        run_stage fetch
-    fi
-    if ! finished_stage 'configure' ; then
-        run_stage configure
-    fi
-elif [[ "$stages" =~ 'build' ]] ; then
-    # run default stages for 'build' option
-    for stage in ${build_stages[@]} ; do
+    for stage in ${default_stages[@]} ; do
         if ! finished_stage "$stage" ; then
             run_stage $stage $@
         fi
     done
-elif [[ "$stages" =~ 'test' ]] ; then
+elif [[ "$stages" =~ 'build' ]] ; then
     # run default stages for 'build' option
-    for stage in ${test_stages[@]} ; do
+    for stage in ${build_stages[@]} ; do
         if ! finished_stage "$stage" ; then
             run_stage $stage $@
         fi
@@ -136,7 +128,7 @@ else
     # run selected stages
     for stage in ${stages} ; do
         if [[ "$stages" =~ $stage ]] ; then
-          run_stage $stage $@
+            run_stage $stage $@
         fi
     done
 fi
