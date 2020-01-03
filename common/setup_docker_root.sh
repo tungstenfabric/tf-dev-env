@@ -6,6 +6,19 @@ source ${scriptdir}/functions.sh
 
 ensure_root
 
+function retry() {
+  local i
+  for ((i=0; i<5; ++i)) ; do
+    if $@ ; then
+      break
+    fi
+    sleep 5
+  done
+  if [[ $i == 5 ]]; then
+    return 1
+  fi
+}
+
 function install_docker_ubuntu() {
   export DEBIAN_FRONTEND=noninteractive
   which docker && return
@@ -13,7 +26,7 @@ function install_docker_ubuntu() {
   apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   add-apt-repository -y -u "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
+  retry apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
 }
 
 function install_docker_centos() {
@@ -22,7 +35,7 @@ function install_docker_centos() {
   if ! yum info docker-ce &> /dev/null ; then
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   fi
-  yum install -y docker-ce-18.03.1.ce
+  retry yum install -y docker-ce-18.03.1.ce
 }
 
 function install_docker_rhel() {
@@ -32,7 +45,7 @@ function install_docker_rhel() {
       --enable rhel-7-server-extras-rpms \
       --enable rhel-7-server-optional-rpms
   fi
-  yum install -y docker device-mapper-libs device-mapper-event-libs
+  retry yum install -y docker device-mapper-libs device-mapper-event-libs
 }
 
 function check_docker_value() {
