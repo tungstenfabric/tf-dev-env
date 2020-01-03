@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common.sh
