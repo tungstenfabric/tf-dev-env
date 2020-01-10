@@ -42,10 +42,23 @@ function configure() {
     make dep fetch_packages
 }
 
+function tpp() {
+    local patchsets_info_file=${CONTRAIL}/patchsets-info.json
+    if [[ ! -e "$patchsets_info_file" ]] ; then
+        return
+    fi
+    local files$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-container-b")) | select(has("files")) | .files[]')
+    if [[ -z "files" ]] ; then 
+        return
+    fi
+    echo "TODO: INFO: Build TPP"
+}
+
 function compile() {
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
+    tpp
     echo "INFO: make rpm  $(date)"
     make rpm
     make create-repo

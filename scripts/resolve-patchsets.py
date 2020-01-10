@@ -50,19 +50,24 @@ class Session(object):
 class Change(object):
     def __init__(self, data):
         self._data = data
+        self._files = None
         dbg("Change: %s" % self._data)
 
     def __hash__(self):
-        return hash(self.id)
+        return hash(self.change_id)
 
     def __eq__(self, value):
-        return self.id == value.id
+        return self.change_id == value.change_id
 
     def __gt__(self, value):
-        return self.id > value.id
+        return self.change_id > value.change_id
 
     def __lt__(self, value):
-        return self.id < value.id
+        return self.change_id < value.change_id
+
+    @property
+    def id(self):
+        return self._data['id']
 
     @property
     def project(self):
@@ -73,7 +78,7 @@ class Change(object):
         return self._data['branch']
 
     @property
-    def id(self):
+    def change_id(self):
         return self._data['change_id']
 
     @property
@@ -87,6 +92,18 @@ class Change(object):
     @property
     def revision(self):
         return self._data['current_revision']
+
+    @property
+    def revision_number(self):
+        return self._data['revisions'][self.revision].get(
+            '_number', self.ref.split("/")[4])
+
+    @property
+    def files(self):
+        return self._files
+
+    def set_files(self, files):
+        self._files = files
 
     @property
     def depends_on(self):
@@ -110,6 +127,15 @@ class Gerrit(object):
         params+='&o=CURRENT_COMMIT&o=CURRENT_REVISION'
         return self._session.get('/changes/', params=params)
 
+    def get_changed_files(self, change):
+        raw = self._session.get("/changes/%s/revisions/%s/files" %
+            (change.id, change.revision_number))
+        res = list()
+        for k, _ in raw.items():
+            if k != "/COMMIT_MSG":
+                res.append(k)
+        return res
+
     def get_current_change(self, review_id, branch=None):
         # request all branches for review_id to
         # allow cross branches dependencies between projects
@@ -126,7 +152,7 @@ class Gerrit(object):
 
 def resolve_dependencies(gerrit, change, parent_ids=[]):
     result = [ change ]
-    parent_ids.append(change.id)
+    parent_ids.append(change.change_id)
     depends_on_list = change.depends_on
     for i in depends_on_list:
         if i in parent_ids:
@@ -139,10 +165,24 @@ def resolve_dependencies(gerrit, change, parent_ids=[]):
     return result            
 
 
+def resolve_files(gerrit, changes_list):
+    for i in changes_list:
+        i.set_files(gerrit.get_changed_files(i))
+    return changes_list
+
+
 def format_result(changes_list):
     res = list()
     for i in changes_list:
-        res.append({'id': i.id, 'project': i.project, 'ref': i.ref, 'number': str(i.number)})
+        item = {
+            'id': i.change_id,
+            'project': i.project,
+            'ref': i.ref,
+            'number': str(i.number)
+        }
+        if i.files:
+            item['files'] = i.files
+        res.append(item)
     return res
 
 
@@ -153,6 +193,7 @@ def main():
     parser.add_argument("--gerrit", help="Gerrit URL", dest="gerrit", type=str)
     parser.add_argument("--review", help="Review ID", dest="review", type=str)
     parser.add_argument("--branch", help="Branch", dest="branch", type=str)
+    parser.add_argument("--changed_files", dest="changed_files", action="store_true")
     parser.add_argument("--output",
         help="Save result into the file instead stdout",
         default=None, dest="output", type=str)
@@ -165,6 +206,8 @@ def main():
         changes_list = resolve_dependencies(gerrit, change)
         changes_list.reverse()
         changes_list = collections.OrderedDict.fromkeys(changes_list)
+        if args.changed_files:
+            changes_list = resolve_files(gerrit, changes_list)
         result = format_result(changes_list)
         if args.output:
             with open(args.output, "w") as f:

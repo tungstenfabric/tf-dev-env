@@ -88,16 +88,19 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
   echo "INFO: gathering UT targets"
   ${scriptdir}/gather-unittest-targets.py > ./unittest_targets || exit 1
   cat ./unittest_targets
-  echo "INFO: resolve patchsets"
+
+  patchsets_info_file=${REPODIR}/patchsets-info.json
+  echo "INFO: resolve patchsets to $patchsets_info_file"
   # apply patches
   ${scriptdir}/resolve-patchsets.py \
     --gerrit $gerrit \
     --review $GERRIT_CHANGE_ID \
     --branch $GERRIT_BRANCH \
-    --output /tmp/patches.json || exit 1
+    --changed_files \
+    --output $patchsets_info_file || exit 1
   echo "INFO: review dependencies"
-  cat /tmp/patches.json | jq '.'
-  cat /tmp/patches.json | jq -r '.[] | .project + " " + .ref + " " + .number' | while read project ref number; do
+  cat $patchsets_info_file | jq '.'
+  cat $patchsets_info_file | jq -r '.[] | .project + " " + .ref + " " + .number' | while read project ref number; do
     short_name=$(echo $project | cut -d '/' -f 2)
     [ -z "$number" ] && number=$(echo $ref | cut -d '/' -f 4)
     echo "INFO: apply change $ref for $project"
