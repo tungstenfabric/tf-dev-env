@@ -150,6 +150,15 @@ if [[ "$stages" == 'none' ]] ; then
   exit 0
 fi
 
+# In case if contrail folder is not bint to the container from host
+# it is needed to copy container builde on host to be able mount
+# data into the building conainers for build from sources.
+if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
+  if [[ ! -e ${CONTRAIL_DIR}/contrail-container-builder ]] ; then
+    docker cp $TF_DEVENV_CONTAINER_NAME:/root/contrail/contrail-container-builder ${CONTRAIL_DIR}/
+  fi
+fi
+
 echo "run stages $stages"
 sudo docker exec -i $TF_DEVENV_CONTAINER_NAME /root/run.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
