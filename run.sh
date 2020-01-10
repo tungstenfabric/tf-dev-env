@@ -155,7 +155,7 @@ fi
 # data into the building conainers for build from sources.
 if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
   if [[ ! -e ${CONTRAIL_DIR}/contrail-container-builder ]] ; then
-    docker cp $TF_DEVENV_CONTAINER_NAME:/root/contrail/contrail-container-builder ${CONTRAIL_DIR}/
+    sudo docker cp $TF_DEVENV_CONTAINER_NAME:/root/contrail/contrail-container-builder ${CONTRAIL_DIR}/
   fi
 fi
 
