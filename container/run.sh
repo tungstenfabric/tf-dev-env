@@ -45,13 +45,23 @@ function configure() {
 function tpp() {
     local patchsets_info_file=${CONTRAIL}/patchsets-info.json
     if [[ ! -e "$patchsets_info_file" ]] ; then
+        echo "INFO: skip tpp: there is no patchset info"
         return
     fi
-    local files$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-container-b")) | select(has("files")) | .files[]')
+    local files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-third-party-packages")) | select(has("files")) | .files[]')
     if [[ -z "files" ]] ; then 
+        echo "INFO: skip tpp: there is no changes in contrail-third-party-packages"
         return
     fi
-    echo "TODO: INFO: Build TPP"
+    if [[ ! -e ${CONTRAIL}/third_party/contrail-third-party-packages ]] ; then
+        echo "INFO: skip tpp: there is no ${CONTRAIL}/third_party/contrail-third-party-packages"
+        return
+    fi
+    pushd ${CONTRAIL}/third_party/contrail-third-party-packages/upstream/rpm
+    BUILD_BASE=${CONTRAIL}/RPMS make list
+    BUILD_BASE=${CONTRAIL}/RPMS make prep
+    BUILD_BASE=${CONTRAIL}/RPMS make all
+    popd
 }
 
 function compile() {
