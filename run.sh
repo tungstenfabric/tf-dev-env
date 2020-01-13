@@ -55,11 +55,16 @@ cat <<EOF > $tf_container_env_file
 DEBUG=${DEBUG}
 CONTRAIL_DEV_ENV=/root/tf-dev-env
 DEVENVTAG=$DEVENVTAG
-CONTRAIL_SOURCE=$CONTRAIL_DIR
 CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
 SITE_MIRROR="${SITE_MIRROR}"
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES}
 EOF
+if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
+  src_volume_name="ContrailSources"
+  echo "CONTRAIL_SOURCE=${src_volume_name}" >> $tf_container_env_file  
+else
+  echo "CONTRAIL_SOURCE=${CONTRAIL_DIR}" >> $tf_container_env_file
+fi
 
 if [[ -d "${scriptdir}/config" ]]; then
   cat <<EOF >> $tf_container_env_file
@@ -112,10 +117,8 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
   else
-    if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]] ; then
-      SRC_VOLUME_NAME="ContrailSources"
-      docker volume create --name ${SRC_VOLUME_NAME}
-      volumes+= " -v ContrailSources:/root/contrail:z"
+    if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n ${src_volume_name} ]] ; then
+      volumes+= " -v ${src_volume_name}:/root/contrail:z"
     fi
   fi
   volumes+=" -v ${CONTRAIL_DIR}/logs:/root/contrail/logs:z"
@@ -154,17 +157,6 @@ fi
 if [[ "$stages" == 'none' ]] ; then
   echo "INFO: don't run any stages"
   exit 0
-fi
-
-# In case if contrail folder is not bound to the container from host
-# it is needed to copy contrail sources and container builder on host to be able mount
-# data into the building containers for build from sources.
-CONTRAIL_SRC_VOLUME=$(docker volume ls | grep "${SRC_VOLUME_NAME}")
-if [[ -n "${CONTRAIL_SRC_VOLUME}" && -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
-  CONTRAIL_SRC_HOST=$(docker volume inspect --format '{{ .Mountpoint }}' "${SRC_VOLUME_NAME}")
-  if [[ ${CONTRAIL_SRC_HOST} != 'none' ]] ; then
-    cp -ap ${CONTRAIL_SRC_HOST}/. ${CONTRAIL_DIR}/
-  fi
 fi
 
 echo "run stages $stages"
