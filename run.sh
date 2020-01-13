@@ -47,7 +47,7 @@ cat $scriptdir/common.env
 timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
 log_path="${WORKSPACE}/build_${timestamp}.log"
 
-# make env profile for run inside container
+# make env profile to run inside container
 tf_container_env_dir=${CONTRAIL_DIR}/.env
 mkdir -p $tf_container_env_dir
 tf_container_env_file=${tf_container_env_dir}/tf-developer-sandbox.env
@@ -111,6 +111,12 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   volumes+=" -v ${scriptdir}:/root/tf-dev-env:z"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
+  else
+    if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" ]] ; then
+      SRC_VOLUME_NAME="ContrailSources"
+      docker volume create --name ${SRC_VOLUME_NAME}
+      volumes+= " -v ContrailSources:/root/contrail:z"
+    fi
   fi
   volumes+=" -v ${CONTRAIL_DIR}/logs:/root/contrail/logs:z"
   volumes+=" -v ${CONTRAIL_DIR}/RPMS:/root/contrail/RPMS:z"
@@ -128,7 +134,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     $volumes -it \
     --env-file $tf_container_env_file \
     ${DEVENV_IMAGE}"
-
+  
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
   if [[ ${PIPESTATUS[0]} != 0 ]] ; then
     echo
@@ -146,16 +152,18 @@ else
 fi
 
 if [[ "$stages" == 'none' ]] ; then
-  echo "INFO: dont run any stages"
+  echo "INFO: don't run any stages"
   exit 0
 fi
 
-# In case if contrail folder is not bint to the container from host
-# it is needed to copy container builde on host to be able mount
-# data into the building conainers for build from sources.
-if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
-  if [[ ! -e ${CONTRAIL_DIR}/contrail-container-builder ]] ; then
-    sudo docker cp $TF_DEVENV_CONTAINER_NAME:/root/contrail/contrail-container-builder ${CONTRAIL_DIR}/
+# In case if contrail folder is not bound to the container from host
+# it is needed to copy container builder on host to be able mount
+# data into the building containers for build from sources.
+CONTRAIL_SRC_VOLUME=$(docker volume ls | grep "${SRC_VOLUME_NAME}")
+if [[ -n "${CONTRAIL_SRC_VOLUME}" && -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
+  CONTRAIL_SRC_HOST=$(docker volume inspect --format '{{ .Mountpoint }}' "${SRC_VOLUME_NAME}")
+  if [[ ${CONTRAIL_SRC_HOST} != 'none' ]] ; then
+    cp -ap ${CONTRAIL_SRC_HOST}/. ${CONTRAIL_DIR}/
   fi
 fi
 
@@ -166,12 +174,12 @@ result=${PIPESTATUS[0]}
 if [[ $result == 0 ]] ; then
   echo
   echo '[DONE]'
-  echo "There are stages avalable to run ./run.sh <stage>:"
+  echo "There are stages available to run ./run.sh <stage>:"
   echo "  build     - perform sequence of stages: fetch, configure, compile, package"
   echo "              (if stage was run previously it be skipped)"
   echo "  fetch     - sync TF git repos"
   echo "  configure - fetch third party packages and install dependencies"
-  echo "  compile   - buld TF binaries"
+  echo "  compile   - build TF binaries"
   echo "  package   - package TF into docker containers"
   echo "  test      - run unittests"
   echo "For advanced usage You can now connect to the sandbox container by using:"
