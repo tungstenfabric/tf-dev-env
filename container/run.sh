@@ -58,9 +58,9 @@ function tpp() {
         return
     fi
     pushd ${CONTRAIL}/third_party/contrail-third-party-packages/upstream/rpm
-    BUILD_BASE=${CONTRAIL}/RPMS make list
-    BUILD_BASE=${CONTRAIL}/RPMS make prep
-    BUILD_BASE=${CONTRAIL}/RPMS make all
+    BUILD_BASE=${CONTRAIL} make list
+    BUILD_BASE=${CONTRAIL} make prep
+    BUILD_BASE=${CONTRAIL} make all
     popd
 }
 
