@@ -49,7 +49,7 @@ function tpp() {
         return
     fi
     local files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-third-party-packages")) | select(has("files")) | .files[]')
-    if [[ -z "files" ]] ; then 
+    if [[ -z "$files" ]] ; then 
         echo "INFO: skip tpp: there is no changes in contrail-third-party-packages"
         return
     fi
