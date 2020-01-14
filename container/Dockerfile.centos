@@ -20,7 +20,7 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum -y install epel-release && \
     yum -y update && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
-    yum -y install autoconf automake createrepo docker docker-python gcc gdb git git-review jq libtool make python-devel python-pip python-lxml rpm-build vim wget yum-utils redhat-lsb-core rpmdevtools mock sudo && \
+    yum -y install autoconf automake createrepo docker docker-python gcc gdb git git-review jq libtool make python-devel python-pip python-lxml rpm-build vim wget yum-utils redhat-lsb-core rpmdevtools mock sudo gcc-c++ && \
     pip install virtualenv future==0.18.2 && \
     pip install --retries=10 --timeout 200 --upgrade more-itertools==8.0.2 tox geventhttpclient && \
     yum clean all && \
