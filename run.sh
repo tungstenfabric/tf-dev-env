@@ -60,7 +60,7 @@ SITE_MIRROR="${SITE_MIRROR}"
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES}
 EOF
 if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
-  src_volume_name="ContrailSources"
+  src_volume_name=ContrailSources
   echo "CONTRAIL_SOURCE=${src_volume_name}" >> $tf_container_env_file  
 else
   echo "CONTRAIL_SOURCE=${CONTRAIL_DIR}" >> $tf_container_env_file
@@ -117,7 +117,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
   else
-    if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n ${src_volume_name} ]] ; then
+    if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
       volumes+= " -v ${src_volume_name}:/root/contrail:z"
     fi
   fi
