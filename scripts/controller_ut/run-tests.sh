@@ -8,6 +8,7 @@ scriptdir=$(realpath $(dirname "$0"))
 cd /root/contrail
 logs_path='/root/contrail/logs'
 mkdir -p "$logs_path"
+unset BUILD_ONLY
 
 targets_file='/root/contrail/unittest_targets'
 if [[ ! -f "$targets_file" ]] ; then
@@ -53,9 +54,6 @@ for utest in $(cat "$targets_file") ; do
       cp $src_file $dst_file
     fi
   done < "$input"
-
-  # TODO: remove this hack. it's added to speed up testing for now
-  break
 
 done
 
