@@ -118,7 +118,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
   else
     if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
-      volumes+= " -v ${src_volume_name}:/root/contrail:z"
+      volumes+=" -v ${src_volume_name}:/root/contrail:z"
     fi
   fi
   volumes+=" -v ${CONTRAIL_DIR}/logs:/root/contrail/logs:z"
