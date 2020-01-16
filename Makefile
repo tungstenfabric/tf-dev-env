@@ -44,6 +44,9 @@ create-repo:
 	@mkdir -p $(REPODIR)/RPMS
 	@createrepo -C $(REPODIR)/RPMS/
 
+update-repo:
+	@createrepo --update $(REPODIR)/RPMS/
+
 clean-repo:
 	@test -d $(REPODIR)/RPMS/repodata && rm -rf $(REPODIR)/RPMS/repodata || true
 

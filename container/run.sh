@@ -68,10 +68,14 @@ function compile() {
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
+    echo "INFO: create rpm repo $(date)"
+    make create-repo
+    echo "INFO: compile tpp if needed $(date)"
     tpp
     echo "INFO: make rpm  $(date)"
     make rpm
-    make create-repo
+    echo "INFO: update rpm repo $(date)"
+    make update-repo
 }
 
 function test() {
