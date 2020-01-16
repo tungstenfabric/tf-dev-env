@@ -8,6 +8,9 @@ scriptdir=$(realpath $(dirname "$0"))
 cd /root/contrail
 logs_path='/root/contrail/logs'
 mkdir -p "$logs_path"
+
+export CONTRAIL_COMPILE_WITHOUT_SYMBOLS=yes
+BUILD_ONLY=1 scons -j $JOBS
 unset BUILD_ONLY
 
 targets_file='/root/contrail/unittest_targets'
@@ -35,27 +38,27 @@ for utest in $(cat "$targets_file") ; do
     echo "ERROR: $utest failed"
   fi
   echo "INFO: Unit test log is available at $logs_path/$logfilename"
-
-  # gather scons logs
-  input="$logs_path/scons_describe_tests.txt"
-  scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $input
-  while IFS= read -r line
-  do
-    src_file=$(echo $line | jq -r ".log_path" 2>/dev/null)
-    if [[ -f $src_file ]]; then
-      dst_file=$(echo $src_file | sed "s~/root/contrail~$logs_path~g")
-      mkdir -p $(dirname $dst_file)
-      cp $src_file $dst_file
-    fi
-    src_file=$(echo $line | jq -r ".xml_path" 2>/dev/null)
-    if [[ -f $src_file ]]; then
-      dst_file=$(echo $src_file | sed "s~/root/contrail~$logs_path~g")
-      mkdir -p $(dirname $dst_file)
-      cp $src_file $dst_file
-    fi
-  done < "$input"
-
 done
+
+# gather scons logs
+input="$logs_path/scons_describe_tests.txt"
+scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $input
+while IFS= read -r line
+do
+  src_file=$(echo $line | jq -r ".log_path" 2>/dev/null)
+  # src_file = "xxx.log" -> "xxx.*.log"
+  if [[ -f $src_file ]]; then
+    dst_file=$(echo $src_file | sed "s~/root/contrail~$logs_path~g")
+    mkdir -p $(dirname $dst_file)
+    cp $src_file $dst_file
+  fi
+  src_file=$(echo $line | jq -r ".xml_path" 2>/dev/null)
+  if [[ -f $src_file ]]; then
+    dst_file=$(echo $src_file | sed "s~/root/contrail~$logs_path~g")
+    mkdir -p $(dirname $dst_file)
+    cp $src_file $dst_file
+  fi
+done < "$input"
 
 if [[ "$res" != '0' ]]; then
   echo "ERROR: some UT failed"
