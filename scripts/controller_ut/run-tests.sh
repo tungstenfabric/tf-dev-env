@@ -42,23 +42,24 @@ for utest in $(cat "$targets_file") ; do
   echo "INFO: Unit test log is available at $logs_path/$logfilename"
 done
 
+set -x
+
 # gather scons logs
 input="$logs_path/scons_describe_tests.txt"
 scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $input
 while IFS= read -r line
 do
   src_file=$(echo $line | jq -r ".log_path" 2>/dev/null)
-  # src_file = "xxx.log" -> "xxx.*.log"
-  if [[ -f $src_file ]]; then
-    dst_file=$(echo $src_file | sed "s~/root/contrail~$logs_path~g")
+  for file in $(ls -1 ${src_file%.log}.*.log) ; do
+    dst_file=$(echo $file | sed "s~/root/contrail~$logs_path~g")
     mkdir -p $(dirname $dst_file)
-    cp $src_file $dst_file
-  fi
+    cp $file $dst_file
+  done
   src_file=$(echo $line | jq -r ".xml_path" 2>/dev/null)
-  if [[ -f $src_file ]]; then
-    dst_file=$(echo $src_file | sed "s~/root/contrail~$logs_path~g")
+  for file in $(ls -1 ${src_file%.xml}.*.xml) ; do
+    dst_file=$(echo $file | sed "s~/root/contrail~$logs_path~g")
     mkdir -p $(dirname $dst_file)
-    cp $src_file $dst_file
+    cp $file $dst_file
   fi
 done < "$input"
 
