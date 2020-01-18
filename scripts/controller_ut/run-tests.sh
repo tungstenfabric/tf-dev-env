@@ -9,10 +9,12 @@ cd /root/contrail
 logs_path='/root/contrail/logs'
 mkdir -p "$logs_path"
 
+echo "INFO: Run full build first $(date)"
 export CONTRAIL_COMPILE_WITHOUT_SYMBOLS=yes
-BUILD_ONLY=1 scons -j $JOBS
+BUILD_ONLY=1 scons -j $JOBS &> $logs_path/build_full
 unset BUILD_ONLY
 
+echo "INFO: Prepare targets $(date)"
 targets_file='/root/contrail/unittest_targets'
 if [[ ! -f "$targets_file" ]] ; then
   targets_file='/tmp/unittest_targets'
