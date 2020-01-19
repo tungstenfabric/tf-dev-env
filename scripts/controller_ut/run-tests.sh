@@ -42,8 +42,6 @@ for utest in $(cat "$targets_file") ; do
   echo "INFO: Unit test log is available at $logs_path/$logfilename"
 done
 
-set -x
-
 # gather scons logs
 input="$logs_path/scons_describe_tests.txt"
 scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $input
