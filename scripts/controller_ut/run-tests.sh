@@ -60,7 +60,7 @@ do
     dst_file=$(echo $file | sed "s~/root/contrail~$logs_path~g")
     mkdir -p $(dirname $dst_file)
     cp $file $dst_file
-  fi
+  done
 done < "$input"
 
 if [[ "$res" != '0' ]]; then
