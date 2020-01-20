@@ -26,7 +26,7 @@ fi
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
 
-REPO_INIT_MANIFEST_BRANCH=${REPO_INIT_MANIFEST_BRANCH:-'master'}
+REPO_INIT_MANIFEST_BRANCH=${REPO_INIT_MANIFEST_BRANCH:-${GERRIT_BRANCH:-'master'}}
 REPO_INIT_MANIFEST_URL=${REPO_INIT_MANIFEST_URL:-"https://github.com/Juniper/contrail-vnc"}
 REPO_INIT_OPTS=${REPO_INIT_OPTS:-${repo_init_defauilts}}
 REPO_SYNC_OPTS=${REPO_SYNC_OPTS:-${repo_sync_defauilts}}
@@ -55,12 +55,16 @@ if [[ $? != 0 ]] ; then
 fi
 set -o pipefail
 
-
+branch_opts=""
+if [[ -n "$GERRIT_BRANCH" ]] ; then
+  branch_opts+="--branch $GERRIT_BRANCH"
+fi
 if [[ -n "$GERRIT_CHANGE_URL" ]] ; then
   # set new remote
   gerrit=$(echo "$GERRIT_CHANGE_URL" | grep -io 'http[s]\{0,1\}://[^\/]\+')
   ${scriptdir}/patch-repo-manifest.py \
     --remote "$gerrit" \
+    $branch_opts \
     --source ./.repo/manifest.xml \
     --output ./.repo/manifest.xml || exit 1
     echo "INFO: patched manifest.xml"
@@ -95,7 +99,7 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
   ${scriptdir}/resolve-patchsets.py \
     --gerrit $gerrit \
     --review $GERRIT_CHANGE_ID \
-    --branch $GERRIT_BRANCH \
+    $branch_opts \
     --changed_files \
     --output $patchsets_info_file || exit 1
   echo "INFO: review dependencies"

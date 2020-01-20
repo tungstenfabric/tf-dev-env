@@ -33,6 +33,15 @@ class Manifest(object):
                 u = url if not ns else "/".join([url, ns])
                 remote.set('fetch', u)
 
+    def set_branch_default(self, branch):
+        defaults = self._root.findall('.//default')
+        if defaults:
+            for default in defaults:
+                rev = default.get('revision').split('/')[:-1]
+                rev.append(branch)
+                b = branch if not rev else "/".join(rev)
+                default.set('revision', b)
+
     def _apply_patch(self, patch):
         project = patch['project']
         project_short = project.split('/')[-1]
@@ -63,6 +72,7 @@ def main():
     parser.add_argument("--debug", dest="debug", action="store_true")
     parser.add_argument("--source", help="Source file with manifest", dest="source", type=str)
     parser.add_argument("--remote", help="Remote to set in manifest", dest="remote", type=str)
+    parser.add_argument("--branch", help="Branch", dest="branch", type=str, default=None)
     parser.add_argument("--patchsets", help="File with patchsets", dest="patchsets", type=str)
     parser.add_argument("--output",
         help="Save result into the file instead stdout",
@@ -74,6 +84,8 @@ def main():
         manifest = Manifest(args.source)
         if args.remote:
             manifest.set_remote(args.remote)
+        if args.branch:
+            manifest.set_branch_default(args.branch)
         if args.patchsets:
             manifest.apply_patches(load_patchsets(args.patchsets))
         manifest.dump(args.output)
