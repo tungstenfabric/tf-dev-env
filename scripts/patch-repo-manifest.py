@@ -73,7 +73,7 @@ def main():
     parser.add_argument("--source", help="Source file with manifest", dest="source", type=str)
     parser.add_argument("--remote", help="Remote to set in manifest", dest="remote", type=str)
     parser.add_argument("--branch", help="Branch", dest="branch", type=str, default=None)
-    parser.add_argument("--patchsets", help="File with patchsets", dest="patchsets", type=str)
+    parser.add_argument("--patchsets", help="File with patchsets", dest="patchsets", type=str, default=None)
     parser.add_argument("--output",
         help="Save result into the file instead stdout",
         default=None, dest="output", type=str)
