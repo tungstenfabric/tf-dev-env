@@ -43,9 +43,9 @@ for utest in $(cat "$targets_file") ; do
 done
 
 function process_file() {
-  local file=$1
+  local src_file=$1
   local ext=$2
-  if [[ "$file" == 'null' ]]; then
+  if [[ "$src_file" == 'null' ]]; then
     return
   fi
   for file in $(ls -1 ${src_file%.${ext}}.*.${ext} 2>/dev/null) ; do
