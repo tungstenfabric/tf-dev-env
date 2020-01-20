@@ -31,7 +31,7 @@ echo "INFO: targets to run:"
 cat "$targets_file"
 echo ; echo
 for utest in $(cat "$targets_file") ; do
-  echo "INFO: Starting unit tests for target $utest"
+  echo "INFO: $(date) Starting unit tests for target $utest"
   # sandesh tests don't work in parallel due to races
   jobs=$JOBS ; if [[ "$utest" == "sandesh:test" ]]; then jobs=1 ; fi
   logfilename=$(echo $utest | cut -f 1 -d ':' | rev | cut -f 1 -d '/' | rev)
@@ -39,26 +39,29 @@ for utest in $(cat "$targets_file") ; do
     res=1
     echo "ERROR: $utest failed"
   fi
-  echo "INFO: Unit test log is available at $logs_path/$logfilename"
+  echo "INFO: $(date) Unit test log is available at $logs_path/$logfilename"
 done
+
+function process_file() {
+  local file=$1
+  local ext=$2
+  if [[ "$file" == 'null' ]]; then
+    return
+  fi
+  for file in $(ls -1 ${src_file%.${ext}}.*.${ext} 2>/dev/null) ; do
+    dst_file=$(echo $file | sed "s~/root/contrail~$logs_path~g")
+    mkdir -p $(dirname $dst_file)
+    cp $file $dst_file
+  done
+}
 
 # gather scons logs
 input="$logs_path/scons_describe_tests.txt"
 scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $input
 while IFS= read -r line
 do
-  src_file=$(echo $line | jq -r ".log_path" 2>/dev/null)
-  for file in $(ls -1 ${src_file%.log}.*.log) ; do
-    dst_file=$(echo $file | sed "s~/root/contrail~$logs_path~g")
-    mkdir -p $(dirname $dst_file)
-    cp $file $dst_file
-  done
-  src_file=$(echo $line | jq -r ".xml_path" 2>/dev/null)
-  for file in $(ls -1 ${src_file%.xml}.*.xml) ; do
-    dst_file=$(echo $file | sed "s~/root/contrail~$logs_path~g")
-    mkdir -p $(dirname $dst_file)
-    cp $file $dst_file
-  done
+  process_file "$(echo $line | jq -r ".log_path" 2>/dev/null)" 'log'
+  process_file "$(echo $line | jq -r ".xml_path" 2>/dev/null)" 'xml'
 done < "$input"
 
 if [[ "$res" != '0' ]]; then
