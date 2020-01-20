@@ -10,12 +10,12 @@ fi
 patchsets_info_file=${REPODIR}/patchsets-info.json
 if [[ ! -e "$patchsets_info_file" ]] ; then
     echo "INFO: skip tpp: there is no patchset info"
-    return
+    exit
 fi
 files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-third-party-packages")) | select(has("files")) | .files[]')
 if [[ -z "$files" ]] ; then 
     echo "INFO: skip tpp: there is no changes in the files for contrail-third-party-packages"
-    return
+    exit
 fi
 
 tpp_dir=${REPODIR}/third_party/contrail-third-party-packages
