@@ -51,6 +51,11 @@ clean-repo:
 	@test -d $(REPODIR)/RPMS/repodata && rm -rf $(REPODIR)/RPMS/repodata || true
 
 ##############################################################################
+# Contrail third party packaged
+tpp:
+	@$(TF_DE_DIR)scripts/build-tpp.sh
+
+##############################################################################
 # Container builder targets
 prepare-containers:
 	@$(TF_DE_DIR)scripts/prepare-containers.sh
