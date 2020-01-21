@@ -16,6 +16,8 @@ WORKDIR $CONTRAIL
 # Inject repositories that we might need
 COPY *.repo /etc/yum.repos.d/
 
+# we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
+# /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
 RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     yum -y install epel-release && \
     yum -y update && \
@@ -27,7 +29,8 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     pip install --retries=10 --timeout 200 --upgrade more-itertools==8.0.2 tox geventhttpclient && \
     yum clean all && \
     rm -rf /var/cache/yum && \
-    pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2  && \
+    pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2 && \
+    rm -f /usr/local/bin/virtualenv && \
     echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc && \
     echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc
 
