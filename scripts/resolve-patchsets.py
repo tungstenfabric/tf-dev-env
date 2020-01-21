@@ -178,7 +178,8 @@ def format_result(changes_list):
             'id': i.change_id,
             'project': i.project,
             'ref': i.ref,
-            'number': str(i.number)
+            'number': str(i.number),
+            'branch': i.branch
         }
         if i.files:
             item['files'] = i.files

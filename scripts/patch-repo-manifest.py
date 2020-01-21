@@ -43,11 +43,14 @@ class Manifest(object):
                 default.set('revision', b)
 
     def _apply_patch(self, patch):
+        branch = patch.get('branch', None)
+        if not branch:
+            return
         project = patch['project']
         project_short = project.split('/')[-1]
         xpath = './/project[@name=\'%s\']' % project_short
         for p in self._root.findall(xpath):
-            p.set('revision', patch['ref'])
+            p.set('revision', branch)
 
     def apply_patches(self, patchsets):
         for p in patchsets:
@@ -88,6 +91,7 @@ def main():
             manifest.set_branch_default(args.branch)
         if args.patchsets:
             manifest.apply_patches(load_patchsets(args.patchsets))
+
         manifest.dump(args.output)
     except Exception as e:
         print(traceback.format_exc())

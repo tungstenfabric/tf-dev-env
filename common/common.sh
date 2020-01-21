@@ -44,5 +44,9 @@ export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-1}
 
 # versions info
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-'dev'}
-export VENDOR_NAME="Tungsten Fabric"
-export VENDOR_DOMAIN="tungsten.io"
+export VENDOR_NAME=${VENDOR_NAME:-"Tungsten Fabric"}
+export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"tungsten.io"}
+
+# Contrail repo branches options
+export CONTRAIL_BRANCH=${CONTRAIL_BRANCH:-${GERRIT_BRANCH:-'master'}}
+export CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO:-"https://github.com/Juniper/contrail-vnc"}

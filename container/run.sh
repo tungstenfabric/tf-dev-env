@@ -25,6 +25,13 @@ if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" ]]; then
 fi
 
 cd $CONTRAIL_DEV_ENV
+if [[ -e common.env ]] ; then
+    echo "INFO: source env from common.env"
+    set -o allexport
+    source common.env
+    set +o allexport
+fi
+
 STAGES_DIR="${CONTRAIL}/.stages"
 mkdir -p $STAGES_DIR
 
@@ -40,6 +47,16 @@ function configure() {
     echo "INFO: make dep fetch_packages  $(date)"
     # targets can use yum and will block each other. don't run them in parallel
     make dep fetch_packages
+
+    # enable contrail repo for dev-env if not created
+    # (it is for tpp to be available during compile stage)
+    cat <<EOF > /etc/yum.repos.d/contrail.repo
+[contrail]
+name = Contrail repo
+baseurl = ${CONTRAIL_REPOSITORY}
+enabled = 1
+gpgcheck = 0
+EOF
 }
 
 function compile() {
@@ -49,7 +66,14 @@ function compile() {
     echo "INFO: create rpm repo $(date)"
     make create-repo
     echo "INFO: make tpp $(date)"
-    make tpp
+    make build-tpp
+    echo "INFO: update rpm repo $(date)"
+    make update-repo
+    echo "INFO: package tpp $(date)"
+    # TODO: for now it does packaging for all rpms found in repo, 
+    # at this moment tpp packages are built only if there are changes there 
+    # from gerrit. So, for now it relies on tha fact that it is first step of RPMs.
+    make package-tpp
     echo "INFO: make rpm  $(date)"
     make rpm
     echo "INFO: update rpm repo $(date)"

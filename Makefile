@@ -52,8 +52,11 @@ clean-repo:
 
 ##############################################################################
 # Contrail third party packaged
-tpp:
+build-tpp:
 	@$(TF_DE_DIR)scripts/build-tpp.sh
+
+package-tpp:
+	@$(TF_DE_DIR)scripts/package-tpp.sh
 
 ##############################################################################
 # Container builder targets

@@ -14,6 +14,13 @@ if [ -z "${REPODIR}" ] ; then
   exit 1
 fi
 
+if [[ -e ${REPODIR}/.env/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from ${REPODIR}/.env/tf-developer-sandbox.env"
+    set -o allexport
+    source ${REPODIR}/.env/tf-developer-sandbox.env
+    set +o allexport
+fi
+
 cd $REPODIR
 echo "INFO: current folder is ${pwd}"
 
@@ -25,9 +32,8 @@ if [ -n "$GERRIT_CHANGE_URL" ] ; then
 fi
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
-
-REPO_INIT_MANIFEST_BRANCH=${REPO_INIT_MANIFEST_BRANCH:-${GERRIT_BRANCH:-'master'}}
-REPO_INIT_MANIFEST_URL=${REPO_INIT_MANIFEST_URL:-"https://github.com/Juniper/contrail-vnc"}
+REPO_INIT_MANIFEST_BRANCH=${REPO_INIT_MANIFEST_BRANCH:-${CONTRAIL_BRANCH}}
+REPO_INIT_MANIFEST_URL=${REPO_INIT_MANIFEST_URL:-${CONTRAIL_FETCH_REPO}}
 REPO_INIT_OPTS=${REPO_INIT_OPTS:-${repo_init_defauilts}}
 REPO_SYNC_OPTS=${REPO_SYNC_OPTS:-${repo_sync_defauilts}}
 REPO_TOOL=${REPO_TOOL:-"./repo"}
@@ -59,13 +65,34 @@ branch_opts=""
 if [[ -n "$GERRIT_BRANCH" ]] ; then
   branch_opts+="--branch $GERRIT_BRANCH"
 fi
+
+# file for patchset info if any
+patchsets_info_file=${REPODIR}/patchsets-info.json
+
+# gerrit remote (empty if no gerrit and not used in that case)
+gerrit=$(echo "$GERRIT_CHANGE_URL" | grep -io 'http[s]\{0,1\}://[^\/]\+')
+
+# resolve changes if any
+if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
+  [ -z "$gerrit" ] && {
+    echo "ERROR: GERRIT_CHANGE_ID is provided but GERRIT_CHANGE_URL is not"
+    exit 1
+  }
+  echo "INFO: resolve patchsets to $patchsets_info_file"
+  ${scriptdir}/resolve-patchsets.py \
+    --gerrit $gerrit \
+    --review $GERRIT_CHANGE_ID \
+    $branch_opts \
+    --changed_files \
+    --output $patchsets_info_file || exit 1
+fi
+
 if [[ -n "$GERRIT_CHANGE_URL" ]] ; then
-  # set new remote
-  gerrit=$(echo "$GERRIT_CHANGE_URL" | grep -io 'http[s]\{0,1\}://[^\/]\+')
   ${scriptdir}/patch-repo-manifest.py \
     --remote "$gerrit" \
     $branch_opts \
     --source ./.repo/manifest.xml \
+    --patchsets $patchsets_info_file \
     --output ./.repo/manifest.xml || exit 1
     echo "INFO: patched manifest.xml"
     cat ./.repo/manifest.xml
@@ -89,19 +116,12 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
     echo "ERROR: GERRIT_CHANGE_ID is provided but GERRIT_CHANGE_URL is not"
     exit 1
   }
+
   echo "INFO: gathering UT targets"
   ${scriptdir}/gather-unittest-targets.py > ./unittest_targets || exit 1
   cat ./unittest_targets
 
-  patchsets_info_file=${REPODIR}/patchsets-info.json
-  echo "INFO: resolve patchsets to $patchsets_info_file"
   # apply patches
-  ${scriptdir}/resolve-patchsets.py \
-    --gerrit $gerrit \
-    --review $GERRIT_CHANGE_ID \
-    $branch_opts \
-    --changed_files \
-    --output $patchsets_info_file || exit 1
   echo "INFO: review dependencies"
   cat $patchsets_info_file | jq '.'
   cat $patchsets_info_file | jq -r '.[] | .project + " " + .ref + " " + .number' | while read project ref number; do
