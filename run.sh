@@ -110,11 +110,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
       cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
     fi
     cd ${scriptdir}/container
-    dev_env_source=${DISTRO}
-    if [[ "$dev_env_source" == 'ubuntu' ]]; then
-      dev_env_source='centos'
-    fi
-    ./build.sh -i ${IMAGE} -d ${dev_env_source} ${DEVENVTAG}
+    ./build.sh -i ${IMAGE} ${DEVENVTAG}
     cd ${scriptdir}
   fi
 

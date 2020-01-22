@@ -2,10 +2,8 @@
 
 LINUX_DISTR=${LINUX_DISTR:-'centos'}
 
-while getopts ":d:i:" opt; do
+while getopts ":i:" opt; do
     case $opt in
-      d) LINUX_DISTR=$OPTARG
-         ;;
       i) IMAGE=$OPTARG
          ;;
       \?) echo "Invalid option: $opt"; exit 1;;
