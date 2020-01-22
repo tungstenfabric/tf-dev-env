@@ -128,7 +128,7 @@ class TungstenTestRunner(object):
         scons_env = os.environ.copy()
         args = []
         if 'KVERS' in scons_env:
-            args += ['--kernel-dir', '/lib/modules/{}/build'.format(scons_env['KVERS'])]
+            args += ['--kernel-dir=/lib/modules/{}/build'.format(scons_env['KVERS'])]
         if not self.args.strict:
             scons_env['NO_HEAPCHECK'] = '1'
         command = [shutil.which("python2"),
