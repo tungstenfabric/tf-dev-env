@@ -126,12 +126,15 @@ class TungstenTestRunner(object):
         if targets is None:
             targets = self.args.targets
         scons_env = os.environ.copy()
+        args = []
+        if 'KVERS' in scons_env:
+            args += ['--kernel-dir', '/lib/modules/{}/build'.format(scons_env['KVERS'])]
         if not self.args.strict:
             scons_env['NO_HEAPCHECK'] = '1'
         command = [shutil.which("python2"),
                    shutil.which("scons"),
                    "-j", str(self.args.job_count),
-                   "--keep-going"] + targets
+                   "--keep-going"] + args + targets
         logging.info("Executing SCons command: %s", " ".join(command))
         rc = execute(command, scons_env,
                      lambda x: print(x.decode('utf-8', 'backslashreplace'), file=sys.stdout, end=''),
