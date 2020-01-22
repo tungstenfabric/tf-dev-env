@@ -30,3 +30,21 @@ make list
 make prep
 make all
 popd
+
+if [[ ! -e /etc/yum.repos.d/contrail.repo ]] ; then
+    echo "INFO: enable contrail repo for next compilation steps"
+    # enable contrail repo for dev-env if not created
+    # (it is for tpp to be available during compile stage)
+    cat <<EOF > /etc/yum.repos.d/contrail.repo
+[contrail]
+name = Contrail repo
+baseurl = ${CONTRAIL_REPOSITORY}
+enabled = 1
+gpgcheck = 0
+EOF
+else
+    echo "INFO: contrail repo is already created"
+fi
+
+echo "INFO: contrail repo info"
+cat /etc/yum.repos.d/contrail.repo

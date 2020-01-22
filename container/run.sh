@@ -47,16 +47,6 @@ function configure() {
     echo "INFO: make dep fetch_packages  $(date)"
     # targets can use yum and will block each other. don't run them in parallel
     make dep fetch_packages
-
-    # enable contrail repo for dev-env if not created
-    # (it is for tpp to be available during compile stage)
-    cat <<EOF > /etc/yum.repos.d/contrail.repo
-[contrail]
-name = Contrail repo
-baseurl = ${CONTRAIL_REPOSITORY}
-enabled = 1
-gpgcheck = 0
-EOF
 }
 
 function compile() {
