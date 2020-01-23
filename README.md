@@ -310,7 +310,7 @@ git clone http://github.com/tungstenfabric/tf-devstack
 Deploy TF by means of k8s manifests, for example:
 
 ``` bash
-tf-devstack/k8s_manifests/run.sh
+tf-devstack/ansible/run.sh
 ```
 
 #### 3.1 Using targets
@@ -318,13 +318,13 @@ tf-devstack/k8s_manifests/run.sh
 If you're on VirtualBox, for example, and want to snapshot k8s deployment prior to TF deployment you can use run.sh targets like:
 
 ``` bash
-tf-devstack/k8s_manifests/run.sh platform
+tf-devstack/ansible/run.sh platform
 ```
 
 and then:
 
 ``` bash
-tf-devstack/k8s_manifests/run.sh tf
+tf-devstack/ansible/run.sh tf
 ```
 
 Along with cleanup of particular target you can do tf deployment multiple times:
@@ -386,3 +386,6 @@ tf-devstack/k8s_manifests/run.sh master
 
 [Slack]: https://tungstenfabric.slack.com/messages/C0DQ23SJF/
 [Google Group]: https://groups.google.com/forum/#!forum/tungsten-dev
+
+# Known Issues
+- In developer scenario works tf-devstack/ansible/ deployer only. The other deploers don't work due to docker configuration differences.
