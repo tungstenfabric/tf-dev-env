@@ -278,6 +278,11 @@ Clone tf-dev-env:
 ``` bash
 git clone http://github.com/tungstenfabric/tf-dev-env
 ```
+Switch to a branch other than master (if necessary):
+
+``` bash
+export GERRIT_BRANCH="branch_name"
+```
 
 Prepare the build container and fetch TF sources:
 
