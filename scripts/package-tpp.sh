@@ -7,6 +7,17 @@ if [ -z "${REPODIR}" ] ; then
   exit 1
 fi
 
+patchsets_info_file=${REPODIR}/patchsets-info.json
+if [[ ! -e "$patchsets_info_file" ]] ; then
+    echo "INFO: skip tpp: there is no patchset info"
+    exit
+fi
+files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-third-party-packages")) | select(has("files")) | .files[]')
+if [[ -z "$files" ]] ; then 
+    echo "INFO: skip tpp: there is no changes in the files for contrail-third-party-packages"
+    exit
+fi
+
 if [[ -e ${REPODIR}/.env/tf-developer-sandbox.env ]] ; then
     echo "INFO: source env from ${REPODIR}/.env/tf-developer-sandbox.env"
     set -o allexport
@@ -22,6 +33,10 @@ mkdir ${working_dir}/rpms
 pushd ${working_dir}
 
 find $REPODIR/RPMS/ -name "*.rpm" -exec cp "{}" ./rpms/ ";"
+if ! ls ./rpms/*.rpm >/dev/null 2>&1 ; then
+  echo "ERROR: no tpp rpms found for packaging"
+  exit 1
+fi
 
 cat <<EOF > ./Dockerfile
 FROM scratch
