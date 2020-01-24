@@ -1,4 +1,4 @@
-FROM registry.redhat.io/rhel7:latest
+FROM registry.access.redhat.com/ubi7/ubi:latest
 
 ARG LC_ALL=en_US.UTF-8
 ARG LANG=en_US.UTF-8
