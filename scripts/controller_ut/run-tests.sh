@@ -20,7 +20,7 @@ else
 fi
 echo "INFO: detected kernel version is $kvers"
 ls -l /lib/modules/
-export KVERS=kvers
+export KVERS=$kvers
 
 echo "INFO: Run full build first $(date)"
 export CONTRAIL_COMPILE_WITHOUT_SYMBOLS=yes
