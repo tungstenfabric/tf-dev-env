@@ -44,7 +44,8 @@ export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-1}
 
 # versions info
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-'dev'}
-export VENDOR_NAME=${VENDOR_NAME:-"Tungsten Fabric"}
+# note: there is spaces available in names below
+export VENDOR_NAME=${VENDOR_NAME:-"TungstenFabric"}
 export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"tungsten.io"}
 
 # Contrail repo branches options
