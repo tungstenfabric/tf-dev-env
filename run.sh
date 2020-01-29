@@ -53,6 +53,7 @@ mkdir -p $tf_container_env_dir
 tf_container_env_file=${tf_container_env_dir}/tf-developer-sandbox.env
 cat <<EOF > $tf_container_env_file
 DEBUG=${DEBUG}
+LINUX_DISTR=${LINUX_DISTR}
 CONTRAIL_DEV_ENV=/root/tf-dev-env
 DEVENVTAG=$DEVENVTAG
 CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
