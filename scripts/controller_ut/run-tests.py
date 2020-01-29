@@ -15,6 +15,7 @@ from lxml import etree
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 async def _read_stream(stream, cb):
     while True:
         line = await stream.readline()
@@ -22,6 +23,7 @@ async def _read_stream(stream, cb):
             cb(line)
         else:
             break
+
 
 async def _stream_subprocess(cmd, environment, stdout_cb, stderr_cb):
     process = await asyncio.create_subprocess_exec(*cmd, env=environment,
@@ -46,6 +48,7 @@ def execute(cmd, environment, stdout_cb, stderr_cb):
     ))
     loop.close()
     return rc
+
 
 class TestResult:
     SUCCESS = 0
@@ -139,10 +142,6 @@ class TungstenTestRunner(object):
         rc = execute(command, scons_env,
                      lambda x: print(x.decode('utf-8', 'backslashreplace'), file=sys.stdout, end=''),
                      lambda x: print(x.decode(  'utf-8', 'backslashreplace'), file=sys.stderr, end=''))
-        if rc > 0:
-            logging.info("SCons failed. Analyzing results.")
-        else:
-            logging.info("SCons succeeded. Analyzing results.")
         return rc, targets
 
     def _parse_junit_xml(self, xml_path):
@@ -334,42 +333,35 @@ def main():
     runner = TungstenTestRunner()
     runner.parse_arguments()
     runner.describe_tests()
-    rc, targets = runner.run_tests()
 
-    # First analysis is done over all tests, because at this point
-    # a) we want to analyze everything
-    # b) targets that we have are "generic", not for each test - can't
-    #    match it against tests that we store.
-    result, failed_targets = runner.analyze_test_results()
-    if rc > 0 and result == TestResult.SUCCESS:
-        logging.error("SCons failed, but analyzer found no errors.")
-        if not failed_targets:
-            logging.critical("Analyzer found no targets to retry. Exiting.")
-            sys.exit(rc)
+    failed_targets = None
+    for counter in range(3):
+        rc, targets = runner.run_tests(targets=failed_targets)
+        if rc > 0:
+            logging.info("SCons failed with exit code {}. Analyzing results.".format(rc))
+        else:
+            logging.info("SCons succeeded. Analyzing results.")
 
-    final_result = result
-    if result != TestResult.SUCCESS:
-        logging.warning("Test Failure, %d targets failed:", len(failed_targets))
-        for target in failed_targets:
-            logging.warning("\t%s", target)
+        # First analysis is done over all tests, because at this point
+        # a) we want to analyze everything
+        # b) targets that we have are "generic", not for each test - can't
+        #    match it against tests that we store.
+        result, failed_targets = runner.analyze_test_results(targets=(None if counter == 0 else targets))
+        logging.info("Analyzer result is " + ("SUCCESS" if result == TestResult.SUCCESS else "FAILURE"))
+        if rc > 0 and result == TestResult.SUCCESS:
+            logging.error("SCons failed, but analyzer didn't find any errors.")
+            if not failed_targets:
+                logging.critical("Analyzer didn't find targets to retry. Exiting.")
+                sys.exit(rc)
 
-        counter = 2
-        while counter > 0:
-            logging.info("Retrying, %d attempts remaining.", counter)
-            counter -= 1
-            rc, targets = runner.run_tests(failed_targets)
-            result, failed_targets = runner.analyze_test_results(targets)
+        if result == TestResult.SUCCESS:
+            break
 
-            if rc > 0 and result == TestResult.SUCCESS:
-                logging.error("SCons failed, but analyzer found no errors.")
-                if not failed_targets:
-                    logging.critical("Analyzer found no targets to retry. Exiting.")
-                    sys.exit(1)
+        logging.warning("Test Failure, {} targets failed:\n".format(len(failed_targets))
+                        + "\n\t".join(failed_targets))
+        logging.info("Retrying, %d attempts remaining.", counter)
 
-            final_result = "SUCCESS" if result == TestResult.SUCCESS else "FAILURE"
-            logging.debug("Test result after retries: %s", final_result)
-
-    runner.generate_test_report(rc, final_result)
+    runner.generate_test_report(rc, "SUCCESS" if result == TestResult.SUCCESS else "FAILURE")
     sys.exit(rc)
 
 
