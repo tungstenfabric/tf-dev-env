@@ -104,7 +104,7 @@ class TungstenTestRunner(object):
                    "-j", str(self.args.job_count),
                    "--keep-going"] + args + targets
         logging.info("Executing SCons command: %s", " ".join(command))
-        rc = subprocess.check_call(command, env=scons_env)
+        rc = subprocess.call(command, env=scons_env)
         return rc, targets
 
     def _parse_junit_xml(self, xml_path):
