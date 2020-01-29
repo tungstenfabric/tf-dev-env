@@ -2,7 +2,6 @@
 
 import os
 import random
-import asyncio
 import sys
 import json
 import jinja2
@@ -14,40 +13,6 @@ import shutil
 from lxml import etree
 
 logging.basicConfig(level=logging.DEBUG)
-
-
-async def _read_stream(stream, cb):
-    while True:
-        line = await stream.readline()
-        if line:
-            cb(line)
-        else:
-            break
-
-
-async def _stream_subprocess(cmd, environment, stdout_cb, stderr_cb):
-    process = await asyncio.create_subprocess_exec(*cmd, env=environment,
-            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, limit=1048576) # 1MB
-
-    await asyncio.wait([
-        _read_stream(process.stdout, stdout_cb),
-        _read_stream(process.stderr, stderr_cb)
-    ])
-    return await process.wait()
-
-
-def execute(cmd, environment, stdout_cb, stderr_cb):
-    asyncio.set_event_loop(asyncio.new_event_loop())
-    loop = asyncio.get_event_loop()
-    rc = loop.run_until_complete(
-        _stream_subprocess(
-            cmd,
-            environment,
-            stdout_cb,
-            stderr_cb,
-    ))
-    loop.close()
-    return rc
 
 
 class TestResult:
@@ -139,9 +104,7 @@ class TungstenTestRunner(object):
                    "-j", str(self.args.job_count),
                    "--keep-going"] + args + targets
         logging.info("Executing SCons command: %s", " ".join(command))
-        rc = execute(command, scons_env,
-                     lambda x: print(x.decode('utf-8', 'backslashreplace'), file=sys.stdout, end=''),
-                     lambda x: print(x.decode(  'utf-8', 'backslashreplace'), file=sys.stderr, end=''))
+        rc = subprocess.check_call(command, env=scons_env)
         return rc, targets
 
     def _parse_junit_xml(self, xml_path):
