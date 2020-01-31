@@ -32,8 +32,20 @@ if [ -n "$GERRIT_CHANGE_URL" ] ; then
 fi
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
-REPO_INIT_MANIFEST_BRANCH=${REPO_INIT_MANIFEST_BRANCH:-${CONTRAIL_BRANCH}}
+
 REPO_INIT_MANIFEST_URL=${REPO_INIT_MANIFEST_URL:-${CONTRAIL_FETCH_REPO}}
+if [[ -n "$CONTRAIL_BRANCH" ]] ; then
+  # reset branch to master if no such branch in vnc: openshift-ansible,
+  # contrail-tripleo-puppet, contrail-trieplo-heat-templates do not 
+  # depend on contrail branch and are openstack depended.
+  if ! curl https://review.opencontrail.org/projects/Juniper%2Fcontrail-vnc/branches | grep 'ref' | grep -q "${CONTRAIL_BRANCH}" ; then
+    echo "Ther is no $CONTRAIL_BRANCH branch in contrail-vnc, use master for vnc"
+    CONTRAIL_BRANCH="master"
+    GERRIT_BRANCH=""
+  fi
+fi
+
+REPO_INIT_MANIFEST_BRANCH=${REPO_INIT_MANIFEST_BRANCH:-${CONTRAIL_BRANCH}}
 REPO_INIT_OPTS=${REPO_INIT_OPTS:-${repo_init_defauilts}}
 REPO_SYNC_OPTS=${REPO_SYNC_OPTS:-${repo_sync_defauilts}}
 REPO_TOOL=${REPO_TOOL:-"./repo"}
