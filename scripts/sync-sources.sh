@@ -96,11 +96,6 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
     --changed_files \
     --output $patchsets_info_file || exit 1
 
-  echo "INFO: gathering UT targets"
-  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ./unittest_targets || exit 1
-  cat ./unittest_targets
-  echo
-
   echo "INFO: patching manifest.xml for repo tool"
   ${scriptdir}/patch-repo-manifest.py \
     --remote "$GERRIT_URL" \
@@ -126,6 +121,11 @@ if [[ $? != 0 ]] ; then
 fi
 
 if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
+  echo "INFO: gathering UT targets"
+  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ./unittest_targets || exit 1
+  cat ./unittest_targets
+  echo
+
   # apply patches
   echo "INFO: review dependencies"
   cat $patchsets_info_file | jq '.'
