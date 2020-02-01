@@ -26,7 +26,7 @@ echo "INFO: current folder is ${pwd}"
 
 repo_init_defauilts='--depth=1'
 repo_sync_defauilts='--current-branch --no-tags --no-clone-bundle'
-if [ -n "$GERRIT_CHANGE_URL" ] ; then
+if [ -n "$GERRIT_URL" ] ; then
   # for cherry-pick it is needed to have history
   repo_init_defauilts=''
 fi
@@ -81,27 +81,25 @@ fi
 # file for patchset info if any
 patchsets_info_file=${REPODIR}/patchsets-info.json
 
-# gerrit remote (empty if no gerrit and not used in that case)
-gerrit=$(echo "$GERRIT_CHANGE_URL" | grep -io 'http[s]\{0,1\}://[^\/]\+')
+if [[ -n "$GERRIT_CHANGE_ID" && -z "$GERRIT_URL" ]] ; then
+  echo "ERROR: GERRIT_CHANGE_ID is provided but GERRIT_URL is not"
+  exit 1
+fi
 
 # resolve changes if any
 if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
-  [ -z "$gerrit" ] && {
-    echo "ERROR: GERRIT_CHANGE_ID is provided but GERRIT_CHANGE_URL is not"
-    exit 1
-  }
   echo "INFO: resolve patchsets to $patchsets_info_file"
   ${scriptdir}/resolve-patchsets.py \
-    --gerrit $gerrit \
+    --gerrit $GERRIT_URL \
     --review $GERRIT_CHANGE_ID \
     $branch_opts \
     --changed_files \
     --output $patchsets_info_file || exit 1
 fi
 
-if [[ -n "$GERRIT_CHANGE_URL" ]] ; then
+if [[ -n "$GERRIT_URL" ]] ; then
   ${scriptdir}/patch-repo-manifest.py \
-    --remote "$gerrit" \
+    --remote "$GERRIT_URL" \
     $branch_opts \
     --source ./.repo/manifest.xml \
     --patchsets $patchsets_info_file \
@@ -124,13 +122,8 @@ if [[ $? != 0 ]] ; then
 fi
 
 if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
-  [ -z "$gerrit" ] && {
-    echo "ERROR: GERRIT_CHANGE_ID is provided but GERRIT_CHANGE_URL is not"
-    exit 1
-  }
-
   echo "INFO: gathering UT targets"
-  ${scriptdir}/gather-unittest-targets.py > ./unittest_targets || exit 1
+  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ./unittest_targets || exit 1
   cat ./unittest_targets
 
   # apply patches

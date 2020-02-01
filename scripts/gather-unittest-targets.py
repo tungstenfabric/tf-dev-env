@@ -1,38 +1,32 @@
 #!/usr/bin/env python
 
 import json
-import os
-import requests
+import sys
 
 
 def convert_path(path):
-    if "contrail-sandesh/" in path:
+    if path.startswith("contrail-sandesh/"):
         path = path.replace("contrail-sandesh/", "tools/sandesh/")
-    elif "contrail-generateDS/" in path:
+    elif path.startswith("contrail-generateDS/"):
         path = path.replace("contrail-generateDS/", "tools/generateds/")
-    elif "contrail-vrouter/" in path:
+    elif path.startswith("contrail-vrouter/"):
         path = path.replace("contrail-vrouter/", "vrouter/")
-    elif "contrail-common/" in path:
+    elif path.startswith("contrail-common/"):
         path = path.replace("contrail-common/", "src/contrail-common/")
-    elif "contrail-analytics/" in path:
+    elif path.startswith("contrail-analytics/"):
         path = path.replace("contrail-analytics/", "src/contrail-analytics/")
-    elif "contrail-api-client/" in path:
+    elif path.startswith("contrail-api-client/"):
         path = path.replace("contrail-api-client/", "src/contrail-api-client/")
-    else:
-        path = "controller/" + path
+    elif path.startswith("contrail-controller/"):
+        path = path.replace("contrail-controller/", "controller/")
     return path
 
 
-change_number = os.getenv("GERRIT_CHANGE_NUMBER")
-patchset = os.getenv("GERRIT_PATCHSET_NUMBER")
-project_fqdn = os.getenv("GERRIT_PROJECT").replace("/", "%2F")
-project = os.getenv("GERRIT_PROJECT").split("/")[1]
-url = "https://review.opencontrail.org/changes/{}~{}/revisions/{}/files".format(project_fqdn, change_number, patchset)
-
-response = requests.get(url=url)
-response.raise_for_status()
-json_files = json.loads(response.content.decode("utf-8")[4:])
-review_files = [project + '/' + key for key in json_files.keys() if key != "/COMMIT_MSG"]
+patchsets = json.load(sys.stdin)
+review_files = set()
+for patchset in patchsets:
+    project = patchset["project"].split('/')[1]
+    review_files.update([project + '/' + file for file in patchset["files"]])
 
 with open("/root/contrail/controller/ci_unittests.json") as fh:
     unittests = json.load(fh)

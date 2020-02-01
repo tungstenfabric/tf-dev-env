@@ -14,13 +14,10 @@ export REPODIR
 export CONTRAIL_DEPLOYERS_DIR
 export CONTRAIL_TEST_DIR
 export CONTAINER_BUILDER_DIR
-# for applying custome patches from review
+# for applying custom patches from review
 export GERRIT_CHANGE_ID
-export GERRIT_CHANGE_URL
+export GERRIT_URL
 export GERRIT_BRANCH
-export GERRIT_CHANGE_NUMBER
-export GERRIT_PATCHSET_NUMBER
-export GERRIT_PROJECT
 
 
 all: dep rpm containers
