@@ -95,18 +95,22 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
     $branch_opts \
     --changed_files \
     --output $patchsets_info_file || exit 1
-fi
 
-if [[ -n "$GERRIT_URL" ]] ; then
+  echo "INFO: gathering UT targets"
+  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ./unittest_targets || exit 1
+  cat ./unittest_targets
+  echo
+
+  echo "INFO: patching manifest.xml for repo tool"
   ${scriptdir}/patch-repo-manifest.py \
     --remote "$GERRIT_URL" \
     $branch_opts \
     --source ./.repo/manifest.xml \
     --patchsets $patchsets_info_file \
     --output ./.repo/manifest.xml || exit 1
-    echo "INFO: patched manifest.xml"
-    cat ./.repo/manifest.xml
-    echo
+  echo "INFO: patched manifest.xml"
+  cat ./.repo/manifest.xml
+  echo
 fi
 
 echo "INFO: Sync contrail sources git repos"
@@ -122,10 +126,6 @@ if [[ $? != 0 ]] ; then
 fi
 
 if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
-  echo "INFO: gathering UT targets"
-  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ./unittest_targets || exit 1
-  cat ./unittest_targets
-
   # apply patches
   echo "INFO: review dependencies"
   cat $patchsets_info_file | jq '.'
