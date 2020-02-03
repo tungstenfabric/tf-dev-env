@@ -68,9 +68,6 @@ if ! which docker >/dev/null 2>&1 ; then
     systemctl stop firewalld || true
     install_docker_rhel
     systemctl start docker
-    # Apply workaround for contrail-build-containers
-    docker pull registry.redhat.io/rhel7:latest
-    docker tag registry.redhat.io/rhel7:latest rhel7:latest
   elif [ x"$DISTRO" == x"ubuntu" ]; then
     install_docker_ubuntu
   fi
