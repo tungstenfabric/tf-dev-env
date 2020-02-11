@@ -15,10 +15,10 @@ if [ -z "${REPODIR}" ] ; then
 fi
 
 if [[ -e ${REPODIR}/.env/tf-developer-sandbox.env ]] ; then
-  echo "INFO: source env from ${REPODIR}/.env/tf-developer-sandbox.env"
-  set -o allexport
-  source ${REPODIR}/.env/tf-developer-sandbox.env
-  set +o allexport
+    echo "INFO: source env from ${REPODIR}/.env/tf-developer-sandbox.env"
+    set -o allexport
+    source ${REPODIR}/.env/tf-developer-sandbox.env
+    set +o allexport
 fi
 
 cd $REPODIR
@@ -52,7 +52,7 @@ REPO_TOOL=${REPO_TOOL:-"./repo"}
 
 if [[ ! -e $REPO_TOOL ]] ; then
   echo "INFO: Download repo tool"
-  cp -f scriptdir/repo $REPO_TOOL|| exit 1
+  curl -s -o $REPO_TOOL https://storage.googleapis.com/git-repo-downloads/repo || exit 1
   chmod a+x $REPO_TOOL
 fi
 
@@ -95,9 +95,6 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
     $branch_opts \
     --changed_files \
     --output $patchsets_info_file || exit 1
-  echo "INFO: resolved data is -"
-  cat $patchsets_info_file | jq '.'
-  echo
 
   echo "INFO: patching manifest.xml for repo tool"
   ${scriptdir}/patch-repo-manifest.py \
@@ -131,6 +128,7 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
 
   # apply patches
   echo "INFO: review dependencies"
+  cat $patchsets_info_file | jq '.'
   cat $patchsets_info_file | jq -r '.[] | .project + " " + .ref + " " + .number' | while read project ref number; do
     short_name=$(echo $project | cut -d '/' -f 2)
     [ -z "$number" ] && number=$(echo $ref | cut -d '/' -f 4)
