@@ -20,17 +20,33 @@ export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
 # variables that can be redefined outside (for CI)
 SITE_MIRROR=${SITE_MIRROR:-}
 
+function install_prerequisites_centos() {
+  local pkgs=""
+  which lsof || pkgs+=" lsof"
+  which python || pkgs+=" python"
+  if [ -n "$pkgs" ] ; then
+    sudo yum install -y $pkgs
+  fi
+}
+
+function install_prerequisites_rhel() {
+  install_prerequisites_centos
+}
+
+function install_prerequisites_ubuntu() {
+  local pkgs=""
+  which lsof || pkgs+=" lsof"
+  which python || pkgs+=" python-minimal"
+  if [ -n "$pkgs" ] ; then
+    export DEBIAN_FRONTEND=noninteractive
+    sudo -E apt-get install -y $pkgs
+  fi
+}
+
 echo tf-dev-env startup
 echo
 echo '[ensure python is present]'
-if [ x"$DISTRO" == x"centos" ]; then
-  sudo yum install -y python lsof
-elif [ x"$DISTRO" == x"rhel" ]; then
-  sudo yum install -y python lsof
-elif [ x"$DISTRO" == x"ubuntu" ]; then
-  export DEBIAN_FRONTEND=noninteractive
-  sudo -E apt-get install -y python-minimal lsof
-fi
+install_prerequisites_$DISTRO
 
 # prepare env
 $scriptdir/common/setup_docker.sh
