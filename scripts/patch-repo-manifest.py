@@ -18,20 +18,21 @@ def err(msg):
 
 
 class Manifest(object):
-    def __init__(self, file):
+    def __init__(self, file, remote):
+        self.remote = remote
         if file:
             with open(file, 'r') as f:
                 self._root = ElementTree.parse(f).getroot()
         else:
             self._root = ElementTree.fromstring('<manifest></manifest>')
 
-    def set_remote(self, url):
-        remotes = self._root.findall('.//remote')
-        if remotes:
-            for remote in remotes:
-                ns = remote.get('fetch').split('/')[-1]
-                u = url if not ns else "/".join([url, ns])
-                remote.set('fetch', u)
+    def add_remote(self, org):
+        remote_name = 'gerritreview-' + org
+        xpath = './/remote[@name=\'%s\']' % remote_name
+        if not self._root.findall(xpath):
+            remote = ElementTree.Element('remote', {'fetch': os.path.join(self.remote, org), 'name': remote_name})
+            self._root.insert(0, remote)
+        return remote_name
 
     def set_branch_default(self, branch):
         defaults = self._root.findall('.//default')
@@ -44,13 +45,16 @@ class Manifest(object):
 
     def _apply_patch(self, patch):
         branch = patch.get('branch', None)
-        if not branch:
-            return
-        project = patch['project']
-        project_short = project.split('/')[-1]
-        xpath = './/project[@name=\'%s\']' % project_short
+        org_project = patch['project']
+        org = org_project.split('/')[0]
+        project = org_project.split('/')[1]
+        remote = self.add_remote(org)
+        xpath = './/project[@name=\'%s\']' % project
         for p in self._root.findall(xpath):
-            p.set('revision', branch)
+            p.set('remote', remote)
+            if branch:
+                p.set('revision', branch)
+        
 
     def apply_patches(self, patchsets):
         for p in patchsets:
@@ -83,10 +87,11 @@ def main():
     args = parser.parse_args()
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=log_level)
+    if not args.remote and args.patchsets:
+        err("ERROR: Please specify remote cause patchsets is present")
+        sys.exit(1)
     try:
-        manifest = Manifest(args.source)
-        if args.remote:
-            manifest.set_remote(args.remote)
+        manifest = Manifest(args.source, args.remote)
         if args.branch:
             manifest.set_branch_default(args.branch)
         if args.patchsets:
