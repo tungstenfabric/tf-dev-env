@@ -24,7 +24,7 @@ fi
 cd $REPODIR
 echo "INFO: current folder is ${pwd}"
 
-repo_init_defauilts='--depth=1'
+repo_init_defauilts='--repo-branch=repo-1 --depth=1'
 repo_sync_defauilts='--current-branch --no-tags --no-clone-bundle'
 if [ -n "$GERRIT_URL" ] ; then
   # for cherry-pick it is needed to have history
@@ -52,7 +52,7 @@ REPO_TOOL=${REPO_TOOL:-"./repo"}
 
 if [[ ! -e $REPO_TOOL ]] ; then
   echo "INFO: Download repo tool"
-  curl -s -o $REPO_TOOL https://storage.googleapis.com/git-repo-downloads/repo || exit 1
+  curl -s -o $REPO_TOOL https://storage.googleapis.com/git-repo-downloads/repo-1 || exit 1
   chmod a+x $REPO_TOOL
 fi
 
