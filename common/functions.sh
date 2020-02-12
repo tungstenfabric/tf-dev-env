@@ -2,7 +2,7 @@
 
 function is_container_created() {
   local container=$1
-  if ! sudo docker ps -a --format '{{ .Names }}' | grep "$container" > /dev/null 2>&1 ; then
+  if ! sudo docker ps -a --format '{{ .Names }}' | grep -x "$container" > /dev/null 2>&1 ; then
     return 1
   fi
 }

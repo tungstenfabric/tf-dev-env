@@ -56,7 +56,7 @@ load_tf_devenv_profile
 
 echo
 echo "INFO: make common.env"
-cat $scriptdir/common.env.tmpl | envsubst > $scriptdir/common.env
+eval "cat <<< \"$(<$scriptdir/common.env.tmpl)\"" > $scriptdir/common.env
 echo "INFO: common.env content:"
 cat $scriptdir/common.env
 
