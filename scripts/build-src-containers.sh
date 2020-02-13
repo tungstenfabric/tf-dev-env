@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ -n "$DEBUG" ] && set -x
+
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
@@ -30,23 +32,8 @@ if ! [[ -f "${dockerfile_template}" ]] ; then
   exit 1
 fi
 
-VENDOR_NAME=${VENDOR_NAME:-tungstenfabric}
-CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-latest}
-
-build_log_file=${TF_CONFIG_DIR}/src_containers_build.log
-mkdir -p ${TF_CONFIG_DIR}
-echo "===== Start Build Containers at $(date) =====" > ${build_log_file}
-
-function run_src_container_build() {
-  local res=0
-  ${buildsh} ${REPODIR}/$1 || res=1
-  if [[ $res == 1 ]] ; then
-    echo "ERROR: Container ${CONTRAIL_CONTAINER_NAME} building failed" >> ${build_log_file}
-  else
-    echo "INFO: Container ${CONTRAIL_CONTAINER_NAME} has been successfully built" >> ${build_log_file}
-  fi
-}
-
+jobs=""
+echo "INFO: ===== Start Build Containers at $(date) ====="
 while IFS= read -r line; do
 if ! [[ "$line" =~ ^\#.*$ ]] ; then
   if ! [[ "$line" =~ ^[\-0-9a-zA-Z\/_.]+$ ]] ; then
@@ -59,22 +46,24 @@ if ! [[ "$line" =~ ^\#.*$ ]] ; then
     exit 1
   fi
 
-  export CONTRAIL_CONTAINER_NAME=contrail-${line}-src
-  echo "INFO: Pack $line sources to container ${CONTRAIL_CONTAINER_NAME}"
+  echo "INFO: Pack $line sources to container ${line}-src ${buildsh}"
   cp -f ${dockerfile_template} ${REPODIR}/${line}/Dockerfile
-  run_src_container_build ${line} &
-  unset CONTRAIL_CONTAINER_NAME
+  CONTRAIL_CONTAINER_NAME=${line}-src ${buildsh} ${REPODIR}/${line}  &
+  jobs+=" $!"
   rm -f ${REPODIR}/${line}/Dockerfile
 fi
 done < ${publish_list_file}
 
-wait
+res=0
+for i in $jobs ; do
+  wait $i || res=1
+done
 
-if [[ $(cat ${build_log_file} | grep ERROR | wc -l) > 0 ]] ; then
-  echo "ERROR: There were some errors when source containers builded. See log ${build_log_file}"
+if [[ $res == 1 ]] ; then
+  echo "ERROR: There were some errors when source containers builded."
   exit 1
 else
-  echo "INFO: Source containers has been successfuly built"
+  echo "INFO: All source containers has been successfuly built."
   exit 0
 fi
 
