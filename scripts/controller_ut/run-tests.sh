@@ -24,6 +24,7 @@ export KVERS=$kvers
 
 echo "INFO: Run full build first $(date)"
 export CONTRAIL_COMPILE_WITHOUT_SYMBOLS=yes
+export HEAP_CHECK_TEST_POINTER_ALIGNMENT=1
 BUILD_ONLY=1 scons -j $JOBS --without-dpdk --kernel-dir=/lib/modules/${KVERS}/build &> $logs_path/build_full
 unset BUILD_ONLY
 
