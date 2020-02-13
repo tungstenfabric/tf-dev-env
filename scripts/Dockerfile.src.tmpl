@@ -1,0 +1,12 @@
+FROM scratch
+
+ARG VENDOR_NAME
+ARG CONTAINER_NAME
+ARG CONTRAIL_CONTAINER_TAG
+
+LABEL vendor=$VENDOR_NAME \
+      version=$CONTRAIL_CONTAINER_TAG \
+      release="5.1.0" \
+      name=$CONTAINER_NAME
+
+COPY . /src

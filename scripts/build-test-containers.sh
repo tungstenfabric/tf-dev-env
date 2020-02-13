@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ -n "$DEBUG" ] && set -x
+
 REPODIR=${REPODIR:-"."}
 
 CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/contrail-test"}
