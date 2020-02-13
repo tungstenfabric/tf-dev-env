@@ -24,7 +24,6 @@ export KVERS=$kvers
 
 echo "INFO: Run full build first $(date)"
 export CONTRAIL_COMPILE_WITHOUT_SYMBOLS=yes
-export HEAP_CHECK_TEST_POINTER_ALIGNMENT=1
 BUILD_ONLY=1 scons -j $JOBS --without-dpdk --kernel-dir=/lib/modules/${KVERS}/build &> $logs_path/build_full
 unset BUILD_ONLY
 
@@ -49,7 +48,7 @@ for utest in $(cat "$targets_file") ; do
   # sandesh tests don't work in parallel due to races
   jobs=$JOBS ; if [[ "$utest" == "sandesh:test" ]]; then jobs=1 ; fi
   logfilename=$(echo $utest | cut -f 1 -d ':' | rev | cut -f 1 -d '/' | rev)
-  if ! "$scriptdir/run-tests.py" -j $jobs $utest  &> $logs_path/$logfilename ; then
+  if ! "$scriptdir/run-tests.py" --less-strict -j $jobs $utest  &> $logs_path/$logfilename ; then
     res=1
     echo "ERROR: $utest failed"
   fi
