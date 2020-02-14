@@ -46,7 +46,8 @@ echo ; echo
 for utest in $(cat "$targets_file") ; do
   echo "INFO: $(date) Starting unit tests for target $utest"
   # sandesh tests don't work in parallel due to races
-  jobs=$JOBS ; if [[ "$utest" == "sandesh:test" ]]; then jobs=1 ; fi
+  jobs=$JOBS
+  # if [[ "$utest" == "sandesh:test" ]]; then jobs=1 ; fi
   logfilename=$(echo $utest | cut -f 1 -d ':' | rev | cut -f 1 -d '/' | rev)
   if ! "$scriptdir/run-tests.py" --less-strict -j $jobs $utest  &> $logs_path/$logfilename ; then
     res=1
