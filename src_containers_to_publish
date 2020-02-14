@@ -2,3 +2,7 @@
 # when you use make containers, make container-<container name>
 # one line = one source directory
 tf-charms
+tf-ansible-deployer
+tf-kolla-ansible
+tf-container-builder
+tf-tripleo-heat-templates

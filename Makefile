@@ -75,7 +75,7 @@ clean-containers:
 	@test -d $(CONTAINER_BUILDER_DIR) && rm -rf $(CONTAINER_BUILDER_DIR) || true
 
 build-src-containers:
-	@$(TF_DE_DIR)scripts/build-src-containers.sh
+	@$(TF_DE_DIR)scripts/build-src-containers.sh || true
 
 ##############################################################################
 # Container deployers targets
