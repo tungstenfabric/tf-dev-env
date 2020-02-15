@@ -130,13 +130,12 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
 
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   volumes="-v /var/run:/var/run:z"
+  volumes+=" -v /etc/localtime:/etc/localtime"
   volumes+=" -v ${scriptdir}:/root/tf-dev-env:z"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
-  else
-    if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
-      volumes+=" -v ${src_volume_name}:/root/contrail:z"
-    fi
+  elif [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
+    volumes+=" -v ${src_volume_name}:/root/contrail:z"
   fi
   volumes+=" -v ${CONTRAIL_DIR}/logs:/root/contrail/logs:z"
   volumes+=" -v ${CONTRAIL_DIR}/RPMS:/root/contrail/RPMS:z"
