@@ -9,6 +9,16 @@ cd /root/contrail
 logs_path='/root/contrail/logs'
 mkdir -p "$logs_path"
 
+# contrail code assumes this in tests, since it uses socket.fqdn(..) but expects the result
+# to be 'localhost' when for CentOS it would return 'localhost.localdomain'
+# see e.g.: https://github.com/Juniper/contrail-analytics/blob/b488e3cd608643ae5dd1e0dcbc03c9e8768178ce/contrail-opserver/alarmgen.py#L872
+if grep -q '^127\.0\.0\.1 ' /etc/hosts ; then
+  sudo sed -i 's/^127\.0\.0\.1 .*$/127.0.0.1 localhost/' /etc/hosts 
+fi
+if grep -q '^::1 ' /etc/hosts ; then
+  sudo sed -i 's/^::1 .*$/::1 ip6-localhost/' /etc/hosts 
+fi
+
 # use the same kernel definition as for build. copied from contrail-packages/utils/get_kvers.sh
 running_kver="$(uname -r)"
 if [[ -d "/lib/modules/${running_kver}/build" ]]; then
