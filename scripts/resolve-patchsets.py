@@ -48,9 +48,10 @@ class Session(object):
 
 
 class Change(object):
-    def __init__(self, data):
+    def __init__(self, data, gerrit):
         self._data = data
         self._files = None
+        self._gerrit = gerrit
         dbg("Change: %s" % self._data)
 
     def __hash__(self):
@@ -68,6 +69,10 @@ class Change(object):
     @property
     def id(self):
         return self._data['id']
+
+    @property
+    def status(self):
+        return self._data['status']
 
     @property
     def project(self):
@@ -108,6 +113,17 @@ class Change(object):
     @property
     def depends_on(self):
         result = []
+        # collect parents by SHA - non-merged review can have only one parent
+        parents = self._data['revisions'][self.revision]['commit']['parents']
+        if len(parents != 1):
+            # let's fail on this case to see if can happens
+            dbg("Parents list has invalid count {} !!!".format(parents))
+            sys.exit(1)
+        parent = self._gerrit.get_change_by_sha(parents[0]['commit'])
+        if parent and parent.status not in ['MERGED', 'ABANDONED']:
+            result.append(parent.id)
+            result += parent.depends_on
+        # collect Depends-On from commit message 
         msg = self._data['revisions'][self.revision]['commit']['message']
         for d in DEPENDS_RE.findall(msg):
             result.append(d.split(':')[1].strip())
@@ -121,10 +137,10 @@ class Gerrit(object):
         self._session = Session(self._url)
 
     def _get_current_change(self, review_id, branch):
-        params='q=change:%s' % review_id
+        params = 'q=change:%s' % review_id
         if branch:
-            params+=' branch:%s' % branch
-        params+='&o=CURRENT_COMMIT&o=CURRENT_REVISION'
+            params += ' branch:%s' % branch
+        params += '&o=CURRENT_COMMIT&o=CURRENT_REVISION'
         return self._session.get('/changes/', params=params)
 
     def get_changed_files(self, change):
@@ -142,12 +158,22 @@ class Gerrit(object):
         res = self._get_current_change(review_id, None)
         if len(res) == 1:
             # there is no ambiguite, so return the found change 
-            return Change(res[0])
+            return Change(res[0], self)
         # there is ambiquity - try to resolve it by branch
         for i in res:
             if i.get('branch') == branch:
-                return Change(i)
-        raise GerritRequestError("Review %s (branch=%s) not found" %(review_id, branch))
+                return Change(i, self)
+        raise GerritRequestError("Review %s (branch=%s) not found" % (review_id, branch))
+
+    def get_change_by_sha(self, sha):
+        params = 'q=commit:%s&o=CURRENT_COMMIT&o=CURRENT_REVISION' % sha
+        res = self._session.get('/changes/', params=params)
+        if len(res) == 1:
+            # there is no ambiguite, so return the found change 
+            return Change(res[0], self)
+        elif len(res) == 0:
+            return None
+        raise GerritRequestError("Search for SHA %s has too many results" % sha)
 
 
 def resolve_dependencies(gerrit, change, parent_ids=[]):
