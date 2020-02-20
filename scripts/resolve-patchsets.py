@@ -115,7 +115,7 @@ class Change(object):
         result = []
         # collect parents by SHA - non-merged review can have only one parent
         parents = self._data['revisions'][self.revision]['commit']['parents']
-        if len(parents != 1):
+        if len(parents) != 1:
             # let's fail on this case to see if can happens
             dbg("Parents list has invalid count {} !!!".format(parents))
             sys.exit(1)
