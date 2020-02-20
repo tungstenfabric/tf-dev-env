@@ -5,6 +5,7 @@ contrail-analytics-collector
 contrail-analytics-query-engine
 contrail-analytics-snmp-collector
 contrail-analytics-snmp-topology
+contrail-base
 contrail-controller-config-api
 contrail-controller-config-base
 contrail-controller-config-devicemgr
@@ -20,7 +21,6 @@ contrail-controller-webui-base
 contrail-controller-webui-job
 contrail-controller-webui-web
 contrail-debug
-contrail-base
 contrail-external-cassandra
 contrail-external-haproxy
 contrail-external-kafka
@@ -48,9 +48,10 @@ contrail-tor-agent
 contrail-vcenter-fabric-manager
 contrail-vcenter-manager
 contrail-vcenter-plugin
-contrail-vrouter-agent-dpdk
 contrail-vrouter-agent
+contrail-vrouter-agent-dpdk
 contrail-vrouter-base
 contrail-vrouter-kernel-build-init
-contrail-vrouter-kernel-init-dpdk
 contrail-vrouter-kernel-init
+contrail-vrouter-kernel-init-dpdk
+
