@@ -10,6 +10,7 @@ CONTAINER_BUILDER_DIR=$(REPODIR)/contrail-container-builder
 CONTRAIL_DEPLOYERS_DIR=$(REPODIR)/contrail-deployers-containers
 CONTRAIL_TEST_DIR=$(REPODIR)/third_party/contrail-test
 export DEBUG
+export DEBUGINFO
 export REPODIR
 export CONTRAIL_DEPLOYERS_DIR
 export CONTRAIL_TEST_DIR

@@ -47,6 +47,17 @@ function configure() {
     echo "INFO: make dep fetch_packages  $(date)"
     # targets can use yum and will block each other. don't run them in parallel
     make dep fetch_packages
+
+    # disable byte compiling
+    if [[ ! -f /usr/lib/rpm/brp-python-bytecompile.org  ]] ; then
+        echo "INFO: disable byte compiling for python"
+        mv /usr/lib/rpm/brp-python-bytecompile /usr/lib/rpm/brp-python-bytecompile.org
+        cat <<EOF > /usr/lib/rpm/brp-python-bytecompile
+#!/bin/bash
+# disabled byte compiling
+exit 0
+EOF
+    fi
 }
 
 function compile() {

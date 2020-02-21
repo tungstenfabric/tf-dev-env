@@ -3,6 +3,10 @@
 [ -n "$DEBUG" ] && set -x
 set -o errexit
 
+# extract DEBUGINFO
+# in CI for speedup check pipline it can be disabled
+export DEBUGINFO=${DEBUGINFO:-TRUE}
+
 # working environment
 export WORKSPACE=${WORKSPACE:-$(pwd)}
 export TF_CONFIG_DIR=${TF_CONFIG_DIR:-"${HOME}/.tf"}
