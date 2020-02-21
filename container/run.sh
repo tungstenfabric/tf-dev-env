@@ -57,6 +57,7 @@ function configure() {
 # disabled byte compiling
 exit 0
 EOF
+        chmod +x /usr/lib/rpm/brp-python-bytecompile
     fi
 }
 
