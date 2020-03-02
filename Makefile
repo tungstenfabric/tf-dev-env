@@ -70,7 +70,7 @@ container-%: create-repo prepare-containers
 containers-only:
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh | sed "s/^/containers: /"
 
-containers: create-repo prepare-containers containers-only
+containers: create-repo prepare-containers containers-only build-src-containers
 
 clean-containers:
 	@test -d $(CONTAINER_BUILDER_DIR) && rm -rf $(CONTAINER_BUILDER_DIR) || true
