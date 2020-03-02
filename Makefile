@@ -67,16 +67,16 @@ list-containers: prepare-containers
 container-%: create-repo prepare-containers
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
-containers-only:
+build-src-containers:
+	@$(TF_DE_DIR)scripts/build-src-containers.sh
+
+containers-only: build-src-containers
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh | sed "s/^/containers: /"
 
-containers: create-repo prepare-containers containers-only build-src-containers
+containers: create-repo prepare-containers containers-only
 
 clean-containers:
 	@test -d $(CONTAINER_BUILDER_DIR) && rm -rf $(CONTAINER_BUILDER_DIR) || true
-
-build-src-containers:
-	@$(TF_DE_DIR)scripts/build-src-containers.sh
 
 ##############################################################################
 # Container deployers targets
