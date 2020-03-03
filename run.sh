@@ -177,7 +177,7 @@ if [[ "$stages" == 'none' ]] ; then
 fi
 
 echo "run stages $stages"
-sudo docker exec -i $TF_DEVENV_CONTAINER_NAME /root/tf-dev-env/run.sh $stages | tee -a ${log_path}
+sudo docker exec -i $TF_DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
 if [[ $result == 0 ]] ; then
