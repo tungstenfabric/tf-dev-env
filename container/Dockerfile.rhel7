@@ -35,6 +35,5 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc
 
 ADD entrypoint.sh $HOME/
-ADD run.sh $HOME/
 
 ENTRYPOINT ["/root/entrypoint.sh"]
