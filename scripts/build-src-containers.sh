@@ -32,6 +32,12 @@ if ! [[ -f "${dockerfile_template}" ]] ; then
   exit 1
 fi
 
+function build_container() {
+  local line=$1
+  CONTRAIL_CONTAINER_NAME=${line}-src ${buildsh} ${REPODIR}/${line}
+  rm -f ${REPODIR}/${line}/Dockerfile
+}
+
 jobs=""
 echo "INFO: ===== Start Build Containers at $(date) ====="
 while IFS= read -r line; do
@@ -48,9 +54,8 @@ if ! [[ "$line" =~ ^\#.*$ ]] ; then
 
   echo "INFO: Pack $line sources to container ${line}-src ${buildsh}"
   cp -f ${dockerfile_template} ${REPODIR}/${line}/Dockerfile
-  CONTRAIL_CONTAINER_NAME=${line}-src ${buildsh} ${REPODIR}/${line}  &
+  build_container ${line} &
   jobs+=" $!"
-  rm -f ${REPODIR}/${line}/Dockerfile
 fi
 done < ${publish_list_file}
 
