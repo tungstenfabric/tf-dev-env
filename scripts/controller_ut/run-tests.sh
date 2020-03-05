@@ -30,8 +30,8 @@ export KVERS=$kvers
 
 echo "INFO: Run full build first $(date)"
 export CONTRAIL_COMPILE_WITHOUT_SYMBOLS=yes
-#BUILD_ONLY=1 scons -j $JOBS --without-dpdk --kernel-dir=/lib/modules/${KVERS}/build &> $logs_path/build_full
-#unset BUILD_ONLY
+BUILD_ONLY=1 scons -j $JOBS --without-dpdk --kernel-dir=/lib/modules/${KVERS}/build &> $logs_path/build_full
+unset BUILD_ONLY
 
 echo "INFO: Prepare targets $(date)"
 targets_file='/root/contrail/unittest_targets'
