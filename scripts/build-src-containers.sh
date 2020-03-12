@@ -48,8 +48,8 @@ if ! [[ "$line" =~ ^\#.*$ ]] ; then
   fi
 
   if ! [[ -d "${REPODIR}/${line}" ]] ; then
-    echo "ERROR: not found directory ${REPODIR}/${line} mentioned in ${publish_list_file}"
-    exit 1
+    echo "WARNING: not found directory ${REPODIR}/${line} mentioned in ${publish_list_file}"
+    continue
   fi
 
   echo "INFO: Pack $line sources to container ${line}-src ${buildsh}"
