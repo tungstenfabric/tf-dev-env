@@ -129,12 +129,12 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
   # apply patches
   echo "INFO: review dependencies"
   cat $patchsets_info_file | jq '.'
-  cat $patchsets_info_file | jq -r '.[] | .project + " " + .ref + " " + .number' | while read project ref number; do
+  cat $patchsets_info_file | jq -r '.[] | .project + " " + .ref' | while read project ref; do
     short_name=$(echo $project | cut -d '/' -f 2)
-    [ -z "$number" ] && number=$(echo $ref | cut -d '/' -f 4)
     echo "INFO: apply change $ref for $project"
-    echo "INFO: cmd: $REPO_TOOL download --cherry-pick $short_name $number"
-    $REPO_TOOL download --cherry-pick $short_name $number || {
+    git_cmd="git fetch $GERRIT_URL/$project $ref && git cherry-pick FETCH_HEAD"
+    echo "INFO: cmd: $REPO_TOOL forall $short_name -c '$git_cmd'"
+    $REPO_TOOL forall $short_name -c "$git_cmd" || {
       echo "ERROR: failed to cherry-pick"
       exit 1
     }
