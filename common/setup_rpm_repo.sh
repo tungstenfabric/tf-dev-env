@@ -19,7 +19,7 @@ rpm_source="${CONTRAIL_DIR}/RPMS"
 mkdir -p "$rpm_source"
 
 if ! is_container_up "$RPM_CONTAINER_NAME" ; then 
-  ensure_port_free 80
+  ensure_port_free ${RPM_REPO_PORT}
 
   if ! is_container_created "$RPM_CONTAINER_NAME"; then
     sudo docker run -t --name "$RPM_CONTAINER_NAME" \
