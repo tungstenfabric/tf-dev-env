@@ -14,14 +14,11 @@ ENV LANGUAGE=$LANGUAGE
 WORKDIR $CONTRAIL
 
 # Inject repositories that we might need
-COPY *.repo /tmp/
+COPY *.repo /etc/yum.repos.d/
 
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
-RUN shopt -s extglob; if ls /tmp/!(tpc).repo 1>/dev/null 2>&1; then \
-        cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
-        rm -f /etc/yum.repos.d/*.repo; fi && \
-    if ls /tmp/*.repo 1>/dev/null 2>&1; then mv /tmp/*.repo /etc/yum.repos.d/; fi && \
+RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     if [[ -z "$(yum search jq -q 2>/dev/null)" ]]; then yum -y install epel-release; fi && \
     yum -y update && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
