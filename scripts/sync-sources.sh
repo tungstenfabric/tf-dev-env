@@ -38,7 +38,7 @@ if [[ -n "$CONTRAIL_BRANCH" ]] ; then
   # reset branch to master if no such branch in vnc: openshift-ansible,
   # contrail-tripleo-puppet, contrail-trieplo-heat-templates do not 
   # depend on contrail branch and are openstack depended.
-  if ! curl https://review.opencontrail.org/projects/Juniper%2Fcontrail-vnc/branches | grep 'ref' | grep -q "${CONTRAIL_BRANCH}" ; then
+  if ! curl -s https://review.opencontrail.org/projects/Juniper%2Fcontrail-vnc/branches | grep 'ref' | grep -q "${CONTRAIL_BRANCH}" ; then
     echo "Ther is no $CONTRAIL_BRANCH branch in contrail-vnc, use master for vnc"
     CONTRAIL_BRANCH="master"
     GERRIT_BRANCH=""
@@ -118,6 +118,14 @@ $REPO_TOOL sync $REPO_SYNC_OPTS -j $threads
 if [[ $? != 0 ]] ; then
   echo  "ERROR: repo sync failed"
   exit 1
+fi
+
+# TODO: remove this hack after reelase of R2003
+if [[ "$GERRIT_BRANCH" == 'R2003']]; then
+  rm -rf ${REPODIR}/contrail-deployers-containers/containers/helm-deployer/src/contrail-helm-deployer
+  rm -rf ${REPODIR}/contrail-deployers-containers/containers/helm-deployer/src/openstack-helm
+  rm -rf ${REPODIR}/contrail-deployers-containers/containers/helm-deployer/src/openstack-helm-infra
+  rm -rf ${REPODIR}/tf-charms
 fi
 
 if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
