@@ -122,9 +122,7 @@ fi
 
 # TODO: remove this hack after reelase of R2003
 if [[ "$GERRIT_BRANCH" == 'R2003' ]]; then
-  rm -rf ${REPODIR}/contrail-deployers-containers/containers/helm-deployer/src/contrail-helm-deployer
-  rm -rf ${REPODIR}/contrail-deployers-containers/containers/helm-deployer/src/openstack-helm
-  rm -rf ${REPODIR}/contrail-deployers-containers/containers/helm-deployer/src/openstack-helm-infra
+  rm -rf ${REPODIR}/contrail-deployers-containers/containers/helm-deployer
   rm -rf ${REPODIR}/tf-charms
 fi
 
