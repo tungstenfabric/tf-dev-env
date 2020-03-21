@@ -19,7 +19,7 @@ COPY *.repo /etc/yum.repos.d/
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
 RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
-    yum -y install epel-release && \
+    if ! yum info jq ; then yum -y install epel-release ; fi && \
     yum -y update && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
     yum -y install autoconf automake createrepo docker docker-python gcc gdb git git-review jq libtool \
