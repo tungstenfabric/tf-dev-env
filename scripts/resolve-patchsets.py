@@ -126,7 +126,10 @@ class Change(object):
         # collect Depends-On from commit message 
         msg = self._data['revisions'][self.revision]['commit']['message']
         for d in DEPENDS_RE.findall(msg):
-            result.append(d.split(':')[1].strip())
+            review_id = d.split(':')[1].strip()
+            change = self._gerrit.get_current_change(review_id)
+            if change.status not in ['MERGED', 'ABANDONED']:
+                result.append(review_id)
         dbg("Change: %s: depends_on: %s" % (self._data['change_id'], result))
         return result
 
