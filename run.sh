@@ -90,6 +90,15 @@ if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; t
 else
   echo "CONTRAIL_SOURCE=${CONTRAIL_DIR}" >> $tf_container_env_file
 fi
+if [[ -n "${GENERAL_EXTRA_RPMS+x}" ]] ; then
+  echo "GENERAL_EXTRA_RPMS=${GENERAL_EXTRA_RPMS}" >> $tf_container_env_file
+fi
+if [[ -n "${BASE_EXTRA_RPMS+x}" ]] ; then
+  echo "BASE_EXTRA_RPMS=${BASE_EXTRA_RPMS}" >> $tf_container_env_file
+fi
+if [[ -n "${RHEL_HOST_REPOS+x}" ]] ; then
+  echo "RHEL_HOST_REPOS=${RHEL_HOST_REPOS}" >> $tf_container_env_file
+fi
 
 if [[ -d "${scriptdir}/config" ]]; then
   cat <<EOF >> $tf_container_env_file
