@@ -25,7 +25,7 @@ cd $REPODIR
 echo "INFO: current folder is ${pwd}"
 
 repo_init_defauilts='--repo-branch=repo-1 --depth=1'
-repo_sync_defauilts='--current-branch --no-tags --no-clone-bundle'
+repo_sync_defauilts='--no-tags --no-clone-bundle'
 if [ -n "$GERRIT_URL" ] ; then
   # for cherry-pick it is needed to have history
   repo_init_defauilts=''
@@ -147,5 +147,13 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
   done
   [[ $? != 0 ]] && exit 1
 fi
+
+# replace symlinks with target files for all .git files
+for item in $(find ${REPODIR}/ -type l -print | grep "/.git/") ; do
+  idir=$(dirname $item)
+  target=$(realpath $item)
+  rm -f "$item"
+  cp -arf $target $idir/
+done
 
 exit 0
