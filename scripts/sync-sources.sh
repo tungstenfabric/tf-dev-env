@@ -148,6 +148,7 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
   [[ $? != 0 ]] && exit 1
 fi
 
+echo "INFO: replace symlinks inside .git folder to real files to be able to use them at deployment stage"
 # replace symlinks with target files for all .git files
 for item in $(find ${REPODIR}/ -type l -print | grep "/.git/") ; do
   idir=$(dirname $item)
