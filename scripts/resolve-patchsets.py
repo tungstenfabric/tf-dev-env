@@ -127,7 +127,7 @@ class Change(object):
         msg = self._data['revisions'][self.revision]['commit']['message']
         for d in DEPENDS_RE.findall(msg):
             review_id = d.split(':')[1].strip()
-            change = self._gerrit.get_current_change(review_id)
+            change = self._gerrit.get_current_change(review_id, self.branch)
             if change.status not in ['MERGED', 'ABANDONED']:
                 result.append(review_id)
         dbg("Change: %s: depends_on: %s" % (self._data['change_id'], result))
@@ -166,7 +166,8 @@ class Gerrit(object):
         for i in res:
             if i.get('branch') == branch:
                 return Change(i, self)
-        raise GerritRequestError("Review %s (branch=%s) not found" % (review_id, branch))
+        raise GerritRequestError("Review {} (branch={}) not found. Count of result is {}".format(
+            review_id, branch, len(res)))
 
     def get_change_by_sha(self, sha):
         params = 'q=commit:%s&o=CURRENT_COMMIT&o=CURRENT_REVISION' % sha
