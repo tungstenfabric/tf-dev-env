@@ -32,11 +32,11 @@ function ensure_port_free() {
 }
 
 function sudo() {
-    if [[ $DISTRO == "macosx" ]]; then
-	"$@"
-    else
-	sudo $@
-    fi
+  if [[ $DISTRO == "macosx" ]]; then
+    "$@"
+  else
+    command sudo $@
+   fi
 }
 
 function save_tf_devenv_profile() {

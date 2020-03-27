@@ -1,11 +1,11 @@
 #!/bin/bash -e
 
 function sudo() {
-    if [[ $DISTRO == "macosx" ]]; then
-	"$@"
-    else
-	sudo $@
-    fi
+  if [[ $DISTRO == "macosx" ]]; then
+    "$@"
+  else
+    command sudo $@
+   fi
 }
 
 LINUX_DISTR=${LINUX_DISTR:-'centos'}
