@@ -6,3 +6,4 @@ common.env
 daemon.json
 dev_config.yaml
 vars.yaml
+*.log
