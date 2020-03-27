@@ -140,7 +140,7 @@ class Gerrit(object):
         self._session = Session(self._url)
 
     def _get_current_change(self, review_id, branch):
-        params = 'q=change:%s' % review_id
+        params = 'q=change:%s+status:open' % review_id
         if branch:
             params += ' branch:%s' % branch
         params += '&o=CURRENT_COMMIT&o=CURRENT_REVISION'
@@ -163,9 +163,11 @@ class Gerrit(object):
             # there is no ambiguite, so return the found change 
             return Change(res[0], self)
         # there is ambiquity - try to resolve it by branch
-        for i in res:
-            if i.get('branch') == branch:
-                return Change(i, self)
+        branches = {i.get('branch'): i for i in res}
+        if branch in branches:
+            return Change(branches[branch], self)
+        # same branch is not found
+
         raise GerritRequestError("Review {} (branch={}) not found. Count of result is {}".format(
             review_id, branch, len(res)))
 
