@@ -25,7 +25,7 @@ function install_prerequisites_centos() {
   which lsof || pkgs+=" lsof"
   which python || pkgs+=" python"
   if [ -n "$pkgs" ] ; then
-    sudo yum install -y $pkgs
+    mysudo yum install -y $pkgs
   fi
 }
 
@@ -39,7 +39,16 @@ function install_prerequisites_ubuntu() {
   which python || pkgs+=" python-minimal"
   if [ -n "$pkgs" ] ; then
     export DEBIAN_FRONTEND=noninteractive
-    sudo -E apt-get install -y $pkgs
+    mysudo -E apt-get install -y $pkgs
+  fi
+}
+
+function install_prerequisites_macosx() {
+  local pkgs=""
+  which lsof || pkgs+=" lsof"
+  which python || pkgs+=" python"
+  if [ -n "$pkgs" ] ; then
+    brew install $pkgs
   fi
 }
 
@@ -127,7 +136,7 @@ echo
 echo '[environment setup]'
 if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
-    if ! sudo docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! sudo docker pull $DEVENV_IMAGE ; then
+    if ! mysudo docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! mysudo docker pull $DEVENV_IMAGE ; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
         exit 1
       fi
@@ -148,7 +157,9 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
 
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   volumes="-v /var/run:/var/run:z"
-  volumes+=" -v /etc/localtime:/etc/localtime"
+  if [[ $DISTRO != "macosx" ]]; then
+      volumes+=" -v /etc/localtime:/etc/localtime"
+  fi
   volumes+=" -v ${scriptdir}:/root/tf-dev-env:z"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
@@ -165,7 +176,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   #  - there is backward compatibility case with manual doing docker exec
   #  into container and user of make.
   #  - TF Jenkins CI use non-bind folder for sources
-  start_sandbox_cmd="sudo docker run --network host --privileged --detach \
+  start_sandbox_cmd="mysudo docker run --network host --privileged --detach \
     --name $TF_DEVENV_CONTAINER_NAME \
     -w /root ${options} \
     $volumes -it \
@@ -185,7 +196,7 @@ else
   if is_container_up "$TF_DEVENV_CONTAINER_NAME"; then
     echo "$TF_DEVENV_CONTAINER_NAME already running."
   else
-    echo $(sudo docker start $TF_DEVENV_CONTAINER_NAME) started.
+    echo $(mysudo docker start $TF_DEVENV_CONTAINER_NAME) started.
   fi
 fi
 
@@ -195,7 +206,7 @@ if [[ "$stages" == 'none' ]] ; then
 fi
 
 echo "run stages $stages"
-sudo docker exec -i $TF_DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stages | tee -a ${log_path}
+mysudo docker exec -i $TF_DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stages | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
 if [[ $result == 0 ]] ; then
@@ -210,7 +221,11 @@ if [[ $result == 0 ]] ; then
   echo "  package   - package TF into docker containers"
   echo "  test      - run unittests"
   echo "For advanced usage You can now connect to the sandbox container by using:"
-  echo "  sudo docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
+  if [[ $DISTRO != "macosx" ]]; then
+    echo "  sudo docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
+  else
+    echo "  docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
+  fi
 else
   echo
   echo 'ERROR: There were failures. See logs for details.'

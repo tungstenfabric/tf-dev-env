@@ -11,7 +11,7 @@ echo
 echo '[setup docker registry]'
 if ! is_container_created "$REGISTRY_CONTAINER_NAME"; then
     ensure_port_free $REGISTRY_PORT
-    sudo docker run --name "$REGISTRY_CONTAINER_NAME" \
+    mysudo docker run --name "$REGISTRY_CONTAINER_NAME" \
       -d -p $REGISTRY_PORT:5000 \
       registry:2 >/dev/null
     echo "INFO: $REGISTRY_CONTAINER_NAME created"
@@ -20,6 +20,6 @@ else
     echo "INFO: $REGISTRY_CONTAINER_NAME already running."
   else
     ensure_port_free $REGISTRY_PORT
-    echo "INFO: $(sudo docker start $REGISTRY_CONTAINER_NAME) started"
+    echo "INFO: $(mysudo docker start $REGISTRY_CONTAINER_NAME) started"
   fi
 fi
