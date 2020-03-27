@@ -43,6 +43,15 @@ function install_prerequisites_ubuntu() {
   fi
 }
 
+function install_prerequisites_macosx() {
+  local pkgs=""
+  which lsof || pkgs+=" lsof"
+  which python || pkgs+=" python"
+  if [ -n "$pkgs" ] ; then
+    brew install $pkgs
+  fi
+}
+
 echo tf-dev-env startup
 echo
 echo '[ensure python is present]'
@@ -131,7 +140,9 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
 
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   volumes="-v /var/run:/var/run:z"
-  volumes+=" -v /etc/localtime:/etc/localtime"
+  if [[ $DISTRO != "macosx" ]]; then
+      volumes+=" -v /etc/localtime:/etc/localtime"
+  fi
   volumes+=" -v ${scriptdir}:/root/tf-dev-env:z"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"

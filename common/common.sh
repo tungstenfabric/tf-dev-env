@@ -15,7 +15,14 @@ export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 [ -e "$TF_DEVENV_PROFILE" ] && source "$TF_DEVENV_PROFILE"
 
 # determined variables
-export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  export DISTRO="macosx"
+else
+  echo "Unsupported platform."
+  exit 1
+fi
 
 # working build directories
 if [ -z "${CONTRAIL_DIR+x}" ] ; then

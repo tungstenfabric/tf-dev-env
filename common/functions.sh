@@ -31,6 +31,14 @@ function ensure_port_free() {
   fi
 }
 
+function sudo() {
+    if [[ $DISTRO == "macosx" ]]; then
+	"$@"
+    else
+	sudo $@
+    fi
+}
+
 function save_tf_devenv_profile() {
   local file=${1:-$TF_DEVENV_PROFILE}
   echo
