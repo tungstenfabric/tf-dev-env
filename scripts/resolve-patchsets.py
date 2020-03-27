@@ -167,7 +167,7 @@ class Gerrit(object):
         if branch in branches:
             return Change(branches[branch], self)
         # same branch is not found
-
+        # TODO: choose DEFAULT_OPENSTACK_BRANCH if present, then latest openstack branch, then master
         raise GerritRequestError("Review {} (branch={}) not found. Count of result is {}".format(
             review_id, branch, len(res)))
 
