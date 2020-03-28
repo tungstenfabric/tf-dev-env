@@ -156,21 +156,21 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   fi
 
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
-  volumes="-v /var/run:/var/run:z"
+  volumes="-v /var/run:/var/run:${DOCKER_VOLUME_OPTIONS}"
   if [[ $DISTRO != "macosx" ]]; then
       volumes+=" -v /etc/localtime:/etc/localtime"
   fi
-  volumes+=" -v ${scriptdir}:/root/tf-dev-env:z"
+  volumes+=" -v ${scriptdir}:/root/tf-dev-env:${DOCKER_VOLUME_OPTIONS}"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
-    volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:z"
+    volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
   elif [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
-    volumes+=" -v ${src_volume_name}:/root/contrail:z"
+    volumes+=" -v ${src_volume_name}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
-  volumes+=" -v ${CONTRAIL_DIR}/logs:/root/contrail/logs:z"
-  volumes+=" -v ${CONTRAIL_DIR}/RPMS:/root/contrail/RPMS:z"
-  volumes+=" -v ${tf_container_env_dir}:/root/contrail/.env:z"
+  volumes+=" -v ${CONTRAIL_DIR}/logs:/root/contrail/logs:${DOCKER_VOLUME_OPTIONS}"
+  volumes+=" -v ${CONTRAIL_DIR}/RPMS:/root/contrail/RPMS:${DOCKER_VOLUME_OPTIONS}"
+  volumes+=" -v ${tf_container_env_dir}:/root/contrail/.env:${DOCKER_VOLUME_OPTIONS}"
   if [[ -d "${scriptdir}/config" ]]; then
-    volumes+=" -v ${scriptdir}/config:/config:z"
+    volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
   fi
   # Provide env variables because:
   #  - there is backward compatibility case with manual doing docker exec
