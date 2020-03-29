@@ -171,7 +171,8 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     $volumes -it \
     --env-file $tf_container_env_file \
     ${DEVENV_IMAGE}"
-  
+
+  echo "INFO: start cmd '$start_sandbox_cmd'"
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
   if [[ ${PIPESTATUS[0]} != 0 ]] ; then
     echo
