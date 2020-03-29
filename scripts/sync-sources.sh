@@ -24,12 +24,8 @@ fi
 cd $REPODIR
 echo "INFO: current folder is ${pwd}"
 
-repo_init_defauilts='--repo-branch=repo-1 --depth=1'
+repo_init_defauilts='--repo-branch=repo-1'
 repo_sync_defauilts='--no-tags --no-clone-bundle'
-if [ -n "$GERRIT_URL" ] ; then
-  # for cherry-pick it is needed to have history
-  repo_init_defauilts=''
-fi
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
 

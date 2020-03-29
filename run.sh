@@ -106,11 +106,19 @@ CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-"/config"}
 EOF
 fi
 
-if [[ -n "$GERRIT_CHANGE_ID" && -n "$GERRIT_URL" && -n "$GERRIT_BRANCH" ]] ; then
-  cat <<EOF >> $tf_container_env_file
 # code review system options
+if [[ -n "$GERRIT_CHANGE_ID" ]]; then
+  cat <<EOF >> $tf_container_env_file
 GERRIT_CHANGE_ID=$GERRIT_CHANGE_ID
+EOF
+fi
+if [[ -n "$GERRIT_URL" ]]; then 
+  cat <<EOF >> $tf_container_env_file
 GERRIT_URL=$GERRIT_URL
+EOF
+fi
+if [[ -n "$GERRIT_BRANCH" ]]; then
+  cat <<EOF >> $tf_container_env_file
 GERRIT_BRANCH=$GERRIT_BRANCH
 EOF
 fi
