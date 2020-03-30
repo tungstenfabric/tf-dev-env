@@ -22,13 +22,13 @@ if ! is_container_up "$RPM_CONTAINER_NAME" ; then
   ensure_port_free ${RPM_REPO_PORT}
 
   if ! is_container_created "$RPM_CONTAINER_NAME"; then
-    sudo docker run -t --name "$RPM_CONTAINER_NAME" \
+    mysudo docker run -t --name "$RPM_CONTAINER_NAME" \
       -d -p ${RPM_REPO_PORT}:80 \
       -v ${rpm_source}:/var/www/localhost/htdocs:z \
       m4rcu5/lighttpd >/dev/null
     echo "$RPM_CONTAINER_NAME created"
   else
-    echo "$(sudo docker start $RPM_CONTAINER_NAME) started"
+    echo "$(mysudo docker start $RPM_CONTAINER_NAME) started"
   fi
 
 else
@@ -38,7 +38,7 @@ fi
 echo
 echo '[read rpm repo ip from docker container properties]'
 for ((i=0; i<10; ++i)); do
-  rpm_repo_ip=$(sudo docker inspect --format '{{ .NetworkSettings.Gateway }}' "$RPM_CONTAINER_NAME")
+  rpm_repo_ip=$(mysudo docker inspect --format '{{ .NetworkSettings.Gateway }}' "$RPM_CONTAINER_NAME")
   if [[ -n "$rpm_repo_ip" ]]; then
     break
   fi
@@ -46,8 +46,8 @@ for ((i=0; i<10; ++i)); do
 done
 if [[ -z "$rpm_repo_ip" ]]; then
   echo "ERROR: failed to obtain IP of local RPM repository"
-  sudo docker ps -a
-  sudo docker logs "$RPM_CONTAINER_NAME"
+  mysudo docker ps -a
+  mysudo docker logs "$RPM_CONTAINER_NAME"
   exit 1
 fi
 echo "rpm repo ip $rpm_repo_ip"
