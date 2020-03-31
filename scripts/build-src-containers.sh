@@ -34,6 +34,8 @@ fi
 
 function build_container() {
   local line=$1
+  # clean .dockerignore before build to get full git repo inside src container
+  [ -f ${REPODIR}/${line}/.dockerignore ] && rm -f ${REPODIR}/${line}/.dockerignore
   CONTRAIL_CONTAINER_NAME=${line}-src ${buildsh} ${REPODIR}/${line}
   rm -f ${REPODIR}/${line}/Dockerfile
 }

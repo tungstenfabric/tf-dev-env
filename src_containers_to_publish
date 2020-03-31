@@ -7,3 +7,4 @@ tf-kolla-ansible
 tf-container-builder
 tf-tripleo-heat-templates
 tf-helm-deployer
+tf-openshift-ansible
