@@ -92,6 +92,18 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
     --changed_files \
     --output $patchsets_info_file || exit 1
 
+  vnc_changes=$(cat $patchsets_info_file | jq -r '.[] | select(.project == "Juniper/contrail-vnc") | .project + " " + .ref')
+  if [[ -n "$vnc_changes" ]] ; then
+    git clone --depth=1 --single-branch ${GERRIT_URL}Juniper/contrail-vnc
+    pushd contrail-vnc
+    echo "$vnc_changes" | while read project ref; do
+      git fetch ${GERRIT_URL}Juniper/contrail-vnc $ref && git cherry-pick FETCH_HEAD
+    done
+    popd
+    echo "INFO: replace manifest from review"
+    cp -f contrail-vnc/default.xml .repo/manifest.xml
+  fi
+
   echo "INFO: patching manifest.xml for repo tool"
   ${scriptdir}/patch-repo-manifest.py \
     --remote "$GERRIT_URL" \
@@ -131,7 +143,7 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
   # apply patches
   echo "INFO: review dependencies"
   cat $patchsets_info_file | jq '.'
-  cat $patchsets_info_file | jq -r '.[] | .project + " " + .ref' | while read project ref; do
+  cat $patchsets_info_file | jq -r '.[] | select(.project != "Juniper/contrail-vnc") | .project + " " + .ref' | while read project ref; do
     short_name=$(echo $project | cut -d '/' -f 2)
     echo "INFO: apply change $ref for $project"
     git_cmd="git fetch $GERRIT_URL/$project $ref && git cherry-pick FETCH_HEAD"

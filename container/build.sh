@@ -21,7 +21,7 @@ echo Building tf-dev-env image: ${IMAGE}:${TAG} | tee $logfile
 cp ../tpc.repo.template tpc.repo
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
-build_opts+=" --no-cache --tag ${IMAGE}:${TAG} -f Dockerfile.${LINUX_DISTR} ."
+build_opts+=" --network host --no-cache --tag ${IMAGE}:${TAG} -f Dockerfile.${LINUX_DISTR} ."
 
 if [[ "${CONTRAIL_KEEP_LOG_FILES,,}" != 'true' ]] ; then
    sudo docker build $build_opts 2>&1 | tee -a $logfile
