@@ -25,7 +25,7 @@ cd $REPODIR
 echo "INFO: current folder is ${pwd}"
 
 repo_init_defauilts='--repo-branch=repo-1'
-repo_sync_defauilts='--no-tags --no-clone-bundle'
+repo_sync_defauilts='--no-tags --no-clone-bundle -q'
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
 
