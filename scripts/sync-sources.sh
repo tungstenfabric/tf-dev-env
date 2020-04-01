@@ -81,6 +81,7 @@ patchsets_info_file=${REPODIR}/patchsets-info.json
 if [ ! -e "$patchsets_info_file" ] ; then
   echo "INFO: There is no file $patchsets_info_file - skipping cherry-picking."
 else
+  echo "INFO: gerrit URL = ${GERRIT_URL}"
   cat $patchsets_info_file | jq '.'
   vnc_changes=$(cat $patchsets_info_file | jq -r '.[] | select(.project == "Juniper/contrail-vnc") | .project + " " + .ref')
   if [[ -n "$vnc_changes" ]] ; then
