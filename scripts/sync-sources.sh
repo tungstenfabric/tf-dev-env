@@ -83,13 +83,25 @@ if [ ! -e "$patchsets_info_file" ] ; then
 else
   echo "INFO: gerrit URL = ${GERRIT_URL}"
   cat $patchsets_info_file | jq '.'
-  vnc_changes=$(cat $patchsets_info_file | jq -r '.[] | select(.project == "Juniper/contrail-vnc") | .project + " " + .ref')
+  vnc_changes=$(cat $patchsets_info_file | jq -r '.[] | select(.project == "Juniper/contrail-vnc") | .project + " " + .ref + " " + .branch')
   if [[ -n "$vnc_changes" ]] ; then
     # clone from GERRIT_URL cause this is taken from patchsets
-    git clone --depth=1 --single-branch ${GERRIT_URL}Juniper/contrail-vnc
+    vnc_branch=$(echo "$vnc_changes" | head -n 1 | awk '{print($3)}')
+    rm -rf contrail-vnc
+    cmd="git clone --depth=1 --single-branch -b $vnc_branch ${GERRIT_URL}Juniper/contrail-vnc"
+    echo "INFO: $cmd"
+    eval "$cmd" || {
+        echo "ERROR: failed to $cmd"
+        exit 1
+    }
     pushd contrail-vnc
-    echo "$vnc_changes" | while read project ref; do
-      git fetch ${GERRIT_URL}Juniper/contrail-vnc $ref && git cherry-pick FETCH_HEAD
+    echo "$vnc_changes" | while read project ref branch; do
+      cmd="git fetch ${GERRIT_URL}Juniper/contrail-vnc $ref && git cherry-pick FETCH_HEAD "
+      echo "INFO: apply patch: $cmd"
+      eval "$cmd" || {
+        echo "ERROR: failed to $cmd"
+        exit 1
+      }
     done
     popd
     echo "INFO: replace manifest from review"
@@ -119,6 +131,30 @@ if [[ $? != 0 ]] ; then
   echo  "ERROR: repo sync failed"
   exit 1
 fi
+# switch to branches
+while read repo_project ; do
+  while read repo_path && read commit && read revision ; do
+    pushd $repo_path
+      remote=$(git log -1 --pretty=%d HEAD | tr -d '(,)' | awk '{print($3)}')
+      [ -n "$remote" ] || {
+        echo "ERROR: failed to get remote for tracking branch $revision for $repo_path : $repo_project"
+        exit 1
+      }
+      [[ 'refs/heads/master' ==  $revision ]] && revision='master'
+      echo "INFO: set tracking branch $revision to $remote for $repo_path : $repo_project"
+      git checkout --track -b $revision $remote || git checkout $revision || {
+        echo "ERROR: failed switch to branch $revision with remote $remote for $repo_path : $repo_project"
+        exit 1
+      }
+    popd
+  done < <($REPO_TOOL info -l $repo_project | awk '/Mount path:|Current revision:|Manifest revision:/ {print($3)}')
+done < <($REPO_TOOL list --name-only | sort -u)
+
+
+if [[ $? != 0 ]] ; then
+  echo  "ERROR: $REPO_TOOL start failed"
+  exit 1
+fi
 
 # TODO: remove this hack after reelase of R2003
 if [[ "$GERRIT_BRANCH" == 'R2003' ]]; then
@@ -136,13 +172,23 @@ if [ -e "$patchsets_info_file" ] ; then
   echo "INFO: review dependencies"
   cat $patchsets_info_file | jq -r '.[] | select(.project != "Juniper/contrail-vnc") | .project + " " + .ref' | while read project ref; do
     short_name=$(echo $project | cut -d '/' -f 2)
-    echo "INFO: apply change $ref for $project"
-    git_cmd="git fetch $GERRIT_URL/$project $ref && git cherry-pick FETCH_HEAD"
-    echo "INFO: cmd: $REPO_TOOL forall $short_name -c '$git_cmd'"
-    $REPO_TOOL forall $short_name -c "$git_cmd" || {
-      echo "ERROR: failed to cherry-pick"
-      exit 1
-    }
+    repo_projects=$($REPO_TOOL list -r "^${short_name}$" | tr -d ':' )
+    # use manual filter as repo forall -regex checks both path and project
+    while read -r repo_path repo_project ; do
+      echo "INFO: process repo_path=$repo_path , repo_project=$repo_project"
+      if [[ "$short_name" != "$repo_project" ]] ; then
+        echo "INFO: doesnt match to $short_name .. skipped"
+        continue
+      fi
+      echo "INFO: apply change $ref for $project"
+      echo "INFO: cmd: git fetch $GERRIT_URL/$project $ref && git cherry-pick FETCH_HEAD"
+      pushd $repo_path
+      git fetch $GERRIT_URL/$project $ref && git cherry-pick FETCH_HEAD || {
+        echo "ERROR: failed to cherry-pick"
+        exit 1
+      }
+      popd
+    done <<< "$repo_projects"
   done
   [[ $? != 0 ]] && exit 1
 fi
