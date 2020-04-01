@@ -10,6 +10,9 @@ if [[ "$TARGET" == 'ui' ]]; then
   $scriptdir/webui_ut/run-tests.sh
 elif [[ "$TARGET" == 'vcenter' ]]; then
   echo "INFO: Running vcenter tests"
+elif [[ "$TARGET" == 'containers' ]]; then
+  echo "INFO: Running containers tests"
+  $scriptdir/container_ut/run-tests.sh
 else
   echo "INFO: Running controller tests"
   $scriptdir/controller_ut/run-tests.sh $TARGET
