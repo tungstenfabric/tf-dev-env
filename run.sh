@@ -107,11 +107,6 @@ EOF
 fi
 
 # code review system options
-if [[ -n "$GERRIT_CHANGE_ID" ]]; then
-  cat <<EOF >> $tf_container_env_file
-GERRIT_CHANGE_ID=$GERRIT_CHANGE_ID
-EOF
-fi
 if [[ -n "$GERRIT_URL" ]]; then 
   cat <<EOF >> $tf_container_env_file
 GERRIT_URL=$GERRIT_URL
@@ -158,6 +153,9 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   volumes+=" -v ${CONTRAIL_DIR}/logs:/root/contrail/logs:z"
   volumes+=" -v ${CONTRAIL_DIR}/RPMS:/root/contrail/RPMS:z"
   volumes+=" -v ${tf_container_env_dir}:/root/contrail/.env:z"
+  if [ -e $scriptdir/patchsets-info.json ]; then
+    volumes+=" -v ${scriptdir}/patchsets-info.json:/root/contrail/patchsets-info.json"
+  fi
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config:z"
   fi

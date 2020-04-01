@@ -16,7 +16,6 @@ export CONTRAIL_DEPLOYERS_DIR
 export CONTRAIL_TEST_DIR
 export CONTAINER_BUILDER_DIR
 # for applying custom patches from review
-export GERRIT_CHANGE_ID
 export GERRIT_URL
 export GERRIT_BRANCH
 export CONTRAIL_BUILD_FROM_SOURCE

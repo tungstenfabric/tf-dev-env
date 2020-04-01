@@ -77,23 +77,14 @@ fi
 # file for patchset info if any
 patchsets_info_file=${REPODIR}/patchsets-info.json
 
-if [[ -n "$GERRIT_CHANGE_ID" && -z "$GERRIT_URL" ]] ; then
-  echo "ERROR: GERRIT_CHANGE_ID is provided but GERRIT_URL is not"
-  exit 1
-fi
-
 # resolve changes if any
-if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
-  echo "INFO: resolve patchsets to $patchsets_info_file"
-  ${scriptdir}/resolve-patchsets.py \
-    --gerrit $GERRIT_URL \
-    --review $GERRIT_CHANGE_ID \
-    $branch_opts \
-    --changed_files \
-    --output $patchsets_info_file || exit 1
-
+if [ ! -e "$patchsets_info_file" ] ; then
+  echo "INFO: There is no file $patchsets_info_file - skipping cherry-picking."
+else
+  cat $patchsets_info_file | jq '.'
   vnc_changes=$(cat $patchsets_info_file | jq -r '.[] | select(.project == "Juniper/contrail-vnc") | .project + " " + .ref')
   if [[ -n "$vnc_changes" ]] ; then
+    # clone from GERRIT_URL cause this is taken from patchsets
     git clone --depth=1 --single-branch ${GERRIT_URL}Juniper/contrail-vnc
     pushd contrail-vnc
     echo "$vnc_changes" | while read project ref; do
@@ -134,7 +125,7 @@ if [[ "$GERRIT_BRANCH" == 'R2003' ]]; then
   rm -rf ${REPODIR}/tf-charms
 fi
 
-if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
+if [ -e "$patchsets_info_file" ] ; then
   echo "INFO: gathering UT targets"
   ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ./unittest_targets || exit 1
   cat ./unittest_targets
@@ -142,7 +133,6 @@ if [[ -n "$GERRIT_CHANGE_ID" ]] ; then
 
   # apply patches
   echo "INFO: review dependencies"
-  cat $patchsets_info_file | jq '.'
   cat $patchsets_info_file | jq -r '.[] | select(.project != "Juniper/contrail-vnc") | .project + " " + .ref' | while read project ref; do
     short_name=$(echo $project | cut -d '/' -f 2)
     echo "INFO: apply change $ref for $project"
