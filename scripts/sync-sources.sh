@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exit 123
+
 [ -n "$DEBUG" ] && set -x
 
 set -o pipefail
