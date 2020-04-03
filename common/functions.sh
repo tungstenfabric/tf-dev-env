@@ -2,14 +2,14 @@
 
 function is_container_created() {
   local container=$1
-  if ! sudo docker ps -a --format '{{ .Names }}' | grep -x "$container" > /dev/null 2>&1 ; then
+  if ! mysudo docker ps -a --format '{{ .Names }}' | grep -x "$container" > /dev/null 2>&1 ; then
     return 1
   fi
 }
 
 function is_container_up() {
   local container=$1
-  if ! sudo docker inspect --format '{{ .State.Status }}' $container | grep -q "running" > /dev/null 2>&1 ; then
+  if ! mysudo docker inspect --format '{{ .State.Status }}' $container | grep -q "running" > /dev/null 2>&1 ; then
     return 1
   fi
 }
@@ -18,17 +18,25 @@ function ensure_root() {
   local me=$(whoami)
   if [ "$me" != 'root' ] ; then
     echo "ERROR: this script requires root:"
-    echo "       sudo -E $0"
+    echo "       mysudo -E $0"
     exit 1;
   fi
 }
 
 function ensure_port_free() {
   local port=$1
-  if sudo lsof -Pn -sTCP:LISTEN -i :$port ; then
+  if mysudo lsof -Pn -sTCP:LISTEN -i :$port ; then
     echo "ERROR: Port $port is already opened by another process"
     exit 1
   fi
+}
+
+function mysudo() {
+    if [[ $DISTRO == "macosx" ]]; then
+	"$@"
+    else
+	sudo "$@"
+    fi
 }
 
 function save_tf_devenv_profile() {
