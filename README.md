@@ -15,6 +15,7 @@ Recommended:
 
 - Ubuntu 18.04
 - CentOS 7.x
+- MacOS (Experimental support, please ensure that you have brew and coreutils installed)
 
 ## Quick start
 
@@ -27,6 +28,21 @@ Install git:
 
 ``` bash
 sudo yum install -y git
+```
+
+For MacOS only:
+
+The script will install a limitted number of dependencies using `brew`
+(python, docker, lsof). The `coreutils` packages is needed by the
+script itself.
+
+For Docker, the community edition will be installed if any other
+version already present. Please ensure that you have started Docker Desktop
+(Docker.app) application.
+
+``` bash
+brew install git
+brew install coreutils
 ```
 
 Create a WORKSPACE directory (build artifacts will be put there) and ```export WORKSPACE=myworkspacedir``` if you want to have specific workspace different from your current directory used by default.

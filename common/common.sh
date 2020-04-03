@@ -15,7 +15,14 @@ export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 [ -e "$TF_DEVENV_PROFILE" ] && source "$TF_DEVENV_PROFILE"
 
 # determined variables
-export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  export DISTRO="macosx"
+else
+  echo "Unsupported platform."
+  exit 1
+fi
 
 # working build directories
 if [ -z "${CONTRAIL_DIR+x}" ] ; then
@@ -55,3 +62,18 @@ export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"tungsten.io"}
 # Contrail repo branches options
 export CONTRAIL_BRANCH=${CONTRAIL_BRANCH:-${GERRIT_BRANCH:-'master'}}
 export CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO:-"https://github.com/Juniper/contrail-vnc"}
+
+# Docker options
+if [ -z "${DOCKER_VOLUME_OPTIONS}" ] ; then
+    export DOCKER_VOLUME_OPTIONS="z"
+    if [[ $DISTRO == "macosx" ]]; then
+	# Performance issue with osxfs, this option is making the
+	# writes async from the container to the host. This means a
+	# difference can happen from the host POV, but that should not
+	# be an issue since we are not expecting anything to update
+	# the source code. Based on test this option increase the perf
+	# of about 10% but it still quite slow comparativly to a host
+	# using GNU/Linux.
+	DOCKER_VOLUME_OPTIONS+=",delegated"
+    fi
+fi
