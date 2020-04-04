@@ -1,0 +1,247 @@
+Building tf-dev-env image: tungstenfabric/developer-sandbox:latest
+Sending build context to Docker daemon  16.38kB
+Step 1/21 : FROM centos:7
+ ---> 5e35e350aded
+Step 2/21 : ARG LC_ALL=en_US.UTF-8
+ ---> Running in 7270a71ee3ba
+Removing intermediate container 7270a71ee3ba
+ ---> 6ec9e6f40658
+Step 3/21 : ARG LANG=en_US.UTF-8
+ ---> Running in 6db4fd4e7ba0
+Removing intermediate container 6db4fd4e7ba0
+ ---> 7603d13f77f2
+Step 4/21 : ARG LANGUAGE=en_US.UTF-8
+ ---> Running in d893ad583307
+Removing intermediate container d893ad583307
+ ---> 951254c46756
+Step 5/21 : ARG DEVENV_USER=root
+ ---> Running in e7addfdc7f21
+Removing intermediate container e7addfdc7f21
+ ---> 902ddc3ca92c
+Step 6/21 : ARG DEVENV_UID=0
+ ---> Running in a5406478afcb
+Removing intermediate container a5406478afcb
+ ---> 81dcb207bf70
+Step 7/21 : ARG DEVENV_GROUP=""
+ ---> Running in de3af7597018
+Removing intermediate container de3af7597018
+ ---> b65d4d89606b
+Step 8/21 : ARG DEVENV_GID=""
+ ---> Running in 2a2201727d24
+Removing intermediate container 2a2201727d24
+ ---> a646d22a0d4b
+Step 9/21 : ENV USER $DEVENV_USER
+ ---> Running in d82a3d5017ea
+Removing intermediate container d82a3d5017ea
+ ---> fb6ef0346744
+Step 10/21 : ENV HOME /$DEVENV_USER
+ ---> Running in 252c90dcff71
+Removing intermediate container 252c90dcff71
+ ---> d8243c7be0fb
+Step 11/21 : ENV CONTRAIL $HOME/contrail
+ ---> Running in a7040bde0a9b
+Removing intermediate container a7040bde0a9b
+ ---> b42aa05a8a03
+Step 12/21 : ENV LC_ALL=$LC_ALL
+ ---> Running in 42b33b8f2f2b
+Removing intermediate container 42b33b8f2f2b
+ ---> 7756fee293f0
+Step 13/21 : ENV LANG=$LANG
+ ---> Running in 607f6b80561e
+Removing intermediate container 607f6b80561e
+ ---> bf1974c49319
+Step 14/21 : ENV LANGUAGE=$LANGUAGE
+ ---> Running in 35727e607768
+Removing intermediate container 35727e607768
+ ---> c7a3646e92d0
+Step 15/21 : WORKDIR $CONTRAIL
+Removing intermediate container 1de591833199
+ ---> 8a03620771fd
+Step 16/21 : COPY *.repo /etc/yum.repos.d/
+ ---> 12304e69ff7c
+Step 17/21 : RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save &&     if ! yum info jq ; then yum -y install epel-release ; fi &&     yum -y update &&     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) &&     yum -y install autoconf automake createrepo docker docker-python gcc gdb git git-review jq libtool                    make python-devel python-pip python-lxml rpm-build vim wget yum-utils redhat-lsb-core                    rpmdevtools mock sudo gcc-c++ net-tools                    python-virtualenv python-future python-tox &&     yum clean all &&     rm -rf /var/cache/yum &&     pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2 &&     rm -f /usr/local/bin/virtualenv &&     if [[ "$DEVENV_USER" != 'root' ]] ; then         groupadd --gid $DEVENV_GID $DEVENV_GROUP &&         useradd -md $HOME --uid $DEVENV_UID --gid $DEVENV_GID $DEVENV_USER || exit 1;     fi
+ ---> Running in 7f6cb91cc203
+Loaded plugins: fastestmirror, ovl
+Determining fastest mirrors
+ * base: mirrors.codec-cluster.org
+ * extras: mirrors.oit.uci.edu
+ * updates: repos.dfw.quadranet.com
+[91mhttp://repos.dfw.quadranet.com/centos/7.7.1908/updates/x86_64/repodata/repomd.xml: [Errno 14] HTTP Error 403 - Forbidden
+[0m[91mTrying other mirror.
+To address this issue please refer to the below wiki article
+
+https://wiki.centos.org/yum-errors
+
+If above article doesn't help to resolve this issue please use https://bugs.centos.org/.
+
+[0m[91mError: No matching Packages to list
+[0mLoaded plugins: fastestmirror, ovl
+Loading mirror speeds from cached hostfile
+ * base: mirrors.codec-cluster.org
+ * extras: mirrors.oit.uci.edu
+ * updates: repos.dfw.quadranet.com
+Resolving Dependencies
+--> Running transaction check
+---> Package epel-release.noarch 0:7-11 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                Arch             Version         Repository        Size
+================================================================================
+Installing:
+ epel-release           noarch           7-11            extras            15 k
+
+Transaction Summary
+================================================================================
+Install  1 Package
+
+Total download size: 15 k
+Installed size: 24 k
+Downloading packages:
+[91mwarning: /var/cache/yum/x86_64/7/extras/packages/epel-release-7-11.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID f4a80eb5: NOKEY
+[0mPublic key for epel-release-7-11.noarch.rpm is not installed
+Retrieving key from file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+[91mImporting GPG key 0xF4A80EB5:
+ Userid     : "CentOS-7 Key (CentOS 7 Official Signing Key) <security@centos.org>"
+ Fingerprint: 6341 ab27 53d7 8a78 a7c2 7bb1 24c6 a8a7 f4a8 0eb5
+ Package    : centos-release-7-7.1908.0.el7.centos.x86_64 (@CentOS)
+ From       : /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+[0mRunning transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : epel-release-7-11.noarch                                     1/1 
+  Verifying  : epel-release-7-11.noarch                                     1/1 
+
+Installed:
+  epel-release.noarch 0:7-11                                                    
+
+Complete!
+Loaded plugins: fastestmirror, ovl
+Loading mirror speeds from cached hostfile
+ * base: mirrors.codec-cluster.org
+ * epel: iad.mirror.rackspace.com
+ * extras: mirrors.oit.uci.edu
+ * updates: repos.dfw.quadranet.com
+[91mhttps://iad.mirror.rackspace.com/epel/7/x86_64/repodata/repomd.xml: [Errno 14] curl#60 - "Peer's certificate issuer has been marked as not trusted by the user."
+[0m[91mTrying other mirror.
+It was impossible to connect to the CentOS servers.
+This could mean a connectivity issue in your environment, such as the requirement to configure a proxy,
+or a transparent proxy that tampers with TLS security, or an incorrect system clock.
+You can try to solve this issue by using the instructions on https://wiki.centos.org/yum-errors
+If above article doesn't help to resolve this issue please use https://bugs.centos.org/.
+
+[0mResolving Dependencies
+--> Running transaction check
+---> Package binutils.x86_64 0:2.27-41.base.el7 will be updated
+---> Package binutils.x86_64 0:2.27-41.base.el7_7.3 will be an update
+---> Package ca-certificates.noarch 0:2018.2.22-70.0.el7_5 will be updated
+---> Package ca-certificates.noarch 0:2019.2.32-76.el7_7 will be an update
+---> Package curl.x86_64 0:7.29.0-54.el7 will be updated
+---> Package curl.x86_64 0:7.29.0-54.el7_7.2 will be an update
+---> Package device-mapper.x86_64 7:1.02.158-2.el7 will be updated
+---> Package device-mapper.x86_64 7:1.02.158-2.el7_7.2 will be an update
+---> Package device-mapper-libs.x86_64 7:1.02.158-2.el7 will be updated
+---> Package device-mapper-libs.x86_64 7:1.02.158-2.el7_7.2 will be an update
+---> Package epel-release.noarch 0:7-11 will be updated
+---> Package epel-release.noarch 0:7-12 will be an update
+---> Package hostname.x86_64 0:3.13-3.el7 will be updated
+---> Package hostname.x86_64 0:3.13-3.el7_7.1 will be an update
+---> Package kmod.x86_64 0:20-25.el7 will be updated
+---> Package kmod.x86_64 0:20-25.el7_7.1 will be an update
+---> Package kmod-libs.x86_64 0:20-25.el7 will be updated
+---> Package kmod-libs.x86_64 0:20-25.el7_7.1 will be an update
+---> Package libblkid.x86_64 0:2.23.2-61.el7 will be updated
+---> Package libblkid.x86_64 0:2.23.2-61.el7_7.1 will be an update
+---> Package libcurl.x86_64 0:7.29.0-54.el7 will be updated
+---> Package libcurl.x86_64 0:7.29.0-54.el7_7.2 will be an update
+---> Package libmount.x86_64 0:2.23.2-61.el7 will be updated
+---> Package libmount.x86_64 0:2.23.2-61.el7_7.1 will be an update
+---> Package libsmartcols.x86_64 0:2.23.2-61.el7 will be updated
+---> Package libsmartcols.x86_64 0:2.23.2-61.el7_7.1 will be an update
+---> Package libuuid.x86_64 0:2.23.2-61.el7 will be updated
+---> Package libuuid.x86_64 0:2.23.2-61.el7_7.1 will be an update
+---> Package nss.x86_64 0:3.44.0-4.el7 will be updated
+---> Package nss.x86_64 0:3.44.0-7.el7_7 will be an update
+---> Package nss-softokn.x86_64 0:3.44.0-5.el7 will be updated
+---> Package nss-softokn.x86_64 0:3.44.0-8.el7_7 will be an update
+---> Package nss-softokn-freebl.x86_64 0:3.44.0-5.el7 will be updated
+---> Package nss-softokn-freebl.x86_64 0:3.44.0-8.el7_7 will be an update
+---> Package nss-sysinit.x86_64 0:3.44.0-4.el7 will be updated
+---> Package nss-sysinit.x86_64 0:3.44.0-7.el7_7 will be an update
+---> Package nss-tools.x86_64 0:3.44.0-4.el7 will be updated
+---> Package nss-tools.x86_64 0:3.44.0-7.el7_7 will be an update
+---> Package nss-util.x86_64 0:3.44.0-3.el7 will be updated
+---> Package nss-util.x86_64 0:3.44.0-4.el7_7 will be an update
+---> Package procps-ng.x86_64 0:3.3.10-26.el7 will be updated
+---> Package procps-ng.x86_64 0:3.3.10-26.el7_7.1 will be an update
+---> Package python-chardet.noarch 0:2.2.1-3.el7 will be obsoleted
+---> Package python2-chardet.noarch 0:3.0.4-7.el7 will be obsoleting
+---> Package sqlite.x86_64 0:3.7.17-8.el7 will be updated
+---> Package sqlite.x86_64 0:3.7.17-8.el7_7.1 will be an update
+---> Package systemd.x86_64 0:219-67.el7_7.1 will be updated
+---> Package systemd.x86_64 0:219-67.el7_7.4 will be an update
+---> Package systemd-libs.x86_64 0:219-67.el7_7.1 will be updated
+---> Package systemd-libs.x86_64 0:219-67.el7_7.4 will be an update
+---> Package tzdata.noarch 0:2019b-1.el7 will be updated
+---> Package tzdata.noarch 0:2019c-1.el7 will be an update
+---> Package util-linux.x86_64 0:2.23.2-61.el7 will be updated
+---> Package util-linux.x86_64 0:2.23.2-61.el7_7.1 will be an update
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package               Arch      Version                  Repository       Size
+================================================================================
+Installing:
+ python2-chardet       noarch    3.0.4-7.el7              contrail-tpc    186 k
+     replacing  python-chardet.noarch 2.2.1-3.el7
+Updating:
+ binutils              x86_64    2.27-41.base.el7_7.3     updates         5.9 M
+ ca-certificates       noarch    2019.2.32-76.el7_7       updates         399 k
+ curl                  x86_64    7.29.0-54.el7_7.2        updates         270 k
+ device-mapper         x86_64    7:1.02.158-2.el7_7.2     updates         294 k
+ device-mapper-libs    x86_64    7:1.02.158-2.el7_7.2     updates         322 k
+ epel-release          noarch    7-12                     epel             15 k
+ hostname              x86_64    3.13-3.el7_7.1           updates          17 k
+ kmod                  x86_64    20-25.el7_7.1            updates         122 k
+ kmod-libs             x86_64    20-25.el7_7.1            updates          51 k
+ libblkid              x86_64    2.23.2-61.el7_7.1        updates         181 k
+ libcurl               x86_64    7.29.0-54.el7_7.2        updates         223 k
+ libmount              x86_64    2.23.2-61.el7_7.1        updates         183 k
+ libsmartcols          x86_64    2.23.2-61.el7_7.1        updates         141 k
+ libuuid               x86_64    2.23.2-61.el7_7.1        updates          83 k
+ nss                   x86_64    3.44.0-7.el7_7           updates         854 k
+ nss-softokn           x86_64    3.44.0-8.el7_7           updates         330 k
+ nss-softokn-freebl    x86_64    3.44.0-8.el7_7           updates         224 k
+ nss-sysinit           x86_64    3.44.0-7.el7_7           updates          65 k
+ nss-tools             x86_64    3.44.0-7.el7_7           updates         528 k
+ nss-util              x86_64    3.44.0-4.el7_7           updates          79 k
+ procps-ng             x86_64    3.3.10-26.el7_7.1        updates         291 k
+ sqlite                x86_64    3.7.17-8.el7_7.1         updates         394 k
+ systemd               x86_64    219-67.el7_7.4           updates         5.1 M
+ systemd-libs          x86_64    219-67.el7_7.4           updates         411 k
+ tzdata                noarch    2019c-1.el7              updates         493 k
+ util-linux            x86_64    2.23.2-61.el7_7.1        updates         2.0 M
+
+Transaction Summary
+================================================================================
+Install   1 Package
+Upgrade  26 Packages
+
+Total download size: 19 M
+Downloading packages:
+Delta RPMs disabled because /usr/bin/applydeltarpm not installed.
+[91mhttp://mirror.datto.com/CentOS/7.7.1908/updates/x86_64/Packages/ca-certificates-2019.2.32-76.el7_7.noarch.rpm: [Errno 14] HTTP Error 403 - Forbidden
+[0m[91mTrying other mirror.
+To address this issue please refer to the below wiki article
+
+https://wiki.centos.org/yum-errors
+
+If above article doesn't help to resolve this issue please use https://bugs.centos.org/.
+
+[0m[91mwarning: /var/cache/yum/x86_64/7/epel/packages/epel-release-7-12.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID 352c64e5: NOKEY
+[0mPublic key for epel-release-7-12.noarch.rpm is not installed
