@@ -4,6 +4,11 @@ ARG LC_ALL=en_US.UTF-8
 ARG LANG=en_US.UTF-8
 ARG LANGUAGE=en_US.UTF-8
 
+ARG DEVENV_USER=""
+ARG DEVENV_UID=""
+ARG DEVENV_GROUP=""
+AEG DEVENV_GID=""
+
 ENV USER root
 ENV HOME /root
 ENV CONTRAIL $HOME/contrail
@@ -31,7 +36,14 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
     rm -rf /var/cache/yum && \
     pip3 install --retries=10 --timeout=200 --upgrade tox setuptools lxml jinja2 && \
     rm -f /usr/local/bin/virtualenv && \
-    echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc && \
+    if [[ "$DEVENV_USER" != 'root' ]] ; then
+        groupadd --gid $DEVENV_GID $DEVENV_GROUP && \
+        useradd -md $HOME --uid $DEVENV_UID --gid $DEVENV_GID $DEVENV_USER || exit 1; \
+    fi
+
+USER $DEVENV_USER
+
+RUN echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc && \
     echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc
 
 ADD entrypoint.sh $HOME/
