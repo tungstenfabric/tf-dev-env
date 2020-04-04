@@ -2,9 +2,9 @@
 
 scriptdir=$(realpath $(dirname "$0"))
 
-src_root=/root/contrail
+src_root=/$HOME/contrail
 cd $src_root
-logs_path='/root/contrail/logs'
+logs_path="/$HOME/contrail/logs"
 test_reports_dir="$logs_path/test-reports"
 coverage_reports_dir="$logs_path/coverage-reports"
 mkdir -p "$logs_path"
@@ -58,7 +58,7 @@ function copy_reports(){
     cp -p contrail-web*/$report_dir/tests/*-test-results.xml $test_reports_dir || true
 
     echo "info: gathering XML coverage reports..."
-    cp -p /root/contrail/contrail-web-controller/$report_dir/coverage/*/*/cobertura-coverage.xml $coverage_reports_dir/controller-cobertura-coverage.xml || true
+    cp -p /$HOME/contrail/contrail-web-controller/$report_dir/coverage/*/*/cobertura-coverage.xml $coverage_reports_dir/controller-cobertura-coverage.xml || true
 }
 
 #This installs node, npm and does a fetch_packages, make prod env, test setup

@@ -28,7 +28,7 @@ for patchset in patchsets:
     project = patchset["project"].split('/')[1]
     review_files.update([project + '/' + file for file in patchset["files"]])
 
-with open("/root/contrail/controller/ci_unittests.json") as fh:
+with open("/$HOME/contrail/controller/ci_unittests.json") as fh:
     unittests = json.load(fh)
 
 actual_targets = set()
