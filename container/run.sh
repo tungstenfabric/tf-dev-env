@@ -21,7 +21,7 @@ declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
 if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" ]]; then
-  cp -rf ${CONTRAIL_CONFIG_DIR}/* /
+  sudo cp -rf ${CONTRAIL_CONFIG_DIR}/* /
 fi
 
 cd $CONTRAIL_DEV_ENV
@@ -42,22 +42,23 @@ function fetch() {
 
 function configure() {
     echo "INFO: make setup  $(date)"
-    make setup
+    sudo make setup
 
     echo "INFO: make dep fetch_packages  $(date)"
     # targets can use yum and will block each other. don't run them in parallel
-    make dep fetch_packages
+    sudo make dep 
+    make fetch_packages
 
     # disable byte compiling
     if [[ ! -f /usr/lib/rpm/brp-python-bytecompile.org  ]] ; then
         echo "INFO: disable byte compiling for python"
-        mv /usr/lib/rpm/brp-python-bytecompile /usr/lib/rpm/brp-python-bytecompile.org
-        cat <<EOF > /usr/lib/rpm/brp-python-bytecompile
+        sudo mv /usr/lib/rpm/brp-python-bytecompile /usr/lib/rpm/brp-python-bytecompile.org
+        cat <<EOF | sudo tee /usr/lib/rpm/brp-python-bytecompile
 #!/bin/bash
 # disabled byte compiling
 exit 0
 EOF
-        chmod +x /usr/lib/rpm/brp-python-bytecompile
+        sudo chmod +x /usr/lib/rpm/brp-python-bytecompile
     fi
 }
 
