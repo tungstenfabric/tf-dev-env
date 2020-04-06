@@ -129,7 +129,7 @@ sudo docker exec -it tf-developer-sandbox bash
 ### 3. Prepare developer-sandbox container
 
 ``` bash
-cd /root/tf-dev-env
+cd ~/tf-dev-env
 make sync           # get latest code
 make fetch_packages # pull third_party dependencies
 make setup          # set up docker container
@@ -155,7 +155,7 @@ The descriptions of targets:
 #### Container images
 
 - `make list-containers` - lists all container targets
-- `make containers` - builds all containers' images, requires RPM packages in /root/contrail/RPMS
+- `make containers` - builds all containers' images, requires RPM packages in ~/contrail/RPMS
 - `make container-<container_name>` - builds single container as a target, with all docker dependencies
 - `make containers-only` - build all containers without cloning of external repositories and creating of rmp rpository
 
@@ -180,7 +180,7 @@ The descriptions of targets:
 Instead of step 4 above (which runs `scons` inside `make`), you can use `scons` directly. The steps 1-3 are still required.
 
 ``` bash
-cd /root/contrail
+cd ~/contrail
 scons # ( or "scons test" etc)
 ```
 
