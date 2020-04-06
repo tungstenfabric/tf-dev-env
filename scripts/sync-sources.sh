@@ -22,7 +22,7 @@ if [[ -e ${REPODIR}/.env/tf-developer-sandbox.env ]] ; then
 fi
 
 cd $REPODIR
-echo "INFO: current folder is ${pwd}"
+echo "INFO: current folder is $(pwd)"
 
 repo_init_defauilts='--repo-branch=repo-1'
 repo_sync_defauilts='--no-tags --no-clone-bundle -q'
