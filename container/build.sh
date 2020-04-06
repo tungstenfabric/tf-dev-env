@@ -30,6 +30,10 @@ cp ../tpc.repo.template tpc.repo
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
 build_opts+=" --network host --no-cache --tag ${IMAGE}:${TAG} -f Dockerfile.${LINUX_DISTR} ."
+if [[ -n "$DEVENV_USER" && "$DEVENV_USER" != 'root' ]] ; then
+    build_opts+=" --build-arg DEVENV_USER=$DEVENV_USER --build-arg DEVENV_UID=$(id -u)"
+    build_opts+=" --build-arg DEVENV_GROUP=$(id -ng) --build-arg DEVENV_GID=$(id -g)"
+fi
 
 if [[ $DISTRO != 'macosx' ]] ; then
     CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES,,}
