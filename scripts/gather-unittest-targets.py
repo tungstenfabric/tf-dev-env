@@ -2,7 +2,6 @@
 
 import json
 import sys
-import os
 
 
 def convert_path(path):
@@ -29,8 +28,7 @@ for patchset in patchsets:
     project = patchset["project"].split('/')[1]
     review_files.update([project + '/' + file for file in patchset["files"]])
 
-home_dir = os.getenv("HOME", '/root')
-with open("%s/contrail/controller/ci_unittests.json" % home_dir) as fh:
+with open("/root/contrail/controller/ci_unittests.json") as fh:
     unittests = json.load(fh)
 
 actual_targets = set()
