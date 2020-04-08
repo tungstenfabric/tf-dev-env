@@ -19,6 +19,7 @@ export CONTAINER_BUILDER_DIR
 export GERRIT_URL
 export GERRIT_BRANCH
 export CONTRAIL_BUILD_FROM_SOURCE
+export OPENSTACK_VERSIONS
 
 all: dep rpm containers
 
