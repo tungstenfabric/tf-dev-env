@@ -40,7 +40,7 @@ function install_docker_centos() {
 
 function install_docker_rhel() {
   which docker && return
-  if [[ "$ENABLE_RHSM_REPOS" == "0" ]]; then
+  if [[ "$ENABLE_RHSM_REPOS" == "true" ]]; then
     subscription-manager repos \
       --enable rhel-7-server-extras-rpms \
       --enable rhel-7-server-optional-rpms

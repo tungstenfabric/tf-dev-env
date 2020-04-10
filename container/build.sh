@@ -35,6 +35,10 @@ if [[ -n "$DEVENV_USER" && "$DEVENV_USER" != 'root' ]] ; then
     build_opts+=" --build-arg DEVENV_GROUP=$(id -ng) --build-arg DEVENV_GID=$(id -g)"
 fi
 
+if [[ "$ENABLE_RHSM_REPOS" == 'true' ]] ; then
+    build_opts+=" --build-arg ENABLE_RHSM_REPOS=$ENABLE_RHSM_REPOS"
+fi
+
 if [[ $DISTRO != 'macosx' ]] ; then
     CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES,,}
 fi

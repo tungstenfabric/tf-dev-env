@@ -52,7 +52,7 @@ export DEVENVTAG=${DEVENVTAG:-"latest"}
 export DEVENV_IMAGE=${IMAGE}:${DEVENVTAG}
 
 # RHEL specific build options
-export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-1}
+export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-'false'}
 
 # versions info
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-'dev'}
