@@ -4,7 +4,8 @@ scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common/common.sh
 source ${scriptdir}/common/functions.sh
 
-stages="$@"
+stage="$1"
+target="$2"
 
 cd "$scriptdir"
 
@@ -201,13 +202,13 @@ else
   fi
 fi
 
-if [[ "$stages" == 'none' ]] ; then
+if [[ "$stage" == 'none' ]] ; then
   echo "INFO: don't run any stages"
   exit 0
 fi
 
-echo "run stages $stages"
-mysudo docker exec -i $TF_DEVENV_CONTAINER_NAME /$DEVENV_USER/tf-dev-env/container/run.sh $stages | tee -a ${log_path}
+echo "run stage $stage with target $target"
+mysudo docker exec -i $TF_DEVENV_CONTAINER_NAME /$DEVENV_USER/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
 if [[ $result == 0 ]] ; then
@@ -219,7 +220,7 @@ if [[ $result == 0 ]] ; then
   echo "  fetch     - sync TF git repos"
   echo "  configure - fetch third party packages and install dependencies"
   echo "  compile   - build TF binaries"
-  echo "  package   - package TF into docker containers"
+  echo "  package   - package TF into docker containers (you can specify target container to build like container-vrouter)"
   echo "  test      - run unittests"
   echo "For advanced usage You can now connect to the sandbox container by using:"
   if [[ $DISTRO != "macosx" ]]; then
