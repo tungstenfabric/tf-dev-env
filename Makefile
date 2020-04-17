@@ -67,7 +67,7 @@ list-containers: prepare-containers
 container-%: create-repo prepare-containers
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
-build-src-containers:
+src-containers-only:
 	@$(TF_DE_DIR)scripts/build-src-containers.sh
 
 containers-only:
