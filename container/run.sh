@@ -1,9 +1,10 @@
 #!/bin/bash
 
-stages=${1//,/ }
+stage=${1}
 shift
+target=$@
 
-echo "INFO: run stages $stages"
+echo "INFO: run stage $stage with target $target"
 
 if [[ -e ${CONTRAIL}/.env/tf-developer-sandbox.env ]] ; then
     echo "INFO: source env from ${CONTRAIL}/.env/tf-developer-sandbox.env"
@@ -90,6 +91,11 @@ function test() {
 }
 
 function package() {
+    if [[ ! -z $target ]] ; then
+        echo "INFO: packaging only ${target}"
+        make $target
+        return $?
+    fi
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
@@ -143,26 +149,22 @@ function enabled() {
 }
 
 # select default stages
-if [[ -z "$stages" ]] ; then
-    for stage in ${default_stages[@]} ; do
-        if ! finished_stage "$stage" ; then
-            run_stage $stage $@
+if [[ -z "$stage" ]] ; then
+    for dstage in ${default_stages[@]} ; do
+        if ! finished_stage "$dstage" ; then
+            run_stage $dstage
         fi
     done
-elif [[ "$stages" =~ 'build' ]] ; then
+elif [[ "$stage" =~ 'build' ]] ; then
     # run default stages for 'build' option
-    for stage in ${build_stages[@]} ; do
-        if ! finished_stage "$stage" ; then
-            run_stage $stage $@
+    for bstage in ${build_stages[@]} ; do
+        if ! finished_stage "$bstage" ; then
+            run_stage $bstage $target
         fi
     done
 else
-    # run selected stages
-    for stage in ${stages} ; do
-        if [[ "$stages" =~ $stage ]] ; then
-            run_stage $stage $@
-        fi
-    done
+    # run selected stage
+    run_stage $stage $target
 fi
 
 
