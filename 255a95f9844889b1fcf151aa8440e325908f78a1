@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85704ad1_ebd0fdf4",
+        "filename": "container/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-18T07:34:21Z",
+      "side": 1,
+      "message": "$target",
+      "range": {
+        "startLine": 6,
+        "startChar": 43,
+        "endLine": 6,
+        "endChar": 44
+      },
+      "revId": "255a95f9844889b1fcf151aa8440e325908f78a1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42dddd14_131cef0f",
+        "filename": "container/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-18T07:34:21Z",
+      "side": 1,
+      "message": "return $?",
+      "range": {
+        "startLine": 96,
+        "startChar": 8,
+        "endLine": 96,
+        "endChar": 14
+      },
+      "revId": "255a95f9844889b1fcf151aa8440e325908f78a1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53540ef8_d604efad",
+        "filename": "run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-18T07:34:21Z",
+      "side": 1,
+      "message": "ideally it would be nice to have something like\n./run.sh list \u003d\u003e returns list of targets\n./run.sh \u003ctarget\u003e list \u003d\u003e returns list of available packages\n(implemented via make list)",
+      "range": {
+        "startLine": 223,
+        "startChar": 104,
+        "endLine": 223,
+        "endChar": 121
+      },
+      "revId": "255a95f9844889b1fcf151aa8440e325908f78a1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
