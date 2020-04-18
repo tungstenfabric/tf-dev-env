@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd4cac71_ec43d34f",
+        "filename": "run.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-18T09:22:36Z",
+      "side": 1,
+      "message": "$@",
+      "range": {
+        "startLine": 211,
+        "startChar": 90,
+        "endLine": 211,
+        "endChar": 104
+      },
+      "revId": "a597c8e5f8dc08c576fc3bfa357346698afb0f41",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
