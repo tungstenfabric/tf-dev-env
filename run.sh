@@ -61,7 +61,6 @@ install_prerequisites_$DISTRO
 # prepare env
 $scriptdir/common/setup_docker.sh
 $scriptdir/common/setup_docker_registry.sh
-$scriptdir/common/setup_rpm_repo.sh
 load_tf_devenv_profile
 
 echo
@@ -90,7 +89,7 @@ CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES}
 CONTRAIL_BRANCH=${CONTRAIL_BRANCH}
 CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO}
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
-CONTRAIL_REPOSITORY=http://${RPM_REPO_IP}:${RPM_REPO_PORT}
+CONTRAIL_REPOSITORY=http://localhost:${RPM_REPO_PORT}
 CONTRAIL_REGISTRY=${REGISTRY_IP}:${REGISTRY_PORT}
 VENDOR_NAME=$VENDOR_NAME
 VENDOR_DOMAIN=$VENDOR_DOMAIN
