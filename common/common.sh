@@ -39,10 +39,9 @@ export DEVENV_USER=${DEVENV_USER:-$(id -nu)}
 # build environment preparation options
 export REGISTRY_PORT=${REGISTRY_PORT:-5000}
 export REGISTRY_IP=${REGISTRY_IP:-'localhost'}
-export RPM_REPO_IP=${RPM_REPO_IP:-}
+export RPM_REPO_IP='localhost'
 export RPM_REPO_PORT=${RPM_REPO_PORT:-'6667'}
 export REGISTRY_CONTAINER_NAME=${REGISTRY_CONTAINER_NAME:-"tf-dev-env-registry"}
-export RPM_CONTAINER_NAME=${RPM_CONTAINER_NAME:-"tf-dev-env-rpm-repo"}
 export TF_DEVENV_CONTAINER_NAME=${TF_DEVENV_CONTAINER_NAME:-"tf-developer-sandbox"}
 export CONTRAIL_PARALLEL_BUILD=${CONTRAIL_PARALLEL_BUILD:-true}
 
