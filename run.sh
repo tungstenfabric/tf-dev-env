@@ -61,7 +61,6 @@ install_prerequisites_$DISTRO
 # prepare env
 $scriptdir/common/setup_docker.sh
 $scriptdir/common/setup_docker_registry.sh
-$scriptdir/common/setup_rpm_repo.sh
 load_tf_devenv_profile
 
 echo
@@ -90,7 +89,7 @@ CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES}
 CONTRAIL_BRANCH=${CONTRAIL_BRANCH}
 CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO}
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
-CONTRAIL_REPOSITORY=http://${RPM_REPO_IP}:${RPM_REPO_PORT}
+CONTRAIL_REPOSITORY=http://localhost:${RPM_REPO_PORT}
 CONTRAIL_REGISTRY=${REGISTRY_IP}:${REGISTRY_PORT}
 VENDOR_NAME=$VENDOR_NAME
 VENDOR_DOMAIN=$VENDOR_DOMAIN
@@ -164,9 +163,8 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     volumes+=" -v ${src_volume_name}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
   # make dir to create them under current user
-  mkdir -p ${CONTRAIL_DIR}/logs ${CONTRAIL_DIR}/RPMS
+  mkdir -p ${CONTRAIL_DIR}/logs
   volumes+=" -v ${CONTRAIL_DIR}/logs:/$DEVENV_USER/contrail/logs:${DOCKER_VOLUME_OPTIONS}"
-  volumes+=" -v ${CONTRAIL_DIR}/RPMS:/$DEVENV_USER/contrail/RPMS:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${tf_container_env_dir}:/$DEVENV_USER/contrail/.env:${DOCKER_VOLUME_OPTIONS}"
   if [ -e $scriptdir/patchsets-info.json ]; then
     volumes+=" -v ${scriptdir}/patchsets-info.json:/$DEVENV_USER/contrail/patchsets-info.json"

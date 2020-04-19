@@ -16,7 +16,7 @@ fi
 
 set -eo pipefail
 
-declare -a all_stages=(fetch configure compile package test)
+declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
@@ -36,6 +36,16 @@ STAGES_DIR="${CONTRAIL}/.stages"
 mkdir -p $STAGES_DIR
 
 function fetch() {
+    # Try to unfreeze previously frozen build if tgz is present and no explicity "run.sh fetch sync" is called
+    if [[ $target != "sync" && -e $HOME/contrail.tgz ]] ; then
+        echo "INFO: frozen snapshot is present, extracting"
+        pushd $HOME/contrail
+        tar czvf $HOME/contrail.tgz
+        popd
+        chown $(id -u):$(id -g) -R $HOME/contrail
+        return $?
+    fi
+    # Sync sources
     echo "INFO: make sync  $(date)"
     make sync
 }
@@ -89,12 +99,33 @@ function test() {
     TEST_PACKAGE=$1 make test
 }
 
-function package() {
+function package() {   
+    # Setup and start httpd for RPM repo if not present
+    if ! pidof httpd ; then
+        RPM_REPO_PORT='6667'
+
+        mkdir -p $HOME/contrail/RPMS
+        sudo mkdir -p /run/httpd # For some reason it's not created automatically
+
+        sudo sed -i "s/Listen 80/Listen $RPM_REPO_PORT/" /etc/httpd/conf/httpd.conf
+        sudo sed -i "s/\/var\/www\/html\"/\/var\/www\/html\/repo\"/" /etc/httpd/conf/httpd.conf
+        sudo ln -s $HOME/contrail/RPMS /var/www/html/repo
+
+        # The following is a workaround for when tf-dev-env is run as root (which shouldn't usually happen)
+        sudo chmod 755 -R /var/www/html/repo
+        sudo chmod 755 /root
+
+        sudo /usr/sbin/httpd
+    fi
+ 
+    # Check if we're packaging only a single target
     if [[ ! -z $target ]] ; then
         echo "INFO: packaging only ${target}"
         make $target
         return $?
     fi
+
+    #Package everythin
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
@@ -127,6 +158,14 @@ function package() {
     fi
 
     echo Build of containers with deployers has finished successfully
+}
+
+function freeze() {
+    # Prepare this container for pushing
+    pushd $HOME/contrail
+    tar czf contrail.tgz *
+    popd
+    rm -rf $HOME/contrail
 }
 
 function run_stage() {
