@@ -61,7 +61,6 @@ install_prerequisites_$DISTRO
 # prepare env
 $scriptdir/common/setup_docker.sh
 $scriptdir/common/setup_docker_registry.sh
-$scriptdir/common/setup_rpm_repo.sh
 load_tf_devenv_profile
 
 echo
