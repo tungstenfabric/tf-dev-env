@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16978cfb_ea670d01",
+        "filename": "container/entrypoint.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-20T18:09:23Z",
+      "side": 1,
+      "message": "in case of CI many fetches done in parallel,\nso there will be a conflict between many httpd\nbecause container is in host network mode",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 45
+      },
+      "revId": "a1643ecf1b17db6126ac69e3f7ece7e981e375f8",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "043a5793_83242a38",
+        "filename": "run.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-20T18:09:23Z",
+      "side": 1,
+      "message": "it is not needed if we want keep rpms inside.",
+      "range": {
+        "startLine": 166,
+        "startChar": 32,
+        "endLine": 166,
+        "endChar": 52
+      },
+      "revId": "a1643ecf1b17db6126ac69e3f7ece7e981e375f8",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9a7efc3_73495b4a",
+        "filename": "run.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-20T18:09:23Z",
+      "side": 1,
+      "message": "it is not needed if we want keep rpms inside.",
+      "range": {
+        "startLine": 168,
+        "startChar": 2,
+        "endLine": 168,
+        "endChar": 90
+      },
+      "revId": "a1643ecf1b17db6126ac69e3f7ece7e981e375f8",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
