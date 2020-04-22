@@ -14,10 +14,10 @@ if [ -z "${REPODIR}" ] ; then
   exit 1
 fi
 
-if [[ -e ${REPODIR}/.env/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from ${REPODIR}/.env/tf-developer-sandbox.env"
+if [[ -e /input/.env/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from /input/.env/tf-developer-sandbox.env"
     set -o allexport
-    source ${REPODIR}/.env/tf-developer-sandbox.env
+    source /input/.env/tf-developer-sandbox.env
     set +o allexport
 fi
 
@@ -75,7 +75,7 @@ if [[ -n "$GERRIT_BRANCH" ]] ; then
 fi
 
 # file for patchset info if any
-patchsets_info_file=${REPODIR}/patchsets-info.json
+patchsets_info_file=/input/patchsets-info.json
 
 # resolve changes if any
 if [ ! -e "$patchsets_info_file" ] ; then
@@ -150,7 +150,6 @@ while read repo_project ; do
   done < <($REPO_TOOL info -l $repo_project | awk '/Mount path:|Current revision:|Manifest revision:/ {print($3)}')
 done < <($REPO_TOOL list --name-only | sort -u)
 
-
 if [[ $? != 0 ]] ; then
   echo  "ERROR: $REPO_TOOL start failed"
   exit 1
@@ -163,11 +162,6 @@ if [[ "$GERRIT_BRANCH" == 'R2003' ]]; then
 fi
 
 if [ -e "$patchsets_info_file" ] ; then
-  echo "INFO: gathering UT targets"
-  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ./unittest_targets || exit 1
-  cat ./unittest_targets
-  echo
-
   # apply patches
   echo "INFO: review dependencies"
   cat $patchsets_info_file | jq -r '.[] | select(.project != "Juniper/contrail-vnc") | .project + " " + .ref' | while read project ref; do
@@ -191,6 +185,13 @@ if [ -e "$patchsets_info_file" ] ; then
     done <<< "$repo_projects"
   done
   [[ $? != 0 ]] && exit 1
+
+  echo "INFO: gathering UT targets"
+  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ${REPODIR}/unittest_targets || exit 1
+  cat ${REPODIR}/unittest_targets
+  # TODO: split unittest_targets into several groups (by hardcoded sets)
+  # TODO: then copy theses files into /output/unittest_targets.{$SET_NAME}
+  echo
 fi
 
 echo "INFO: replace symlinks inside .git folder to real files to be able to use them at deployment stage"
@@ -201,5 +202,3 @@ for item in $(find ${REPODIR}/ -type l -print | grep "/.git/") ; do
   rm -f "$item"
   cp -arf $target $idir/
 done
-
-exit 0

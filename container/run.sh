@@ -5,10 +5,10 @@ target="$2"
 
 echo "INFO: run stage $stage with target $target"
 
-if [[ -e ${CONTRAIL}/.env/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from ${CONTRAIL}/.env/tf-developer-sandbox.env"
+if [[ -e /input/.env/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from /input/.env/tf-developer-sandbox.env"
     set -o allexport
-    source ${CONTRAIL}/.env/tf-developer-sandbox.env
+    source /input/.env/tf-developer-sandbox.env
     set +o allexport
 fi
 

@@ -5,7 +5,7 @@ set -o pipefail
 scriptdir=$(realpath $(dirname "$0"))
 
 src_root=$HOME/contrail
-logs_path="${src_root}/logs"
+logs_path="/output/logs"
 cd $src_root
 mkdir -p "$logs_path"
 repo_dir="$HOME/contrail/contrail-container-builder"

@@ -7,7 +7,7 @@ if [ -z "${REPODIR}" ] ; then
   exit 1
 fi
 
-patchsets_info_file=${REPODIR}/patchsets-info.json
+patchsets_info_file=/input/patchsets-info.json
 if [[ ! -e "$patchsets_info_file" ]] ; then
     echo "INFO: skip tpp: there is no patchset info"
     exit
@@ -18,10 +18,10 @@ if [[ -z "$files" ]] ; then
     exit
 fi
 
-if [[ -e ${REPODIR}/.env/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from ${REPODIR}/.env/tf-developer-sandbox.env"
+if [[ -e /input/.env/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from /input/.env/tf-developer-sandbox.env"
     set -o allexport
-    source ${REPODIR}/.env/tf-developer-sandbox.env
+    source /input/.env/tf-developer-sandbox.env
     set +o allexport
 fi
 

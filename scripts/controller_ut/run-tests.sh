@@ -6,7 +6,7 @@ JOBS=${JOBS:-$(nproc)}
 scriptdir=$(realpath $(dirname "$0"))
 
 cd $HOME/contrail
-logs_path="$HOME/contrail/logs"
+logs_path="/output/logs"
 mkdir -p "$logs_path"
 
 # contrail code assumes this in tests, since it uses socket.fqdn(..) but expects the result

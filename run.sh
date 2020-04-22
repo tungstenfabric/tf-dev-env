@@ -163,11 +163,11 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
     volumes+=" -v ${src_volume_name}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
   # make dir to create them under current user
-  mkdir -p ${CONTRAIL_DIR}/logs
-  volumes+=" -v ${CONTRAIL_DIR}/logs:/$DEVENV_USER/contrail/logs:${DOCKER_VOLUME_OPTIONS}"
-  volumes+=" -v ${tf_container_env_dir}:/$DEVENV_USER/contrail/.env:${DOCKER_VOLUME_OPTIONS}"
+  mkdir -p ${CONTRAIL_DIR}/output
+  volumes+=" -v ${CONTRAIL_DIR}/output:/output:${DOCKER_VOLUME_OPTIONS}"
+  volumes+=" -v ${tf_container_env_dir}:/input/.env:${DOCKER_VOLUME_OPTIONS}"
   if [ -e $scriptdir/patchsets-info.json ]; then
-    volumes+=" -v ${scriptdir}/patchsets-info.json:/$DEVENV_USER/contrail/patchsets-info.json"
+    volumes+=" -v ${scriptdir}/patchsets-info.json:/input/patchsets-info.json"
   fi
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
