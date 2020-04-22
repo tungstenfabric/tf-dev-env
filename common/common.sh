@@ -48,7 +48,7 @@ export CONTRAIL_PARALLEL_BUILD=${CONTRAIL_PARALLEL_BUILD:-true}
 # tf-dev-env sandbox parameters
 export IMAGE=${IMAGE:-"tungstenfabric/developer-sandbox"}
 export DEVENVTAG=${DEVENVTAG:-"latest"}
-export DEVENV_IMAGE=${IMAGE}:${DEVENVTAG}
+export DEVENV_IMAGE=${DEVENV_IMAGE:-"${IMAGE}:${DEVENVTAG}"}
 
 # RHEL specific build options
 export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-'false'}
