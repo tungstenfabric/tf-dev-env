@@ -1,5 +1,10 @@
 #!/bin/bash
 
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+source "$my_dir/../common/common.sh"
+source "$my_dir/../common/functions.sh"
+
 stage="$1"
 target="$2"
 
@@ -36,13 +41,13 @@ STAGES_DIR="${CONTRAIL}/.stages"
 mkdir -p $STAGES_DIR
 
 function fetch() {
-    # Try to unfreeze previously frozen build if tgz is present and no explicity "run.sh fetch sync" is called
+    # Try to unfreeze previously frozen build if tgz is present and no explicit "run.sh fetch sync" is called
     if [[ $target != "sync" && -e $HOME/contrail.tgz ]] ; then
         echo "INFO: frozen snapshot is present, extracting"
         pushd $HOME/contrail
-        tar czvf $HOME/contrail.tgz
+        tar xzf $HOME/contrail.tgz
         popd
-        chown $(id -u):$(id -g) -R $HOME/contrail
+        sudo chown $(id -u):$(id -g) -R $HOME/contrail
         return $?
     fi
     # Sync sources
@@ -99,25 +104,12 @@ function test() {
     TEST_PACKAGE=$1 make test
 }
 
-function package() {   
+function package() {
     # Setup and start httpd for RPM repo if not present
     if ! pidof httpd ; then
-        RPM_REPO_PORT='6667'
-
-        mkdir -p $HOME/contrail/RPMS
-        sudo mkdir -p /run/httpd # For some reason it's not created automatically
-
-        sudo sed -i "s/Listen 80/Listen $RPM_REPO_PORT/" /etc/httpd/conf/httpd.conf
-        sudo sed -i "s/\/var\/www\/html\"/\/var\/www\/html\/repo\"/" /etc/httpd/conf/httpd.conf
-        sudo ln -s $HOME/contrail/RPMS /var/www/html/repo
-
-        # The following is a workaround for when tf-dev-env is run as root (which shouldn't usually happen)
-        sudo chmod 755 -R /var/www/html/repo
-        sudo chmod 755 /root
-
-        sudo /usr/sbin/httpd
+        setup_httpd
     fi
- 
+
     # Check if we're packaging only a single target
     if [[ ! -z $target ]] ; then
         echo "INFO: packaging only ${target}"
@@ -125,7 +117,7 @@ function package() {
         return $?
     fi
 
-    #Package everythin
+    #Package everything
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
@@ -163,9 +155,12 @@ function package() {
 function freeze() {
     # Prepare this container for pushing
     pushd $HOME/contrail
-    tar czf contrail.tgz *
+    tar czf ../contrail.tgz *
     popd
-    rm -rf $HOME/contrail
+    # Check if sources (contrail folder) are mounted from outside and remove if not
+    if ! mount | grep "contrail type" ; then
+        [[ $(rm -rf $HOME/contrail) ]] || true
+    fi
 }
 
 function run_stage() {
