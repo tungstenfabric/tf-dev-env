@@ -4,12 +4,10 @@ scriptdir=$(realpath $(dirname "$0"))
 
 src_root=$HOME/contrail
 cd $src_root
-logs_path="$HOME/contrail/logs"
+logs_path="/output/logs"
 test_reports_dir="$logs_path/test-reports"
 coverage_reports_dir="$logs_path/coverage-reports"
-mkdir -p "$logs_path"
-mkdir -p "$test_reports_dir"
-mkdir -p "$coverage_reports_dir"
+mkdir -p "$logs_path" "$test_reports_dir" "$coverage_reports_dir"
 
 function pre_test_setup() {
     # Add Google Chrome repo
@@ -74,7 +72,7 @@ res=$?
 if [[ "$res" != '0' ]]; then
   echo "ERROR: some UT failed"
 fi
-echo "INFO: Unit test log is available at contrail/logs/web_controller_unittests.log"
-echo "INFO: Test report is available at  contrail/logs/test-reports/web-controller-test-results.xml"
-echo "INFO: Coverage report is available at contrail/logs/coverage-reports/controller-cobertura-coverage.xml"
+echo "INFO: Unit test log is available at contrail/output/logs/web_controller_unittests.log"
+echo "INFO: Test report is available at  contrail/output/logs/test-reports/web-controller-test-results.xml"
+echo "INFO: Coverage report is available at contrail/output/logs/coverage-reports/controller-cobertura-coverage.xml"
 exit $res

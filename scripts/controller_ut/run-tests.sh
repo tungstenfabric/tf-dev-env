@@ -5,8 +5,13 @@ JOBS=${JOBS:-$(nproc)}
 
 scriptdir=$(realpath $(dirname "$0"))
 
-cd $HOME/contrail
-logs_path="$HOME/contrail/logs"
+if [ -z "${REPODIR}" ] ; then
+  echo "ERROR: env variable REPODIR is required"\
+  exit 1
+fi
+
+cd ${REPODIR}
+logs_path="/output/logs"
 mkdir -p "$logs_path"
 
 # contrail code assumes this in tests, since it uses socket.fqdn(..) but expects the result
@@ -34,7 +39,7 @@ BUILD_ONLY=1 scons -j $JOBS --without-dpdk --kernel-dir=/lib/modules/${KVERS}/bu
 unset BUILD_ONLY
 
 echo "INFO: Prepare targets $(date)"
-targets_file="$HOME/contrail/unittest_targets"
+targets_file="${REPODIR}/unittest_targets"
 if [[ ! -f "$targets_file" ]] ; then
   targets_file='/tmp/unittest_targets'
   rm "$targets_file" && touch "$targets_file"
@@ -66,7 +71,7 @@ function process_file() {
     return
   fi
   for file in $(ls -1 ${src_file%.${ext}}.*.${ext} 2>/dev/null) ; do
-    dst_file=$(echo $file | sed "s~$HOME/contrail~$logs_path~g")
+    dst_file=$(echo $file | sed "s~${REPODIR}~$logs_path~g")
     mkdir -p $(dirname $dst_file)
     cp $file $dst_file
   done
