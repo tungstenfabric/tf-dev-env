@@ -37,18 +37,20 @@ export CONTRAIL_DIR
 export DEVENV_USER=${DEVENV_USER:-$(id -nu)}
 
 # build environment preparation options
-export REGISTRY_PORT=${REGISTRY_PORT:-5000}
-export REGISTRY_IP=${REGISTRY_IP:-'localhost'}
+export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"localhost:5000"}
+export REGISTRY_IP=$(echo $CONTAINER_REGISTRY | cut -f 1 -d ':')
+export REGISTRY_PORT=$(echo $CONTAINER_REGISTRY | cut -f 2 -d ':')
 export RPM_REPO_IP='localhost'
 export RPM_REPO_PORT='6667'
 export REGISTRY_CONTAINER_NAME=${REGISTRY_CONTAINER_NAME:-"tf-dev-env-registry"}
-export TF_DEVENV_CONTAINER_NAME=${TF_DEVENV_CONTAINER_NAME:-"tf-developer-sandbox"}
+export DEVENV_CONTAINER_NAME=${DEVENV_CONTAINER_NAME:-"tf-dev-sandbox"}
 export CONTRAIL_PARALLEL_BUILD=${CONTRAIL_PARALLEL_BUILD:-true}
 
 # tf-dev-env sandbox parameters
-export IMAGE=${IMAGE:-"tungstenfabric/developer-sandbox"}
-export DEVENVTAG=${DEVENVTAG:-"latest"}
-export DEVENV_IMAGE=${DEVENV_IMAGE:-"${IMAGE}:${DEVENVTAG}"}
+export DEVENV_IMAGE_NAME=${DEVENV_IMAGE_NAME:-"tf-dev-sandbox"}
+export DEVENV_TAG=${DEVENV_TAG:-"latest"}
+export DEVENV_PUSH_TAG=${DEVENV_PUSH_TAG:-"frozen"}
+export DEVENV_IMAGE=${DEVENV_IMAGE:-"${DEVENV_IMAGE_NAME}:${DEVENV_TAG}"}
 
 # RHEL specific build options
 export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-'false'}

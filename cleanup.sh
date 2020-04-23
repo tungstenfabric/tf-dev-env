@@ -39,7 +39,7 @@ echo tf-dev-env cleanup
 if [[ $remove_containers -eq 1 ]] ; then
   echo
   echo '[containers]'
-  for container in tf-developer-sandbox $REGISTRY_CONTAINER_NAME; do
+  for container in $DEVENV_CONTAINER_NAME $REGISTRY_CONTAINER_NAME; do
     if is_container_created "$container" ; then
       echo -ne "$(mysudo docker stop $container) stopped."\\r
       echo $(mysudo docker rm $container) removed.

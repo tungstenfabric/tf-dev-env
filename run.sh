@@ -81,7 +81,7 @@ DEBUG=${DEBUG}
 DEBUGINFO=${DEBUGINFO}
 LINUX_DISTR=${LINUX_DISTR}
 CONTRAIL_DEV_ENV=/${DEVENV_USER}/tf-dev-env
-DEVENVTAG=$DEVENVTAG
+DEVENV_TAG=$DEVENV_TAG
 CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
 OPENSTACK_VERSIONS=${OPENSTACK_VERSIONS}
 SITE_MIRROR=${SITE_MIRROR}
@@ -90,7 +90,7 @@ CONTRAIL_BRANCH=${CONTRAIL_BRANCH}
 CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO}
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
 CONTRAIL_REPOSITORY=http://localhost:${RPM_REPO_PORT}
-CONTRAIL_REGISTRY=${REGISTRY_IP}:${REGISTRY_PORT}
+CONTRAIL_REGISTRY=${CONTAINER_REGISTRY}
 VENDOR_NAME=$VENDOR_NAME
 VENDOR_DOMAIN=$VENDOR_DOMAIN
 EOF
@@ -147,7 +147,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
       cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
     fi
     cd ${scriptdir}/container
-    ./build.sh -i ${IMAGE} ${DEVENVTAG}
+    ./build.sh -i ${DEVENV_IMAGE_NAME} ${DEVENV_TAG}
     cd ${scriptdir}
   fi
 
@@ -205,6 +205,16 @@ if [[ "$stage" == 'none' ]] ; then
   exit 0
 fi
 
+if [[ "$stage" == 'upload' ]]; then
+    # Pushes devenv (or potentially other containers) to external registry
+    echo "INFO: pushing devenv to container registry"
+    sudo docker stop ${TF_DEVENV_CONTAINER_NAME}
+    sudo docker commit ${TF_DEVENV_CONTAINER_NAME} ${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+    sudo docker tag ${TF_DEVENV_CONTAINER_NAME} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+    sudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+    exit 0
+fi
+
 echo "run stage $stage with target $target"
 mysudo docker exec -i $TF_DEVENV_CONTAINER_NAME /$DEVENV_USER/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
 result=${PIPESTATUS[0]}
@@ -220,6 +230,8 @@ if [[ $result == 0 ]] ; then
   echo "  compile   - build TF binaries"
   echo "  package   - package TF into docker containers (you can specify target container to build like container-vrouter)"
   echo "  test      - run unittests"
+  echo "  freeze    - prepare tf-dev-env for pushing to container registry for future reuse by compressing contrail directory"
+  echo "  upload    - pushes tf-dev-env to container registry"
   echo "For advanced usage You can now connect to the sandbox container by using:"
   if [[ $DISTRO != "macosx" ]]; then
     echo "  sudo docker exec -it $TF_DEVENV_CONTAINER_NAME bash"

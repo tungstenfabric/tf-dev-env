@@ -239,13 +239,12 @@ export CONTRAIL_DIR=$HOME/my-tf-sources
 
 ### External docker registry
 
-Environment variables **REGISTRY_IP** and **REGISTRY_PORT** stores external docker registry connection information where TF's containers would be stored.
+Environment variable **CONTAINER_REGISTRY** stores external docker registry connection information where TF's containers would be stored.
 There is an example:
 
 ``` bash
 export CONTRAIL_DEPLOY_REGISTRY=0
-export REGISTRY_IP=10.1.1.190
-export REGISTRY_PORT=5000
+export CONTAINER_REGISTRY=10.1.1.190:5000
 ./run.sh build
 ```
 
