@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
 scriptdir=$(realpath $(dirname "$0"))
-source ${scriptdir}/common/common.sh
+source ${scriptdir}/../common/common.sh
 
 function mysudo() {
     if [[ $DISTRO == "macosx" ]]; then
-	"$@"
+        "$@"
     else
-	sudo $@
+        sudo $@
     fi
 }
 
