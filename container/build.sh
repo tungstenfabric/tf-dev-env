@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+scriptdir=$(realpath $(dirname "$0"))
+source ${scriptdir}/common/common.sh
+
 function mysudo() {
     if [[ $DISTRO == "macosx" ]]; then
 	"$@"
@@ -10,26 +13,14 @@ function mysudo() {
 
 LINUX_DISTR=${LINUX_DISTR:-'centos'}
 
-while getopts ":i:" opt; do
-    case $opt in
-      i) IMAGE=$OPTARG
-         ;;
-      \?) echo "Invalid option: $opt"; exit 1;;
-    esac
-done
-
-shift $((OPTIND-1))
-
-IMAGE="${IMAGE:-opencontrail/developer-sandbox-${LINUX_DISTR}}"
-TAG=${1:-latest}
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
 logfile="./build-tf-dev-env.log"
-echo Building tf-dev-env image: ${IMAGE}:${TAG} | tee $logfile
+echo Building tf-dev-env image: ${DEVENV_IMAGE} | tee $logfile
 cp ../tpc.repo.template tpc.repo
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
-build_opts+=" --network host --no-cache --tag ${IMAGE}:${TAG} -f Dockerfile.${LINUX_DISTR} ."
+build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} -f Dockerfile.${LINUX_DISTR} ."
 if [[ -n "$DEVENV_USER" && "$DEVENV_USER" != 'root' ]] ; then
     build_opts+=" --build-arg DEVENV_USER=$DEVENV_USER --build-arg DEVENV_UID=$(id -u)"
     build_opts+=" --build-arg DEVENV_GROUP=$(id -ng) --build-arg DEVENV_GID=$(id -g)"

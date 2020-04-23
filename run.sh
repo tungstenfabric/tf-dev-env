@@ -58,6 +58,17 @@ echo
 echo '[ensure python is present]'
 install_prerequisites_$DISTRO
 
+# very specific stage - here all containers must be up and all prerequisites must be inatalled
+if [[ "$stage" == 'upload' ]]; then
+    # Pushes devenv (or potentially other containers) to external registry
+    echo "INFO: pushing devenv to container registry"
+    sudo docker stop ${DEVENV_CONTAINER_NAME}
+    sudo docker commit ${DEVENV_CONTAINER_NAME} ${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+    sudo docker tag ${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+    sudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+    exit 0
+fi
+
 # prepare env
 $scriptdir/common/setup_docker.sh
 $scriptdir/common/setup_docker_registry.sh
@@ -81,7 +92,7 @@ DEBUG=${DEBUG}
 DEBUGINFO=${DEBUGINFO}
 LINUX_DISTR=${LINUX_DISTR}
 CONTRAIL_DEV_ENV=/${DEVENV_USER}/tf-dev-env
-DEVENVTAG=$DEVENVTAG
+DEVENV_TAG=$DEVENV_TAG
 CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
 OPENSTACK_VERSIONS=${OPENSTACK_VERSIONS}
 SITE_MIRROR=${SITE_MIRROR}
@@ -90,7 +101,7 @@ CONTRAIL_BRANCH=${CONTRAIL_BRANCH}
 CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO}
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
 CONTRAIL_REPOSITORY=http://localhost:${RPM_REPO_PORT}
-CONTRAIL_REGISTRY=${REGISTRY_IP}:${REGISTRY_PORT}
+CONTRAIL_REGISTRY=${CONTAINER_REGISTRY}
 VENDOR_NAME=$VENDOR_NAME
 VENDOR_DOMAIN=$VENDOR_DOMAIN
 EOF
@@ -130,7 +141,7 @@ fi
 
 echo
 echo '[environment setup]'
-if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
+if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
     if ! mysudo docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! mysudo docker pull $DEVENV_IMAGE ; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
@@ -147,7 +158,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
       cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
     fi
     cd ${scriptdir}/container
-    ./build.sh -i ${IMAGE} ${DEVENVTAG}
+    ./build.sh -i ${DEVENV_IMAGE_NAME} ${DEVENV_TAG}
     cd ${scriptdir}
   fi
 
@@ -177,7 +188,7 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   #  into container and user of make.
   #  - TF Jenkins CI use non-bind folder for sources
   start_sandbox_cmd="mysudo docker run --network host --privileged --detach \
-    --name $TF_DEVENV_CONTAINER_NAME \
+    --name $DEVENV_CONTAINER_NAME \
     -w /$DEVENV_USER ${options} \
     $volumes -it \
     --env-file $tf_container_env_file \
@@ -187,16 +198,16 @@ if ! is_container_created "$TF_DEVENV_CONTAINER_NAME"; then
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
   if [[ ${PIPESTATUS[0]} != 0 ]] ; then
     echo
-    echo "ERROR: Failed to run $TF_DEVENV_CONTAINER_NAME container."
+    echo "ERROR: Failed to run $DEVENV_CONTAINER_NAME container."
     exit 1
   fi
 
-  echo $TF_DEVENV_CONTAINER_NAME created.
+  echo $DEVENV_CONTAINER_NAME created.
 else
-  if is_container_up "$TF_DEVENV_CONTAINER_NAME"; then
-    echo "$TF_DEVENV_CONTAINER_NAME already running."
+  if is_container_up "$DEVENV_CONTAINER_NAME"; then
+    echo "$DEVENV_CONTAINER_NAME already running."
   else
-    echo $(mysudo docker start $TF_DEVENV_CONTAINER_NAME) started.
+    echo $(mysudo docker start $DEVENV_CONTAINER_NAME) started.
   fi
 fi
 
@@ -206,7 +217,7 @@ if [[ "$stage" == 'none' ]] ; then
 fi
 
 echo "run stage $stage with target $target"
-mysudo docker exec -i $TF_DEVENV_CONTAINER_NAME /$DEVENV_USER/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
+mysudo docker exec -i $DEVENV_CONTAINER_NAME /$DEVENV_USER/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
 if [[ $result == 0 ]] ; then
@@ -220,11 +231,13 @@ if [[ $result == 0 ]] ; then
   echo "  compile   - build TF binaries"
   echo "  package   - package TF into docker containers (you can specify target container to build like container-vrouter)"
   echo "  test      - run unittests"
+  echo "  freeze    - prepare tf-dev-env for pushing to container registry for future reuse by compressing contrail directory"
+  echo "  upload    - pushes tf-dev-env to container registry"
   echo "For advanced usage You can now connect to the sandbox container by using:"
   if [[ $DISTRO != "macosx" ]]; then
-    echo "  sudo docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
+    echo "  sudo docker exec -it $DEVENV_CONTAINER_NAME bash"
   else
-    echo "  docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
+    echo "  docker exec -it $DEVENV_CONTAINER_NAME bash"
   fi
 else
   echo
