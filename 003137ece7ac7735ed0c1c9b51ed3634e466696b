@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cb5c407_1109483d",
+        "filename": "run.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-23T15:43:16Z",
+      "side": 1,
+      "message": "does it work twice?",
+      "range": {
+        "startLine": 212,
+        "startChar": 44,
+        "endLine": 212,
+        "endChar": 83
+      },
+      "revId": "003137ece7ac7735ed0c1c9b51ed3634e466696b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23e9a464_f392ef72",
+        "filename": "run.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-23T15:43:16Z",
+      "side": 1,
+      "message": "maybe $DEVENV_IMAGE ?",
+      "range": {
+        "startLine": 213,
+        "startChar": 85,
+        "endLine": 213,
+        "endChar": 99
+      },
+      "revId": "003137ece7ac7735ed0c1c9b51ed3634e466696b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "484d2cda_2ddb2f32",
+        "filename": "run.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-23T15:43:16Z",
+      "side": 1,
+      "message": ":frozen",
+      "range": {
+        "startLine": 213,
+        "startChar": 20,
+        "endLine": 213,
+        "endChar": 52
+      },
+      "revId": "003137ece7ac7735ed0c1c9b51ed3634e466696b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
