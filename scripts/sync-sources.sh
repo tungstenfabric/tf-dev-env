@@ -177,10 +177,12 @@ if [ -e "$patchsets_info_file" ] ; then
       echo "INFO: apply change $ref for $project"
       echo "INFO: cmd: git fetch $GERRIT_URL/$project $ref && git cherry-pick FETCH_HEAD"
       pushd $repo_path
-      git fetch $GERRIT_URL/$project $ref && git cherry-pick FETCH_HEAD || {
-        echo "ERROR: failed to cherry-pick"
-        exit 1
-      }
+      git fetch $GERRIT_URL/$project $ref || { echo "ERROR: failed to fetch changes for $project"; exit 1 }
+      head_sha=$(git log -1 --oneline --no-abbrev-commit HEAD | awk '{print $1}')
+      fetch_head_sha=$(git log -1 --oneline --no-abbrev-commit FETCH_HEAD | awk '{print $1}')
+      if [[ "$head_sha" != "$fetch_head_sha" ]]; then
+        git cherry-pick FETCH_HEAD || { echo "ERROR: failed to cherry-pick changes for $project"; exit 1 }
+      fi
       popd
     done <<< "$repo_projects"
   done
