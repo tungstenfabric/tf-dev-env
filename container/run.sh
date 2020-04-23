@@ -44,8 +44,8 @@ function fetch() {
     # Try to unfreeze previously frozen build if tgz is present and no explicit "run.sh fetch sync" is called
     if [[ $target != "sync" && -e $HOME/contrail.tgz ]] ; then
         echo "INFO: frozen snapshot is present, extracting"
-        pushd $HOME/contrail
-        tar xzf $HOME/contrail.tgz
+        pushd $HOME
+        tar xzf contrail.tgz
         popd
         sudo chown $(id -u):$(id -g) -R $HOME/contrail
         return $?
@@ -154,8 +154,8 @@ function package() {
 
 function freeze() {
     # Prepare this container for pushing
-    pushd $HOME/contrail
-    tar czf ../contrail.tgz *
+    pushd $HOME
+    tar czf contrail.tgz contrail
     popd
     # Check if sources (contrail folder) are mounted from outside and remove if not
     if ! mount | grep "contrail type" ; then
