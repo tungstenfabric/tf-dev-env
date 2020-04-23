@@ -205,6 +205,16 @@ if [[ "$stage" == 'none' ]] ; then
   exit 0
 fi
 
+if [[ "$stage" == 'upload' ]]; then
+    # Pushes devenv (or potentially other containers) to external registry
+    echo "INFO: pushing devenv to container registry"
+    sudo docker stop tf-developer-sandbox
+    sudo docker commit tf-developer-sandbox tungstenfabric/developer-sandbox:frozen
+    sudo docker tag tungstenfabric/developer-sandbox ${REGISTRY_IP}:${REGISTRY_PORT}/tungstenfabric/developer-sandbox
+    sudo docker push ${REGISTRY_IP}:${REGISTRY_PORT}/tungstenfabric/developer-sandbox
+    exit $?
+fi
+
 echo "run stage $stage with target $target"
 mysudo docker exec -i $TF_DEVENV_CONTAINER_NAME /$DEVENV_USER/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
 result=${PIPESTATUS[0]}
@@ -220,6 +230,8 @@ if [[ $result == 0 ]] ; then
   echo "  compile   - build TF binaries"
   echo "  package   - package TF into docker containers (you can specify target container to build like container-vrouter)"
   echo "  test      - run unittests"
+  echo "  freeze    - prepare tf-dev-env for pushing to container registry for future reuse by compressing contrail directory"
+  echo "  upload    - pushes tf-dev-env to container registry"
   echo "For advanced usage You can now connect to the sandbox container by using:"
   if [[ $DISTRO != "macosx" ]]; then
     echo "  sudo docker exec -it $TF_DEVENV_CONTAINER_NAME bash"
