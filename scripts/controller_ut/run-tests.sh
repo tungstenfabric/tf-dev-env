@@ -16,6 +16,7 @@ echo "127.0.0.1 localhost" > /etc/hosts
 echo "::1 localhost" >> /etc/hosts
 
 $scriptdir/compile.sh
+unset BUILD_ONLY
 
 echo "INFO: Prepare targets $(date)"
 targets_file="$HOME/contrail/unittest_targets"
