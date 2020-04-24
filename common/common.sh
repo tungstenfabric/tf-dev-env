@@ -4,8 +4,8 @@
 set -o errexit
 
 # extract DEBUGINFO
-# in CI for speedup check pipline it can be disabled
-export DEBUGINFO=${DEBUGINFO:-TRUE}
+# Should be set to TRUE to produce debuginfo
+export DEBUGINFO=${DEBUGINFO:-FALSE}
 
 # working environment
 export WORKSPACE=${WORKSPACE:-$(pwd)}
