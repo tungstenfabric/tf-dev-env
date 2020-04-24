@@ -60,13 +60,12 @@ install_prerequisites_$DISTRO
 
 # very specific stage - here all containers must be up and all prerequisites must be inatalled
 if [[ "$stage" == 'upload' ]]; then
-    # Pushes devenv (or potentially other containers) to external registry
-    echo "INFO: pushing devenv to container registry"
-    sudo docker stop ${DEVENV_CONTAINER_NAME}
-    sudo docker commit ${DEVENV_CONTAINER_NAME} ${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
-    sudo docker tag ${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
-    sudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
-    exit 0
+  # Pushes devenv (or potentially other containers) to external registry
+  echo "INFO: pushing devenv to container registry"
+  sudo docker stop ${DEVENV_CONTAINER_NAME}
+  sudo docker commit ${DEVENV_CONTAINER_NAME} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+  sudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+  exit 0
 fi
 
 # prepare env
@@ -142,18 +141,18 @@ fi
 echo
 echo '[environment setup]'
 if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
-  if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created $DEVENV_IMAGE ; then
-    if ! mysudo docker inspect $DEVENV_IMAGE >/dev/null 2>&1 && ! mysudo docker pull $DEVENV_IMAGE ; then
+  if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created ${CONTAINER_REGISTRY}/$DEVENV_IMAGE ; then
+    if ! mysudo docker inspect ${CONTAINER_REGISTRY}/$DEVENV_IMAGE >/dev/null 2>&1 && ! mysudo docker pull ${CONTAINER_REGISTRY}/$DEVENV_IMAGE ; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
         exit 1
       fi
-      echo No image $DEVENV_IMAGE is available. Try to build.
+      echo "No image $DEVENV_IMAGE is available. Try to build."
       BUILD_DEV_ENV=1
     fi
   fi
 
   if [[ "$BUILD_DEV_ENV" == '1' ]]; then
-    echo Build $DEVENV_IMAGE docker image
+    echo "Build $DEVENV_IMAGE docker image"
     if [[ -d ${scriptdir}/config/etc/yum.repos.d ]]; then
       cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
     fi
@@ -192,7 +191,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     -w /$DEVENV_USER ${options} \
     $volumes -it \
     --env-file $tf_container_env_file \
-    ${DEVENV_IMAGE}"
+    ${CONTAINER_REGISTRY}/${DEVENV_IMAGE}"
 
   echo "INFO: start cmd '$start_sandbox_cmd'"
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
@@ -207,7 +206,7 @@ else
   if is_container_up "$DEVENV_CONTAINER_NAME"; then
     echo "$DEVENV_CONTAINER_NAME already running."
   else
-    echo $(mysudo docker start $DEVENV_CONTAINER_NAME) started.
+    echo "$(mysudo docker start $DEVENV_CONTAINER_NAME) started."
   fi
 fi
 
