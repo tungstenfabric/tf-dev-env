@@ -18,11 +18,9 @@ if [[ -z "$files" ]] ; then
     exit
 fi
 
-if [[ -e /input/.env/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from /input/.env/tf-developer-sandbox.env"
-    set -o allexport
-    source /input/.env/tf-developer-sandbox.env
-    set +o allexport
+if [[ -e /input/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from /input/tf-developer-sandbox.env"
+    source /input/tf-developer-sandbox.env
 fi
 
 working_dir=${REPODIR}/tpp-container-build

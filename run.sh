@@ -14,49 +14,11 @@ cd "$scriptdir"
 # enable build of development sandbox 
 export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 export BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-1}
-
 # enable build from sources (w/o RPMs)
-export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
+export BUILD_CONTRAIL_FROM_SOURCE=${BUILD_CONTRAIL_FROM_SOURCE:-}
 
 # variables that can be redefined outside (for CI)
 SITE_MIRROR=${SITE_MIRROR:-}
-
-function install_prerequisites_centos() {
-  local pkgs=""
-  which lsof || pkgs+=" lsof"
-  which python || pkgs+=" python"
-  if [ -n "$pkgs" ] ; then
-    mysudo yum install -y $pkgs
-  fi
-}
-
-function install_prerequisites_rhel() {
-  install_prerequisites_centos
-}
-
-function install_prerequisites_ubuntu() {
-  local pkgs=""
-  which lsof || pkgs+=" lsof"
-  which python || pkgs+=" python-minimal"
-  if [ -n "$pkgs" ] ; then
-    export DEBIAN_FRONTEND=noninteractive
-    mysudo -E apt-get install -y $pkgs
-  fi
-}
-
-function install_prerequisites_macosx() {
-  local pkgs=""
-  which lsof || pkgs+=" lsof"
-  which python || pkgs+=" python"
-  if [ -n "$pkgs" ] ; then
-    brew install $pkgs
-  fi
-}
-
-echo tf-dev-env startup
-echo
-echo '[ensure python is present]'
-install_prerequisites_$DISTRO
 
 # very specific stage - here all containers must be up and all prerequisites must be inatalled
 if [[ "$stage" == 'upload' ]]; then
@@ -67,6 +29,11 @@ if [[ "$stage" == 'upload' ]]; then
   sudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
   exit 0
 fi
+
+echo tf-dev-env startup
+echo
+echo '[ensure python is present]'
+install_prerequisites_$DISTRO
 
 # prepare env
 $scriptdir/common/setup_docker.sh
@@ -83,60 +50,11 @@ timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
 log_path="${WORKSPACE}/build_${timestamp}.log"
 
 # make env profile to run inside container
-tf_container_env_dir=${CONTRAIL_DIR}/.env
-mkdir -p $tf_container_env_dir
-tf_container_env_file=${tf_container_env_dir}/tf-developer-sandbox.env
-cat <<EOF > $tf_container_env_file
-DEBUG=${DEBUG}
-DEBUGINFO=${DEBUGINFO}
-LINUX_DISTR=${LINUX_DISTR}
-CONTRAIL_DEV_ENV=/${DEVENV_USER}/tf-dev-env
-DEVENV_TAG=$DEVENV_TAG
-CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
-OPENSTACK_VERSIONS=${OPENSTACK_VERSIONS}
-SITE_MIRROR=${SITE_MIRROR}
-CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES}
-CONTRAIL_BRANCH=${CONTRAIL_BRANCH}
-CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO}
-CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
-CONTRAIL_REPOSITORY=http://localhost:${RPM_REPO_PORT}
-CONTRAIL_REGISTRY=${CONTAINER_REGISTRY}
-VENDOR_NAME=$VENDOR_NAME
-VENDOR_DOMAIN=$VENDOR_DOMAIN
-EOF
-if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
-  src_volume_name=ContrailSources
-  echo "CONTRAIL_SOURCE=${src_volume_name}" >> $tf_container_env_file  
-else
-  echo "CONTRAIL_SOURCE=${CONTRAIL_DIR}" >> $tf_container_env_file
-fi
-if [[ -n "${GENERAL_EXTRA_RPMS+x}" ]] ; then
-  echo "GENERAL_EXTRA_RPMS=${GENERAL_EXTRA_RPMS}" >> $tf_container_env_file
-fi
-if [[ -n "${BASE_EXTRA_RPMS+x}" ]] ; then
-  echo "BASE_EXTRA_RPMS=${BASE_EXTRA_RPMS}" >> $tf_container_env_file
-fi
-if [[ -n "${RHEL_HOST_REPOS+x}" ]] ; then
-  echo "RHEL_HOST_REPOS=${RHEL_HOST_REPOS}" >> $tf_container_env_file
-fi
-
-if [[ -d "${scriptdir}/config" ]]; then
-  cat <<EOF >> $tf_container_env_file
-CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-"/config"}
-EOF
-fi
-
-# code review system options
-if [[ -n "$GERRIT_URL" ]]; then 
-  cat <<EOF >> $tf_container_env_file
-GERRIT_URL=$GERRIT_URL
-EOF
-fi
-if [[ -n "$GERRIT_BRANCH" ]]; then
-  cat <<EOF >> $tf_container_env_file
-GERRIT_BRANCH=$GERRIT_BRANCH
-EOF
-fi
+# input dir can be already created and had files like patchsets-info.json, unittest_targets.lst
+input_dir="${scriptdir}/input"
+mkdir -p "$input_dir"
+tf_container_env_file="${input_dir}/tf-developer-sandbox.env"
+create_env_file "$tf_container_env_file"
 
 echo
 echo '[environment setup]'
@@ -169,16 +87,13 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   volumes+=" -v ${scriptdir}:/$DEVENV_USER/tf-dev-env:${DOCKER_VOLUME_OPTIONS}"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
-  elif [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
+  elif [[ -n "$BUILD_CONTRAIL_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
     volumes+=" -v ${src_volume_name}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
   # make dir to create them under current user
   mkdir -p ${CONTRAIL_DIR}/output
   volumes+=" -v ${CONTRAIL_DIR}/output:/output:${DOCKER_VOLUME_OPTIONS}"
-  volumes+=" -v ${tf_container_env_dir}:/input/.env:${DOCKER_VOLUME_OPTIONS}"
-  if [ -e $scriptdir/patchsets-info.json ]; then
-    volumes+=" -v ${scriptdir}/patchsets-info.json:/input/patchsets-info.json"
-  fi
+  volumes+=" -v ${input_dir}:/input:${DOCKER_VOLUME_OPTIONS}"
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
   fi

@@ -14,11 +14,9 @@ if [ -z "${REPODIR}" ] ; then
   exit 1
 fi
 
-if [[ -e /input/.env/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from /input/.env/tf-developer-sandbox.env"
-    set -o allexport
-    source /input/.env/tf-developer-sandbox.env
-    set +o allexport
+if [[ -e /input/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from /input/tf-developer-sandbox.env"
+    source /input/tf-developer-sandbox.env
 fi
 
 cd $REPODIR
@@ -193,14 +191,19 @@ if [ -e "$patchsets_info_file" ] ; then
     done <<< "$repo_projects"
   done
   [[ $? != 0 ]] && exit 1
-
-  echo "INFO: gathering UT targets"
-  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file > ${REPODIR}/unittest_targets || exit 1
-  cat ${REPODIR}/unittest_targets
-  # TODO: split unittest_targets into several groups (by hardcoded sets)
-  # TODO: then copy theses files into /output/unittest_targets.{$SET_NAME}
-  echo
 fi
+
+echo "INFO: gathering UT targets"
+if [ -e "$patchsets_info_file" ] ; then
+  # this script uses ci_unittests.json from controller to eval required UT targets from changes
+  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file | sort | uniq > /output/unittest_targets.lst || exit 1
+else
+  # take default
+  # TODO: take misc_targets into accout
+  cat ${REPODIR}/controller/ci_unittests.json | jq -r ".default.scons_test_targets[]" | sort | uniq > /output/unittest_targets.lst
+fi
+cat /output/unittest_targets.lst
+echo
 
 echo "INFO: replace symlinks inside .git folder to real files to be able to use them at deployment stage"
 # replace symlinks with target files for all .git files
