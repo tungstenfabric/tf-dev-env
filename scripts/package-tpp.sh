@@ -20,7 +20,9 @@ fi
 
 if [[ -e /input/tf-developer-sandbox.env ]] ; then
     echo "INFO: source env from /input/tf-developer-sandbox.env"
+    set -o allexport
     source /input/tf-developer-sandbox.env
+    set +o allexport
 fi
 
 working_dir=${REPODIR}/tpp-container-build
