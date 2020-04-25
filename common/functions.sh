@@ -107,7 +107,7 @@ function install_prerequisites_ubuntu() {
   which lsof || pkgs+=" lsof"
   which python || pkgs+=" python-minimal"
   if [ -n "$pkgs" ] ; then
-    export DEBIAN_FRONTEND=noninteractive
+    DEBIAN_FRONTEND=noninteractive
     mysudo -E apt-get install -y $pkgs
   fi
 }
@@ -125,48 +125,48 @@ function create_env_file() {
   # exports 'src_volume_name' as return result
   local tf_container_env_file=$1
   cat <<EOF > $tf_container_env_file
-export DEBUG=${DEBUG}
-export DEBUGINFO=${DEBUGINFO}
-export LINUX_DISTR=${LINUX_DISTR}
-export CONTRAIL_DEV_ENV=/${DEVENV_USER}/tf-dev-env
-export DEVENV_TAG=$DEVENV_TAG
-export BUILD_CONTRAIL_FROM_SOURCE=${BUILD_CONTRAIL_FROM_SOURCE}
-export OPENSTACK_VERSIONS=${OPENSTACK_VERSIONS}
-export SITE_MIRROR=${SITE_MIRROR}
-export CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES}
-export CONTRAIL_BRANCH=${CONTRAIL_BRANCH}
-export CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO}
-export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
-export CONTRAIL_REPOSITORY=http://localhost:${RPM_REPO_PORT}
-export CONTRAIL_REGISTRY=${CONTAINER_REGISTRY}
-export VENDOR_NAME=$VENDOR_NAME
-export VENDOR_DOMAIN=$VENDOR_DOMAIN
+DEBUG=${DEBUG}
+DEBUGINFO=${DEBUGINFO}
+LINUX_DISTR=${LINUX_DISTR}
+CONTRAIL_DEV_ENV=/${DEVENV_USER}/tf-dev-env
+DEVENV_TAG=$DEVENV_TAG
+CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
+OPENSTACK_VERSIONS=${OPENSTACK_VERSIONS}
+SITE_MIRROR=${SITE_MIRROR}
+CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES}
+CONTRAIL_BRANCH=${CONTRAIL_BRANCH}
+CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO}
+CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
+CONTRAIL_REPOSITORY=http://localhost:${RPM_REPO_PORT}
+CONTRAIL_REGISTRY=${CONTAINER_REGISTRY}
+VENDOR_NAME=$VENDOR_NAME
+VENDOR_DOMAIN=$VENDOR_DOMAIN
 EOF
-  if [[ -n "$BUILD_CONTRAIL_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
-    export src_volume_name=ContrailSources
-    echo "export CONTRAIL_SOURCE=${src_volume_name}" >> $tf_container_env_file  
+  if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
+    src_volume_name=ContrailSources
+    echo "CONTRAIL_SOURCE=${src_volume_name}" >> $tf_container_env_file  
   else
-    echo "export CONTRAIL_SOURCE=${CONTRAIL_DIR}" >> $tf_container_env_file
+    echo "CONTRAIL_SOURCE=${CONTRAIL_DIR}" >> $tf_container_env_file
   fi
   if [[ -n "${GENERAL_EXTRA_RPMS+x}" ]] ; then
-    echo "export GENERAL_EXTRA_RPMS=${GENERAL_EXTRA_RPMS}" >> $tf_container_env_file
+    echo "GENERAL_EXTRA_RPMS=${GENERAL_EXTRA_RPMS}" >> $tf_container_env_file
   fi
   if [[ -n "${BASE_EXTRA_RPMS+x}" ]] ; then
-    echo "export BASE_EXTRA_RPMS=${BASE_EXTRA_RPMS}" >> $tf_container_env_file
+    echo "BASE_EXTRA_RPMS=${BASE_EXTRA_RPMS}" >> $tf_container_env_file
   fi
   if [[ -n "${RHEL_HOST_REPOS+x}" ]] ; then
-    echo "export RHEL_HOST_REPOS=${RHEL_HOST_REPOS}" >> $tf_container_env_file
+    echo "RHEL_HOST_REPOS=${RHEL_HOST_REPOS}" >> $tf_container_env_file
   fi
 
   if [[ -d "${scriptdir}/config" ]]; then
-    echo "export CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-'/config'}" >> $tf_container_env_file
+    echo "CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-'/config'}" >> $tf_container_env_file
   fi
 
   # code review system options
   if [[ -n "$GERRIT_URL" ]]; then 
-    echo "export GERRIT_URL=${GERRIT_URL}" >> $tf_container_env_file
+    echo "GERRIT_URL=${GERRIT_URL}" >> $tf_container_env_file
   fi
   if [[ -n "$GERRIT_BRANCH" ]]; then
-    echo "export GERRIT_BRANCH=${GERRIT_BRANCH}" >> $tf_container_env_file
+    echo "GERRIT_BRANCH=${GERRIT_BRANCH}" >> $tf_container_env_file
   fi
 }

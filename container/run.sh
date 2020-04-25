@@ -12,7 +12,9 @@ echo "INFO: run stage $stage with target $target"
 
 if [[ -e /input/tf-developer-sandbox.env ]] ; then
     echo "INFO: source env from /input/tf-developer-sandbox.env"
+    set -o allexport
     source /input/tf-developer-sandbox.env
+    set +o allexport
 fi
 
 [ -n "$DEBUG" ] && set -x
