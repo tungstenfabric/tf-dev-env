@@ -3,6 +3,7 @@
 scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common/common.sh
 source ${scriptdir}/common/functions.sh
+source ${scriptdir}/common/tf_functions.sh
 
 stage="$1"
 target="$2"
@@ -11,7 +12,7 @@ cd "$scriptdir"
 
 # Build options
 
-# enable build of development sandbox 
+# enable build of development sandbox
 export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 export BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-1}
 
