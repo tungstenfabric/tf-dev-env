@@ -18,7 +18,7 @@ export CONTAINER_BUILDER_DIR
 # for applying custom patches from review
 export GERRIT_URL
 export GERRIT_BRANCH
-export BUILD_CONTRAIL_FROM_SOURCE
+export CONTRAIL_BUILD_FROM_SOURCE
 export OPENSTACK_VERSIONS
 
 all: dep rpm containers
