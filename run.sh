@@ -14,8 +14,9 @@ cd "$scriptdir"
 # enable build of development sandbox 
 export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 export BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-1}
+
 # enable build from sources (w/o RPMs)
-export BUILD_CONTRAIL_FROM_SOURCE=${BUILD_CONTRAIL_FROM_SOURCE:-}
+export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
 
 # variables that can be redefined outside (for CI)
 SITE_MIRROR=${SITE_MIRROR:-}
@@ -87,7 +88,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   volumes+=" -v ${scriptdir}:/$DEVENV_USER/tf-dev-env:${DOCKER_VOLUME_OPTIONS}"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     volumes+=" -v ${CONTRAIL_DIR}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
-  elif [[ -n "$BUILD_CONTRAIL_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
+  elif [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
     volumes+=" -v ${src_volume_name}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
   # make dir to create them under current user
