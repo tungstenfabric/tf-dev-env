@@ -4,6 +4,7 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
+source "$my_dir/../common/tf_functions.sh"
 
 stage="$1"
 target="$2"
@@ -46,7 +47,6 @@ function fetch() {
         echo "INFO: frozen snapshot is present, extracting"
         pushd $HOME
         tar xzf contrail.tgz
-        rm -f contrail/.stages/package
         popd
         sudo chown $(id -u):$(id -g) -R $HOME/contrail
         return $?
@@ -124,32 +124,39 @@ function package() {
         return $?
     fi
 
+    # Check if we're run by Jenkins and have automated patchset
+    if patches_exist ; then
+        prepare_containers=""
+        make_containers=""
+        if [[ -v $changed_containers_projects ]] ; then
+            prepare_containers="prepare_containers"
+            make_containers="containers-only src-containers-only"
+        elif [[ -v $changed_deployers_projects ]] ; then
+            make_containers="src-containers-only"
+        fi
+        if [[ -v $changed_tests_projects ]] ; then
+            prepare_containers="${prepare_containers} prepare-test-containers"
+            make_containers="${make_containers} test-containers-only"
+        fi
+    fi
+
     #Package everything
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
     echo "INFO: make containers  $(date)"
     # prepare rpm repo and repos
-    echo "INFO: make create-repo prepare-containers prepare-deployers prepare-test-containers  $(date)"
-    make -j 3 prepare-containers prepare-deployers prepare-test-containers
+    echo "INFO: make $prepare_containers $(date)"
+    make -j 3 $prepare_containers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then
         echo "INFO: make prepare containers failed with code $build_status  $(date)"
         exit $build_status
     fi
 
-    # prebuild general base as it might be used by deployers
-    echo "INFO: make container-general-base  $(date)"
-    make container-general-base
-    build_status=$?
-    if [[ "$build_status" != "0" ]]; then
-        echo "INFO: make general-base container failed with code $build_status $(date)"
-        exit $build_status
-    fi
-
     # build containers
-    echo "INFO: make containers-only deployers-only test-containers-only  $(date)"
-    make -j 8 containers-only deployers-only test-containers-only src-containers-only
+    echo "INFO: make $make_containers $(date)"
+    make -j 8 $make_containers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then
         echo "INFO: make containers failed with code $build_status $(date)"

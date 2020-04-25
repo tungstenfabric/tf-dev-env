@@ -3,6 +3,7 @@
 scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common/common.sh
 source ${scriptdir}/common/functions.sh
+source ${scriptdir}/common/tf_functions.sh
 
 stage="$1"
 target="$2"
