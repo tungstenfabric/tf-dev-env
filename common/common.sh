@@ -65,6 +65,13 @@ export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"tungsten.io"}
 export CONTRAIL_BRANCH=${CONTRAIL_BRANCH:-${GERRIT_BRANCH:-'master'}}
 export CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO:-"https://github.com/Juniper/contrail-vnc"}
 
+# Folders for input and output to container
+export DEVENV_INPUT="/input"
+export DEVENV_OUTPUT="/output"
+
+# File for patchset info if any
+export DEVENV_PATCHSETS="patchsets-info.json"
+
 # Docker options
 if [ -z "${DOCKER_VOLUME_OPTIONS}" ] ; then
     export DOCKER_VOLUME_OPTIONS="z"
