@@ -202,7 +202,7 @@ if [ -e "$patchsets_info_file" ] ; then
 else
   # take default
   # TODO: take misc_targets into accout
-  cat ${REPODIR}/controller/ci_unittests.json | jq -r ".default.scons_test_targets[]" | sort | uniq > /output/unittest_targets.lst
+  cat ${REPODIR}/controller/ci_unittests.json | jq -r ".[].scons_test_targets[]" | sort | uniq > /output/unittest_targets.lst
 fi
 cat /output/unittest_targets.lst
 echo
