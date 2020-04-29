@@ -19,7 +19,7 @@ function ensure_root() {
   if [ "$me" != 'root' ] ; then
     echo "ERROR: this script requires root:"
     echo "       mysudo -E $0"
-    exit 1;
+    return 1
   fi
 }
 
@@ -27,7 +27,7 @@ function ensure_port_free() {
   local port=$1
   if mysudo lsof -Pn -sTCP:LISTEN -i :$port ; then
     echo "ERROR: Port $port is already opened by another process"
-    exit 1
+    return 1
   fi
 }
 
