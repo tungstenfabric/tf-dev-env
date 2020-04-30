@@ -130,7 +130,7 @@ function package() {
     make info
     echo "INFO: make containers  $(date)"
     # prepare rpm repo and repos
-    echo "INFO: make create-repo prepare-containers prepare-deployers prepare-test-containers  $(date)"
+    echo "INFO: make prepare-containers prepare-deployers prepare-test-containers  $(date)"
     make -j 3 prepare-containers prepare-deployers prepare-test-containers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then

@@ -57,6 +57,11 @@ package-tpp:
 	@$(TF_DE_DIR)scripts/package-tpp.sh
 
 ##############################################################################
+# Container deployer-src targets
+src-containers-only:
+	@$(TF_DE_DIR)scripts/build-src-containers.sh
+
+##############################################################################
 # Container builder targets
 prepare-containers:
 	@$(TF_DE_DIR)scripts/prepare-containers.sh
@@ -64,16 +69,13 @@ prepare-containers:
 list-containers: prepare-containers
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
 
-container-%: create-repo prepare-containers
+container-%: prepare-containers
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
-
-src-containers-only:
-	@$(TF_DE_DIR)scripts/build-src-containers.sh
 
 containers-only:
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh | sed "s/^/containers: /"
 
-containers: create-repo prepare-containers containers-only
+containers: prepare-containers containers-only
 
 clean-containers:
 	@test -d $(CONTAINER_BUILDER_DIR) && rm -rf $(CONTAINER_BUILDER_DIR) || true
@@ -86,13 +88,13 @@ prepare-deployers:
 list-deployers: prepare-deployers
 	@$(CONTRAIL_DEPLOYERS_DIR)/containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/deployer-/'
 
-deployer-%: create-repo prepare-deployers
+deployer-%: prepare-deployers
 	@$(CONTRAIL_DEPLOYERS_DIR)/containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 deployers-only:
 	@$(CONTRAIL_DEPLOYERS_DIR)/containers/build.sh | sed "s/^/deployers: /"
 
-deployers: create-repo prepare-deployers
+deployers: prepare-deployers
 	@$(MAKE) -C $(TF_DE_DIR) deployers-only
 
 clean-deployers:
@@ -106,7 +108,7 @@ prepare-test-containers:
 test-containers-only:
 	@$(TF_DE_DIR)scripts/build-test-containers.sh | sed "s/^/test-containers: /"
 
-test-containers: create-repo prepare-test-containers test-containers-only
+test-containers: prepare-test-containers test-containers-only
 
 test:
 	@$(TF_DE_DIR)scripts/run-tests.sh $(TEST_PACKAGE)
