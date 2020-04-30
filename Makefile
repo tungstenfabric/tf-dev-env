@@ -74,6 +74,8 @@ container-%: prepare-containers
 
 containers-only:
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh | sed "s/^/containers: /"
+	@mkdir -p /output/logs/container-builder
+	@mv $(CONTAINER_BUILDER_DIR)/containers/*.log /output/logs/container-builder/
 
 containers: prepare-containers containers-only
 

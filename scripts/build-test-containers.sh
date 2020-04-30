@@ -4,7 +4,7 @@
 
 REPODIR=${REPODIR:-"."}
 
-CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/contrail-test"}
+CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/third_party/contrail-test"}
 CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-}
 source ${CONTRAIL_TEST_DIR}/common.env
 
@@ -101,5 +101,7 @@ done
 
 popd
 
-exit $res
+mkdir -p /output/logs/contrail-test
+mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test
 
+exit $res

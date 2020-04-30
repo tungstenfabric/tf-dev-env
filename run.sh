@@ -92,8 +92,8 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     volumes+=" -v ${src_volume_name}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
   # make dir to create them under current user
-  mkdir -p ${CONTRAIL_DIR}/output
-  volumes+=" -v ${CONTRAIL_DIR}/output:/output:${DOCKER_VOLUME_OPTIONS}"
+  mkdir -p ${WORKSPACE}/output
+  volumes+=" -v ${WORKSPACE}/output:/output:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${input_dir}:/input:${DOCKER_VOLUME_OPTIONS}"
   if [[ -d "${scriptdir}/config" ]]; then
     volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
