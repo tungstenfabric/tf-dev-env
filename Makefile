@@ -60,6 +60,8 @@ package-tpp:
 # Container deployer-src targets
 src-containers-only:
 	@$(TF_DE_DIR)scripts/build-src-containers.sh
+	@mkdir -p /output/logs/container-builder-src
+	@mv $(CONTAINER_BUILDER_DIR)/containers/*.log /output/logs/container-builder-src/
 
 ##############################################################################
 # Container builder targets
