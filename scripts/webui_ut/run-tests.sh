@@ -11,15 +11,17 @@ mkdir -p "$logs_path" "$test_reports_dir" "$coverage_reports_dir"
 
 function pre_test_setup() {
     # Add Google Chrome repo
-    cat <<EOF > /etc/yum.repos.d/Google-Chrome.repo
+    if ! yum info google-chrome-stable ; then
+        cat <<EOF > /tmp/Google-Chrome.repo
 #Google-Chrome.repo
-
 [google-chrome]
 name=google-chrome
 baseurl=http://dl.google.com/linux/chrome/rpm/stable/x86_64
 gpgcheck=0
 enabled=1
 EOF
+        sudo cp -f /tmp/Google-Chrome.repo /etc/yum.repos.d/Google-Chrome.repo
+    fi
 
     # Install the Development tools package group and additional packages
     yum install -y "@Development tools" python-lxml wget google-chrome-stable
