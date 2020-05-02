@@ -60,8 +60,6 @@ package-tpp:
 # Container deployer-src targets
 src-containers-only:
 	@$(TF_DE_DIR)scripts/build-src-containers.sh
-	@mkdir -p /output/logs/container-builder-src
-	@mv $(CONTAINER_BUILDER_DIR)/containers/*.log /output/logs/container-builder-src/
 
 ##############################################################################
 # Container builder targets
@@ -75,9 +73,7 @@ container-%: prepare-containers
 	@$(CONTAINER_BUILDER_DIR)/containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 containers-only:
-	@$(CONTAINER_BUILDER_DIR)/containers/build.sh | sed "s/^/containers: /"
-	@mkdir -p /output/logs/container-builder
-	@mv $(CONTAINER_BUILDER_DIR)/containers/*.log /output/logs/container-builder/
+	@$(TF_DE_DIR)scripts/build-containers.sh
 
 containers: prepare-containers containers-only
 

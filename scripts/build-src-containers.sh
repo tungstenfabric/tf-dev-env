@@ -66,6 +66,9 @@ for i in $jobs ; do
   wait $i || res=1
 done
 
+mkdir -p /output/logs/container-builder-src
+mv ${REPODIR}/contrail-container-builder/containers/*.log /output/logs/container-builder-src/
+
 if [[ $res == 1 ]] ; then
   echo "ERROR: There were some errors when source containers builded."
   exit 1
