@@ -102,6 +102,7 @@ done
 popd
 
 mkdir -p /output/logs/contrail-test
-mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test
+# do not fail script if logs files are absent
+mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test || /bin/true
 
 exit $res

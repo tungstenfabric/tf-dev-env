@@ -19,6 +19,7 @@ res=0
 ${CONTAINER_BUILDER_DIR}/containers/build.sh | sed "s/^/containers: /" || res=1
 
 mkdir -p /output/logs/container-builder
-mv ${CONTAINER_BUILDER_DIR}/containers/*.log /output/logs/container-builder/
+# do not fail script if logs files are absent
+mv ${CONTAINER_BUILDER_DIR}/containers/*.log /output/logs/container-builder/ || /bin/true
 
 exit $res

@@ -67,7 +67,8 @@ for i in $jobs ; do
 done
 
 mkdir -p /output/logs/container-builder-src
-mv ${REPODIR}/contrail-container-builder/containers/*.log /output/logs/container-builder-src/
+# do not fail script if logs files are absent
+mv ${REPODIR}/contrail-container-builder/containers/*.log /output/logs/container-builder-src/ || /bin/true
 
 if [[ $res == 1 ]] ; then
   echo "ERROR: There were some errors when source containers builded."
