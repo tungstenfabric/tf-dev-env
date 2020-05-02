@@ -1,6 +1,7 @@
 #!/bin/bash
 
 TARGET=${1:-}
+TARGET_TIMEOUT=${TARGET_TIMEOUT:-"120m"}
 
 scriptdir=$(realpath $(dirname "$0"))
 source $scriptdir/definitions.sh
@@ -37,7 +38,7 @@ echo ; echo
 for utest in $(cat "$targets_file") ; do
   echo "INFO: $(date) Starting unit tests for target $utest"
   logfilename=$(echo $utest | cut -f 1 -d ':' | rev | cut -f 1 -d '/' | rev)
-  if ! "$scriptdir/run-tests.py" --less-strict -j $JOBS $utest  &> $logs_path/$logfilename ; then
+  if ! timeout $TARGET_TIMEOUT "$scriptdir/run-tests.py" --less-strict -j $JOBS $utest &> $logs_path/$logfilename ; then
     res=1
     echo "ERROR: $utest failed"
   fi
