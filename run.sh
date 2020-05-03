@@ -57,6 +57,12 @@ mkdir -p "$input_dir"
 tf_container_env_file="${input_dir}/tf-developer-sandbox.env"
 create_env_file "$tf_container_env_file"
 
+# mount this dir always - some stage can put files there even if it was empty when container was created
+mkdir -p ${scriptdir}/config
+# and put tpc.repo there cause stable image doesn't have it
+mkdir -p ${scriptdir}/config/etc/yum.repos.d
+cp -f ${scriptdir}/tpc.repo ${scriptdir}/config/etc/yum.repos.d/
+
 echo
 echo '[environment setup]'
 if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
@@ -95,9 +101,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   mkdir -p ${WORKSPACE}/output
   volumes+=" -v ${WORKSPACE}/output:/output:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${input_dir}:/input:${DOCKER_VOLUME_OPTIONS}"
-  if [[ -d "${scriptdir}/config" ]]; then
-    volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
-  fi
+  volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
   # Provide env variables because:
   #  - there is backward compatibility case with manual doing docker exec
   #  into container and user of make.

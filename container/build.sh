@@ -18,7 +18,6 @@ CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 mkdir -p ${WORKSPACE}/output/logs
 logfile="${WORKSPACE}/output/logs/build-tf-dev-env.log"
 echo "Building tf-dev-env image: ${DEVENV_IMAGE}" | tee $logfile
-cp ../tpc.repo.template tpc.repo
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
 build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} --tag ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} -f Dockerfile.${LINUX_DISTR} ."

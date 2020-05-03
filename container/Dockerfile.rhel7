@@ -20,10 +20,10 @@ ENV LANGUAGE=$LANGUAGE
 WORKDIR $CONTRAIL
 
 # Inject repositories that we might need
+RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save
 COPY *.repo /etc/yum.repos.d/
 
-RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
-    if [[ "$ENABLE_RHSM_REPOS" == 'true' ]] ; then \
+RUN if [[ "$ENABLE_RHSM_REPOS" == 'true' ]] ; then \
         yum-config-manager --enable rhel-7-server-optional-rpms \
                                     rhel-7-server-extras-rpms \
                                     rhel-server-rhscl-7-rpms \
@@ -48,7 +48,9 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
         echo '%wheel        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers && \
         usermod -aG wheel $DEVENV_USER && \
         chown -R $DEVENV_UID:$DEVENV_GID $HOME || exit 1; \
-    fi
+    fi && \
+    rm -rf /etc/yum.repos.d && \
+    mv /etc/yum.repos.d.save /etc/yum.repos.d
 
 ADD entrypoint.sh /
 
