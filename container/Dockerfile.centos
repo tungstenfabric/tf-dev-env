@@ -19,12 +19,12 @@ ENV LANGUAGE=$LANGUAGE
 WORKDIR $CONTRAIL
 
 # Inject repositories that we might need
+RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save
 COPY *.repo /etc/yum.repos.d/
 
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
-RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
-    if ! yum info jq ; then yum -y install epel-release ; fi && \
+RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
     yum -y update && \
     yum -y install python36 || (yum -y install python34 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.4 1) && \
     yum -y install autoconf automake createrepo docker-client docker-python gcc gdb git git-review jq libtool \
@@ -42,7 +42,9 @@ RUN cp -R /etc/yum.repos.d /etc/yum.repos.d.save && \
         echo '%wheel        ALL=(ALL)       NOPASSWD: ALL' >> /etc/sudoers && \
         usermod -aG wheel $DEVENV_USER && \
         chown -R $DEVENV_UID:$DEVENV_GID $HOME || exit 1; \
-    fi
+    fi && \
+    rm -rf /etc/yum.repos.d && \
+    mv /etc/yum.repos.d.save /etc/yum.repos.d
 
 ADD entrypoint.sh /
 
