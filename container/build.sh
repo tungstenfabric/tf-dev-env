@@ -15,8 +15,9 @@ LINUX_DISTR=${LINUX_DISTR:-'centos'}
 
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
-logfile="./build-tf-dev-env.log"
-echo Building tf-dev-env image: ${DEVENV_IMAGE} | tee $logfile
+mkdir -p ${WORKSPACE}/output/logs
+logfile="${WORKSPACE}/output/logs/build-tf-dev-env.log"
+echo "Building tf-dev-env image: ${DEVENV_IMAGE}" | tee $logfile
 cp ../tpc.repo.template tpc.repo
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
