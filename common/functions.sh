@@ -170,3 +170,42 @@ EOF
     echo "GERRIT_BRANCH=${GERRIT_BRANCH}" >> $tf_container_env_file
   fi
 }
+
+function backup_and_apply_config() {
+  files_to_remove=""
+  local backup=$WORKSPACE/backup
+
+  if [[ -z "$CONTRAIL_CONFIG_DIR" || ! -d "$CONTRAIL_CONFIG_DIR" ]]; then
+    return
+  fi
+
+  rm -rf $backup
+  mkdir -p $backup
+  for file in $(find $CONTRAIL_CONFIG_DIR -printf "%P\n"); do
+    if [[ -z "$file" ]]; then
+      continue
+    fi
+    if [[ -e /$file ]]; then
+      mkdir -p $backup/$(dirname $file)
+      sudo cp "/$file" $backup/$(dirname $file)
+    fi
+    files_to_remove+=" /$file"
+    sudo mkdir -p /$(dirname $file)
+    sudo cp $CONTRAIL_CONFIG_DIR/$file /$file
+  done
+}
+
+function restore_config() {
+  local backup=$WORKSPACE/backup
+
+  if [[ -z "$CONTRAIL_CONFIG_DIR" || ! -d "$CONTRAIL_CONFIG_DIR" ]]; then
+    return
+  fi
+
+  sudo rm -rf $files_to_remove
+  for file in $(find $backup -printf "%P\n"); do
+    if [[ -n "$file" ]]; then
+      sudo cp -rf ${backup}/$file /$file
+    fi
+  done
+}
