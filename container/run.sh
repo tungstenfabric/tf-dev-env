@@ -25,7 +25,6 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
-set -x
 backup_and_apply_config
 trap 'catch_errors $LINENO' ERR EXIT
 function catch_errors() {
