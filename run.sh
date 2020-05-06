@@ -78,9 +78,6 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
 
   if [[ "$BUILD_DEV_ENV" == '1' ]]; then
     echo "Build $DEVENV_IMAGE docker image"
-    if [[ -d ${scriptdir}/config/etc/yum.repos.d ]]; then
-      cp -f ${scriptdir}/config/etc/yum.repos.d/* ${scriptdir}/container/
-    fi
     cd ${scriptdir}/container
     ./build.sh -i ${DEVENV_IMAGE_NAME} ${DEVENV_TAG}
     cd ${scriptdir}
