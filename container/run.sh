@@ -25,18 +25,6 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
-backup_and_apply_config
-trap 'catch_errors $LINENO' ERR EXIT
-function catch_errors() {
-    local exit_code=$?
-    echo "Line: $1  Error=$exit_code  Command: '$(eval echo $BASH_COMMAND)'"
-    trap - ERR EXIT
-
-    restore_config
-
-    exit $exit_code
-}
-
 cd $CONTRAIL_DEV_ENV
 if [[ -e common.env ]] ; then
     echo "INFO: source env from common.env"
@@ -214,8 +202,5 @@ else
     # run selected stage
     run_stage $stage $target
 fi
-
-trap - ERR EXIT
-restore_config
 
 echo "INFO: make successful  $(date)"
