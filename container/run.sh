@@ -25,6 +25,11 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
+# Folders and artifacts which have to be symlinked in order to separate them from sources
+
+declare -a work_folders=(build BUILDROOT BUILD RPMS SOURCES SRPMS SRPMSBUILD .sconf_temp  SPECS .stages)
+declare -a work_files=(.sconsign.dblite)
+
 cd $CONTRAIL_DEV_ENV
 if [[ -e common.env ]] ; then
     echo "INFO: source env from common.env"
@@ -37,16 +42,6 @@ STAGES_DIR="${CONTRAIL}/.stages"
 mkdir -p $STAGES_DIR
 
 function fetch() {
-    # Try to unfreeze previously frozen build if tgz is present and no explicit "run.sh fetch sync" is called
-    if [[ $target != "sync" && -e $HOME/contrail.tgz ]] ; then
-        echo "INFO: frozen snapshot is present, extracting"
-        pushd $HOME
-        tar -xzf contrail.tgz
-        rm -f contrail/.stages/package
-        popd
-        sudo chown $(id -u):$(id -g) -R $HOME/contrail
-        return $?
-    fi
     # Sync sources
     echo "INFO: make sync  $(date)"
     make sync
@@ -55,6 +50,17 @@ function fetch() {
 function configure() {
     echo "INFO: make setup  $(date)"
     sudo make setup
+
+    # create symlink to artifacts
+    mkdir -p $HOME/work
+    for folder in ${work_folders[@]} ; do
+        [[ -e $HOME/work/$folder ]] || mkdir $HOME/work/$folder
+        [[ -e $HOME/contrail/$folder ]] || ln -s $HOME/work/$folder $HOME/contrail/$folder 
+    done
+    for file in ${work_files[@]} ; do
+        touch $HOME/work/$file
+        [[ -e $HOME/contrail/$file ]] || ln -s $HOME/work/$file $HOME/contrail/$file
+    done
 
     echo "INFO: make dep fetch_packages  $(date)"
     # targets can use yum and will block each other. don't run them in parallel
@@ -80,6 +86,8 @@ function compile() {
     make info
 
     echo "INFO: create rpm repo $(date)"
+    # First workaround for symlinked RPMS - rename of repodata to .oldata fails otherwise
+    rm -rf $HOME/work/RPMS/repodata
     make create-repo
     echo "INFO: make tpp $(date)"
     make build-tpp
@@ -152,9 +160,12 @@ function package() {
 
 function freeze() {
     # Prepare this container for pushing
-    pushd $HOME
-    tar -czf contrail.tgz contrail
-    popd
+    # Unlink all symlinks in contrail folder
+    find $HOME/contrail -maxdepth 1 -type l | xargs -L 1 unlink
+    # scons rewrites .sconsign.dblite so as double protection we'll save it if it's still in contrail
+    if [[ -e "${HOME}/contrail/.sconsign.dblite" ]]; then
+        mv ${HOME}/contrail/.sconsign.dblite ${HOME}/work/
+    fi
     # Check if sources (contrail folder) are mounted from outside and remove if not
     if ! mount | grep "contrail type" ; then
         rm -rf $HOME/contrail || /bin/true
@@ -163,7 +174,7 @@ function freeze() {
 
 function run_stage() {
     $1 $2
-    touch $STAGES_DIR/$1
+    touch $STAGES_DIR/$1 || true
 }
 
 function finished_stage() {
