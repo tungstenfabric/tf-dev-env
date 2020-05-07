@@ -16,7 +16,6 @@ mkdir -p "$logs_path"
 sudo bash -c 'echo "127.0.0.1 localhost" > /etc/hosts'
 sudo bash -c 'echo "::1 localhost" >> /etc/hosts'
 
-$scriptdir/compile.sh
 unset BUILD_ONLY
 
 echo "INFO: Prepare targets $(date)"

@@ -79,11 +79,6 @@ function compile() {
     uname -a
     make info
 
-    if [[ "$target" == "test" ]]; then
-      ./scripts/controller_ut/compile.sh
-      exit
-    fi
-
     echo "INFO: create rpm repo $(date)"
     make create-repo
     echo "INFO: make tpp $(date)"
