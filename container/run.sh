@@ -25,6 +25,11 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
+# Folders and artifacts which have to be symlinked in order to separate them from sources
+
+declare -a work_folders=(build BUILDROOT RPMS SOURCES SRPMSBUILD repo .sconf_temp  SPECS .stages)
+declare -a work_files=(.sconsign.dblite SConstruct)
+
 cd $CONTRAIL_DEV_ENV
 if [[ -e common.env ]] ; then
     echo "INFO: source env from common.env"
@@ -55,6 +60,17 @@ function fetch() {
 function configure() {
     echo "INFO: make setup  $(date)"
     sudo make setup
+
+    # create symlink to artifacts
+    mkdir -p $HOME/work
+    for folder in ${work_folders[@]} ; do
+        mkdir $HOME/work/$folder
+        ln -s $HOME/work/$folder $HOME/contrail/$folder 
+    done
+    for file in ${work_files[@]} ; do
+        touch $HOME/work/$file
+        ln -s $HOME/work/$file $HOME/contrail/$file
+    done
 
     echo "INFO: make dep fetch_packages  $(date)"
     # targets can use yum and will block each other. don't run them in parallel
@@ -152,9 +168,8 @@ function package() {
 
 function freeze() {
     # Prepare this container for pushing
-    pushd $HOME
-    tar -czf contrail.tgz contrail
-    popd
+    # Unlink all symlinks in contrail folder
+    find $HOME/contrail -maxdepth 1 -type l | xargs -L 1 unlink
     # Check if sources (contrail folder) are mounted from outside and remove if not
     if ! mount | grep "contrail type" ; then
         rm -rf $HOME/contrail || /bin/true
@@ -163,7 +178,7 @@ function freeze() {
 
 function run_stage() {
     $1 $2
-    touch $STAGES_DIR/$1
+    touch $STAGES_DIR/$1 || true
 }
 
 function finished_stage() {
