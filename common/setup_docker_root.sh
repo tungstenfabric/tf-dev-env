@@ -76,6 +76,9 @@ else
 fi
 
 
+CONTRAIL_REGISTRY_SKIP_INSECURE=${CONTRAIL_REGISTRY_SKIP_INSECURE:-0}
+[[ "$CONTRAIL_REGISTRY_SKIP_INSECURE" != 0 ]] && { echo "INFO: Docker config - setting insecure registry skipped" && exit ; }
+
 echo
 echo '[docker config]'
 default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`

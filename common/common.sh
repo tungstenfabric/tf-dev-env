@@ -38,8 +38,16 @@ export DEVENV_USER=${DEVENV_USER:-$(id -nu)}
 
 # build environment preparation options
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"localhost:5000"}
-export REGISTRY_IP=$(echo $CONTAINER_REGISTRY | cut -f 1 -d ':')
-export REGISTRY_PORT=$(echo $CONTAINER_REGISTRY | cut -f 2 -d ':')
+# check if container registry is in ip:port format
+if [[ $CONTAINER_REGISTRY == *":"* ]]; then
+    export REGISTRY_IP=$(echo $CONTAINER_REGISTRY | cut -f 1 -d ':')
+    export REGISTRY_PORT=$(echo $CONTAINER_REGISTRY | cut -f 2 -d ':')
+else
+    # no need to setup local registry while using docker hub
+    export CONTRAIL_DEPLOY_REGISTRY=0
+    # skip adding insecure registry for docker hub
+    export CONTRAIL_REGISTRY_SKIP_INSECURE=1
+fi
 export RPM_REPO_IP='localhost'
 export RPM_REPO_PORT='6667'
 export REGISTRY_CONTAINER_NAME=${REGISTRY_CONTAINER_NAME:-"tf-dev-env-registry"}
