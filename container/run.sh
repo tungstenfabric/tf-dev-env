@@ -116,6 +116,9 @@ function package() {
         setup_httpd
     fi
 
+    # WORKAROND: Currently Jenkins does export BASE_EXTRA_RPMS='' which doesn't allow frozen dev-env to build containers
+    unset BASE_EXTRA_RPMS
+    
     # Check if we're packaging only a single target
     if [[ ! -z $target ]] ; then
         echo "INFO: packaging only ${target}"
