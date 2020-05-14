@@ -109,7 +109,6 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     --name $DEVENV_CONTAINER_NAME \
     -w /$DEVENV_USER ${options} \
     $volumes -it \
-    --env-file $tf_container_env_file \
     ${CONTAINER_REGISTRY}/${DEVENV_IMAGE}"
 
   echo "INFO: start cmd '$start_sandbox_cmd'"
