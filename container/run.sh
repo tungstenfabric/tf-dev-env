@@ -4,18 +4,12 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
+source "$my_dir/../common/tf_functions.sh"
 
 stage="$1"
 target="$2"
 
 echo "INFO: run stage $stage with target $target"
-
-if [[ -e /input/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from /input/tf-developer-sandbox.env"
-    set -o allexport
-    source /input/tf-developer-sandbox.env
-    set +o allexport
-fi
 
 [ -n "$DEBUG" ] && set -x
 
@@ -25,22 +19,6 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
-# Folders and artifacts which have to be symlinked in order to separate them from sources
-
-declare -a work_folders=(build BUILDROOT BUILD RPMS SOURCES SRPMS SRPMSBUILD .sconf_temp  SPECS .stages)
-declare -a work_files=(.sconsign.dblite)
-
-cd $CONTRAIL_DEV_ENV
-if [[ -e common.env ]] ; then
-    echo "INFO: source env from common.env"
-    set -o allexport
-    source common.env
-    set +o allexport
-fi
-
-STAGES_DIR="${CONTRAIL}/.stages"
-mkdir -p $STAGES_DIR
-
 function fetch() {
     # Sync sources
     echo "INFO: make sync  $(date)"
@@ -48,17 +26,6 @@ function fetch() {
 }
 
 function configure() {
-    echo "INFO: create symlinks to work directories with artifacts  $(date)"
-    mkdir -p $HOME/work
-    for folder in ${work_folders[@]} ; do
-        [[ -e $HOME/work/$folder ]] || mkdir $HOME/work/$folder
-        [[ -e $HOME/contrail/$folder ]] || ln -s $HOME/work/$folder $HOME/contrail/$folder 
-    done
-    for file in ${work_files[@]} ; do
-        touch $HOME/work/$file
-        [[ -e $HOME/contrail/$file ]] || ln -s $HOME/work/$file $HOME/contrail/$file
-    done
-
     echo "INFO: make setup  $(date)"
     sudo make setup
 
@@ -86,8 +53,6 @@ function compile() {
     make info
 
     echo "INFO: create rpm repo $(date)"
-    # First workaround for symlinked RPMS - rename of repodata to .oldata fails otherwise
-    rm -rf $HOME/work/RPMS/repodata
     make create-repo
     echo "INFO: make tpp $(date)"
     make build-tpp
