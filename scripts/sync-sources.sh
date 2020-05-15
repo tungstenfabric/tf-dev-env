@@ -155,12 +155,6 @@ if [[ $? != 0 ]] ; then
   exit 1
 fi
 
-# TODO: remove this hack after reelase of R2003
-if [[ "$GERRIT_BRANCH" == 'R2003' ]]; then
-  rm -rf ${REPODIR}/contrail-deployers-containers/containers/helm-deployer
-  rm -rf ${REPODIR}/tf-charms
-fi
-
 if [ -e "$patchsets_info_file" ] ; then
   # apply patches
   echo "INFO: review dependencies"
