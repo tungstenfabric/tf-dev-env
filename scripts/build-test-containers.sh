@@ -39,20 +39,6 @@ function append_log() {
   done
 }
 
-logfile="./build-test-base.log"
-echo "INFO: Build base test container" | append_log $logfile true
-./build-container.sh base \
-  --registry-server ${CONTRAIL_REGISTRY} \
-  --tag ${CONTRAIL_CONTAINER_TAG} 2>&1 | append_log $logfile
-if [ ${PIPESTATUS[0]} -eq 0 ]; then
-  echo "INFO: Build base test container finished successfully" | append_log $logfile true
-  [[ "${CONTRAIL_KEEP_LOG_FILES,,}" != 'true' ]] && rm -f $logfile
-else
-  popd
-  echo "ERROR: Failed to build base test container" | append_log $logfile true
-  exit 1
-fi
-
 function build_for_os_version() {
     local openstack_version=$1
     local logfile="./build-test-${openstack_version}.log"
@@ -82,22 +68,38 @@ function build_for_os_version() {
     return $res
 }
 
-declare -A jobs
-for openstack_version in ${openstack_versions//,/ } ; do
-    build_for_os_version $openstack_version &
-    jobs+=( [$openstack_version]=$! )
-done
-
 res=0
-for openstack_version in ${openstack_versions//,/ } ; do
-  if (( res != 0 )) ; then
-    # kill other jobs because previous  is failed
-    kill %${jobs[$openstack_version]}
-  fi
-  if ! wait ${jobs[$openstack_version]} ; then
-    res=1
-  fi
-done
+
+logfile="./build-test-base.log"
+echo "INFO: Build base test container" | append_log $logfile true
+./build-container.sh base \
+  --registry-server ${CONTRAIL_REGISTRY} \
+  --tag ${CONTRAIL_CONTAINER_TAG} 2>&1 | append_log $logfile
+if [ ${PIPESTATUS[0]} -eq 0 ]; then
+  echo "INFO: Build base test container finished successfully" | append_log $logfile true
+  [[ "${CONTRAIL_KEEP_LOG_FILES,,}" != 'true' ]] && rm -f $logfile
+else
+  echo "ERROR: Failed to build base test container" | append_log $logfile true
+  res=1
+fi
+
+if [[ $res == '0' ]]; then
+  declare -A jobs
+  for openstack_version in ${openstack_versions//,/ } ; do
+      build_for_os_version $openstack_version &
+      jobs+=( [$openstack_version]=$! )
+  done
+
+  for openstack_version in ${openstack_versions//,/ } ; do
+    if (( res != 0 )) ; then
+      # kill other jobs because previous is failed
+      kill %${jobs[$openstack_version]}
+    fi
+    if ! wait ${jobs[$openstack_version]} ; then
+      res=1
+    fi
+  done
+fi
 
 popd
 
