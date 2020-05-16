@@ -25,6 +25,26 @@ function fetch() {
     # Sync sources
     echo "INFO: make sync  $(date)"
     make sync
+    # Invalidate stages after new fetch. For fast build and patchest invalidate only if needed.
+    if [[ $BUILD_MODE == "fast" ]] ; then
+        if patches_exist ; then
+            echo "INFO: patches encountered" $changed_projects
+            if ! [[ -z $changed_containers_projects && -z $changed_deployers_projects && -z $changed_tests_projects ]] ; then
+                cleanup package
+            fi
+            if [[ -v $changed_product_projects ]] ; then
+                cleanup compile
+                cleanup package
+                # vrouter dpdk project uses makefile and relies on date of its artifacts to be fresher than sources
+                # which after resyncing here isn't true, so we'll refresh it if it's unchanged to skip rebuilding
+                if ! [[ ${changed_product_project[@]} =~ "contrail-dpdk" ]]
+                    find $WORK_DIR/build/production/vrouter/dpdk/x86_64-native-linuxapp-gcc/build -type f -exec touch {} +
+                fi
+            fi
+        fi
+    else
+        cleanup
+    fi
 }
 
 function configure() {
@@ -92,32 +112,42 @@ function package() {
         return $?
     fi
 
+    # Check if we're run by Jenkins and have an automated patchset
+    if [[ $BUILD_MODE == "fast" ]] && patches_exist ; then
+        prepare_containers=""
+        make_containers=""
+        if [[ ! -z $changed_containers_projects ]] ; then
+            prepare_containers="prepare-containers"
+            make_containers="containers-only src-containers-only"
+        elif [[ ! -z $changed_deployers_projects ]] ; then
+            make_containers="src-containers-only"
+        fi
+        if [[ ! -z $changed_tests_projects ]] ; then
+            prepare_containers="${prepare_containers} prepare-test-containers"
+            make_containers="${make_containers} test-containers-only"
+        fi
+    else
+        prepare_containers="prepare-containers prepare-test-containers"
+        make_containers="containers-only src-containers-only test-containers-only"
+    fi
+
     #Package everything
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
     echo "INFO: make containers  $(date)"
     # prepare rpm repo and repos
-    echo "INFO: make prepare-containers prepare-deployers prepare-test-containers  $(date)"
-    make -j 3 prepare-containers prepare-deployers prepare-test-containers
+    echo "INFO: make $prepare_containers $(date)"
+    make -j 3 $prepare_containers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then
         echo "INFO: make prepare containers failed with code $build_status  $(date)"
         exit $build_status
     fi
 
-    # prebuild general base as it might be used by deployers
-    echo "INFO: make container-general-base  $(date)"
-    make container-general-base
-    build_status=$?
-    if [[ "$build_status" != "0" ]]; then
-        echo "INFO: make general-base container failed with code $build_status $(date)"
-        exit $build_status
-    fi
-
     # build containers
-    echo "INFO: make containers-only deployers-only test-containers-only  $(date)"
-    make -j 8 containers-only deployers-only test-containers-only src-containers-only
+    echo "INFO: make $make_containers $(date)"
+    make -j 8 $make_containers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then
         echo "INFO: make containers failed with code $build_status $(date)"
@@ -154,10 +184,6 @@ function finished_stage() {
 function cleanup() {
     local stage=${1:-'*'}
     rm -f $STAGES_DIR/$stage
-}
-
-function enabled() {
-    [[ "$1" =~ "$2" ]]
 }
 
 # select default stages

@@ -3,6 +3,9 @@
 [ -n "$DEBUG" ] && set -x
 set -o errexit
 
+# Build mode allows skipping stages or targets after freeze if patchset is present - values full, fast
+export BUILD_MODE=${$BUILD_MODE:-"full"}
+
 # extract DEBUGINFO
 # Should be set to TRUE to produce debuginfo
 export DEBUGINFO=${DEBUGINFO:-FALSE}
