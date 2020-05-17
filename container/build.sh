@@ -12,6 +12,7 @@ function mysudo() {
 }
 
 LINUX_DISTR=${LINUX_DISTR:-'centos'}
+LINUX_DISTR_VER=${LINUX_DISTR_VER:-}
 
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
