@@ -80,9 +80,7 @@ function load_tf_devenv_profile() {
   if [ -e "$TF_DEVENV_PROFILE" ] ; then
     echo
     echo '[load tf devenv configuration]'
-    set -o allexport
     source "$TF_DEVENV_PROFILE"
-    set +o allexport
   else
     echo
     echo '[there is no tf devenv configuration to load]'

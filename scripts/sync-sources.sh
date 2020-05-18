@@ -14,13 +14,6 @@ if [ -z "${REPODIR}" ] ; then
   exit 1
 fi
 
-if [[ -e /input/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from /input/tf-developer-sandbox.env"
-    set -o allexport
-    source /input/tf-developer-sandbox.env
-    set +o allexport
-fi
-
 cd $REPODIR
 echo "INFO: current folder is $(pwd)"
 

@@ -15,7 +15,7 @@ ENV CONTRAIL $HOME/contrail
 ENV LC_ALL=$LC_ALL
 ENV LANG=$LANG
 ENV LANGUAGE=$LANGUAGE
-ENV PS1='\[\033[01;31m\]($?)\[\033[00m\] sandbox:\[\033[01;34m\]\w\[\033[00m\]\$ '
+ENV PS1='sandbox:\[\033[01;34m\]\w\[\033[00m\]\$ '
 
 WORKDIR $CONTRAIL
 
