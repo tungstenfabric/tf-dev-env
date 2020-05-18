@@ -5,6 +5,10 @@ export JOBS=${JOBS:-$(nproc)}
 
 scriptdir=$(realpath $(dirname "$0"))
 
+if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" ]]; then
+  sudo cp -rf ${CONTRAIL_CONFIG_DIR}/* /
+fi
+
 if [[ "$TARGET" == 'ui' ]]; then
   echo "INFO: Running web ui tests"
   $scriptdir/webui_ut/run-tests.sh
