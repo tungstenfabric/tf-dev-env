@@ -168,9 +168,8 @@ if [ -e "$patchsets_info_file" ] ; then
         echo "ERROR: failed to fetch changes for $project"
         exit 1
       fi
-      head_sha=$(git log -1 --oneline --no-abbrev-commit HEAD | awk '{print $1}')
       fetch_head_sha=$(git log -1 --oneline --no-abbrev-commit FETCH_HEAD | awk '{print $1}')
-      if [[ "$head_sha" != "$fetch_head_sha" ]]; then
+      if ! git log --oneline --no-abbrev-commit | grep $fetch_head_sha ; then
         if ! git cherry-pick FETCH_HEAD ; then
           echo "ERROR: failed to cherry-pick changes for $project"
           exit 1
