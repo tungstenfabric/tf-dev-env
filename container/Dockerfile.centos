@@ -15,7 +15,7 @@ ENV CONTRAIL $HOME/contrail
 ENV LC_ALL=$LC_ALL
 ENV LANG=$LANG
 ENV LANGUAGE=$LANGUAGE
-ENV PS1='sandbox:\[\033[01;34m\]\w\[\033[00m\]\$ '
+ENV PS1="sandbox:\[\033[01;34m\]\w\[\033[00m\]\$ "
 
 WORKDIR $CONTRAIL
 
@@ -26,9 +26,10 @@ COPY *.repo /etc/yum.repos.d/
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
 RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
     yum -y update && \
+    curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/get-pip.py | python2 - 'pip==20.1' && \
     yum -y install python3 iproute \
                    autoconf automake createrepo docker-client docker-python gcc gdb git git-review jq libtool \
-                   make python-devel python-pip python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
+                   make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
                    rpmdevtools sudo gcc-c++ net-tools httpd \
                    python-virtualenv python-future python-tox \
                    google-chrome-stable && \
