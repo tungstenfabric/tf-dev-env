@@ -80,22 +80,23 @@ function test() {
 }
 
 function package() {
+    #Package everything
+    echo "INFO: Check variables used by makefile"
+    uname -a
+    make info
+
     # Setup and start httpd for RPM repo if not present
     if ! pidof httpd ; then
         setup_httpd
     fi
 
     # Check if we're packaging only a single target
-    if [[ ! -z $target ]] ; then
+    if [[ -n "$target" ]] ; then
         echo "INFO: packaging only ${target}"
         make $target
         return $?
     fi
 
-    #Package everything
-    echo "INFO: Check variables used by makefile"
-    uname -a
-    make info
     echo "INFO: make containers  $(date)"
     # prepare rpm repo and repos
     echo "INFO: make prepare-containers prepare-deployers prepare-test-containers  $(date)"

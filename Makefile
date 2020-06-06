@@ -94,8 +94,7 @@ deployer-%: prepare-deployers
 deployers-only:
 	@$(CONTRAIL_DEPLOYERS_DIR)/containers/build.sh | sed "s/^/deployers: /"
 
-deployers: prepare-deployers
-	@$(MAKE) -C $(TF_DE_DIR) deployers-only
+deployers: prepare-deployers deployers-only
 
 clean-deployers:
 	@test -d $(CONTRAIL_DEPLOYERS_DIR) && rm -rf $(CONTRAIL_DEPLOYERS_DIR) || true
