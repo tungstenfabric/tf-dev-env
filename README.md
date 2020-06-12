@@ -130,18 +130,17 @@ sudo docker exec -it tf-developer-sandbox bash
 
 ``` bash
 cd ~/tf-dev-env
-make sync           # get latest code
+make sync                # get latest code
+sudo make setup dep      # set up docker container and install build dependencies
 make fetch_packages # pull third_party dependencies
-make setup          # set up docker container
-make dep            # install build dependencies
 ```
 
 The descriptions of targets:
 
 - `make sync` - sync code in `./contrail` directory using `repo` tool
 - `make fetch_packages` - pull `./third_party` dependencies (after code checkout)
-- `make setup` - initial configuration of image (required to run once)
-- `make dep` - installs all build dependencies
+- `sudo make setup` - initial configuration of image (required to run once)
+- `sudo make dep` - installs all build dependencies
 - `make dep-<pkg_name>` - installs build dependencies for <pkg_name>
 
 ### 4. Building artifacts
@@ -157,19 +156,20 @@ The descriptions of targets:
 - `make list-containers` - lists all container targets
 - `make containers` - builds all containers' images, requires RPM packages in ~/contrail/RPMS
 - `make container-<container_name>` - builds single container as a target, with all docker dependencies
-- `make containers-only` - build all containers without cloning of external repositories and creating of rmp rpository
 
 #### Deployers
 
 - `make list-deployers` - lists all deployers container targets
 - `make deployers` - builds all deployers
 - `make deployer-<container_name>` - builds single deployer as a target, with all docker dependencies
-- `make deployers-only` - build all deployers without cloning of external repositories and creating of rmp rpository
 
 #### Test containers
 
 - `make test-containers` - build test containers
-- `make test-containers-only` - build test containers without cloning of external repositories and creating of rmp repository
+
+#### Source containers
+
+- `make src-containers` - build containers with source of deployer code
 
 #### Clean
 

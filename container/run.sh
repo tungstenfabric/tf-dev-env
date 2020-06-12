@@ -13,6 +13,7 @@ echo "INFO: run stage $stage with target $target"
 
 set -eo pipefail
 
+source_env
 prepare_infra
 
 [ -n "$DEBUG" ] && set -x
@@ -99,8 +100,8 @@ function package() {
 
     echo "INFO: make containers  $(date)"
     # prepare rpm repo and repos
-    echo "INFO: make prepare-containers prepare-deployers prepare-test-containers  $(date)"
-    make -j 3 prepare-containers prepare-deployers prepare-test-containers
+    echo "INFO: make prepare-containers prepare-deployers  $(date)"
+    make -j 2 prepare-containers prepare-deployers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then
         echo "INFO: make prepare containers failed with code $build_status  $(date)"
@@ -118,7 +119,7 @@ function package() {
 
     # build containers
     echo "INFO: make containers-only deployers-only test-containers-only  $(date)"
-    make -j 8 containers-only deployers-only test-containers-only src-containers-only
+    make -j 8 containers-only deployers-only test-containers-only src-containers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then
         echo "INFO: make containers failed with code $build_status $(date)"
