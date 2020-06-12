@@ -9,17 +9,10 @@ REPODIR=$(TF_DE_TOP)contrail
 CONTAINER_BUILDER_DIR=$(REPODIR)/contrail-container-builder
 CONTRAIL_DEPLOYERS_DIR=$(REPODIR)/contrail-deployers-containers
 CONTRAIL_TEST_DIR=$(REPODIR)/third_party/contrail-test
-export DEBUG
-export DEBUGINFO
 export REPODIR
 export CONTRAIL_DEPLOYERS_DIR
 export CONTRAIL_TEST_DIR
 export CONTAINER_BUILDER_DIR
-# for applying custom patches from review
-export GERRIT_URL
-export GERRIT_BRANCH
-export CONTRAIL_BUILD_FROM_SOURCE
-export OPENSTACK_VERSIONS
 
 all: dep rpm containers
 
@@ -59,56 +52,47 @@ package-tpp:
 ##############################################################################
 # Container deployer-src targets
 src-containers-only:
-	@$(TF_DE_DIR)scripts/build-src-containers.sh
+	@$(TF_DE_DIR)scripts/package/build-src-containers.sh
 
 ##############################################################################
 # Container builder targets
 prepare-containers:
-	@$(TF_DE_DIR)scripts/prepare-containers.sh
+	@$(TF_DE_DIR)scripts/package/prepare-containers.sh
 
 list-containers: prepare-containers
-	@$(CONTAINER_BUILDER_DIR)/containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/container-/'
+	@$(TF_DE_DIR)scripts/package/list-containers.sh $(CONTAINER_BUILDER_DIR) container
 
 container-%: prepare-containers
-	@$(CONTAINER_BUILDER_DIR)/containers/build.sh $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
+	@$(TF_DE_DIR)scripts/package/build-container.sh $(CONTAINER_BUILDER_DIR) $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 containers-only:
-	@$(TF_DE_DIR)scripts/build-containers.sh
+	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTAINER_BUILDER_DIR) container | sed "s/^/containers: /"
 
 containers: prepare-containers containers-only
-
-clean-containers:
-	@test -d $(CONTAINER_BUILDER_DIR) && rm -rf $(CONTAINER_BUILDER_DIR) || true
 
 ##############################################################################
 # Container deployers targets
 prepare-deployers:
-	@$(TF_DE_DIR)scripts/prepare-deployers.sh
+	@$(TF_DE_DIR)scripts/package/prepare-deployers.sh
 
 list-deployers: prepare-deployers
-	@$(CONTRAIL_DEPLOYERS_DIR)/containers/build.sh list | grep -v INFO | sed -e 's,/,_,g' -e 's/^/deployer-/'
+	@$(TF_DE_DIR)scripts/package/list-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer
 
 deployer-%: prepare-deployers
-	@$(CONTRAIL_DEPLOYERS_DIR)/containers/build.sh $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
+	@$(TF_DE_DIR)scripts/package/build-container.sh $(CONTRAIL_DEPLOYERS_DIR) $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 deployers-only:
-	@$(CONTRAIL_DEPLOYERS_DIR)/containers/build.sh | sed "s/^/deployers: /"
+	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer | sed "s/^/deployers: /"
 
 deployers: prepare-deployers deployers-only
 
-clean-deployers:
-	@test -d $(CONTRAIL_DEPLOYERS_DIR) && rm -rf $(CONTRAIL_DEPLOYERS_DIR) || true
-
 ##############################################################################
 # Test container targets
-prepare-test-containers:
-	@$(TF_DE_DIR)scripts/prepare-test-containers.sh
+test-containers:
+	@$(TF_DE_DIR)scripts/package/build-test-containers.sh | sed "s/^/test-containers: /"
 
-test-containers-only:
-	@$(TF_DE_DIR)scripts/build-test-containers.sh | sed "s/^/test-containers: /"
-
-test-containers: prepare-test-containers test-containers-only
-
+##############################################################################
+# Unit Test targets
 test:
 	@$(TF_DE_DIR)scripts/run-tests.sh $(TEST_PACKAGE)
 

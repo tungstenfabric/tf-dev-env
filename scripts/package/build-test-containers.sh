@@ -1,24 +1,31 @@
 #!/bin/bash
 
+scriptdir=$(realpath $(dirname "$0"))
+source "$scriptdir/../../common/common.sh"
+source_env
+
 [ -n "$DEBUG" ] && set -x
 
 REPODIR=${REPODIR:-"."}
-
 CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/third_party/contrail-test"}
-CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-}
-source ${CONTRAIL_TEST_DIR}/common.env
 
 if [[ -z "${CONTRAIL_REGISTRY}" ]]; then
-    echo CONTRAIL_REGISTRY is not set && exit 1
+  echo "CONTRAIL_REGISTRY is not set" && exit 1
 fi
 
 if [[ -z "${CONTRAIL_REPOSITORY}" ]]; then
-    echo CONTRAIL_REPOSITORY is not set && exit 1
+  echo "CONTRAIL_REPOSITORY is not set" && exit 1
 fi
 
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"dev"}
 openstack_versions=${OPENSTACK_VERSIONS:-"queens,rocky"}
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
+
+tpc_repo="$CONTRAIL_CONFIG_DIR/config/etc/yum.repos.d/tpc.repo"
+if [ -f $tpc_repo ]; then
+  cp $tpc_repo ${CONTRAIL_TEST_DIR}/docker/base/tpc.repo
+  cp $tpc_repo ${CONTRAIL_TEST_DIR}/docker/test/tpc.repo
+fi
 
 pushd ${CONTRAIL_TEST_DIR}
 
