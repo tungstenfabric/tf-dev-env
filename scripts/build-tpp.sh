@@ -12,12 +12,14 @@ if [[ ! -e "$patchsets_info_file" ]] ; then
     echo "INFO: skip tpp: there is no patchset info"
     exit
 fi
-files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-third-party-packages")) | select(has("files")) | .files[]')
+files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("tf-third-party-packages")) | select(has("files")) | .files[]')
 if [[ -z "$files" ]] ; then 
-    echo "INFO: skip tpp: there is no changes in the files for contrail-third-party-packages"
+    echo "INFO: skip tpp: there is no changes in the files for tf-third-party-packages"
     exit
 fi
 
+# check path third_party/contrail-third-party-packages because 
+# in vnc it is downloaded into contrail-third-party-packages
 tpp_dir=${REPODIR}/third_party/contrail-third-party-packages
 if [[ ! -e $tpp_dir ]] ; then
     echo "ERROR: there are changes in tpp but no project $tpp_dir"
@@ -26,9 +28,12 @@ fi
 
 export BUILD_BASE=${REPODIR}
 pushd ${tpp_dir}/upstream/rpm
+echo "INFO: tpp: make list"
 make list
-make prep
-make all
+echo "INFO: tpp: make prep"
+sudo make prep
+echo "INFO: tpp: make all"
+sudo make all
 popd
 
 if [[ ! -e /etc/yum.repos.d/contrail.repo ]] ; then
