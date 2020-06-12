@@ -124,16 +124,20 @@ Note: the described way below uses internal commands and might be changed in fut
 
 ```bash
 sudo docker exec -it tf-developer-sandbox bash
+cd ~/tf-dev-env
+source common/common.sh
+source common/functions.sh
+source common/tf_functions.sh
+prepare_infra
 ```
 
 ### 3. Prepare developer-sandbox container
 
 ``` bash
 cd ~/tf-dev-env
-make sync           # get latest code
+make sync                # get latest code
+sudo make setup dep      # set up docker container and install build dependencies
 make fetch_packages # pull third_party dependencies
-make setup          # set up docker container
-make dep            # install build dependencies
 ```
 
 The descriptions of targets:
