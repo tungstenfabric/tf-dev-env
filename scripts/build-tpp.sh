@@ -1,9 +1,13 @@
 #!/bin/bash -e
 
+scriptdir=$(realpath $(dirname "$0"))
+source "$scriptdir/../common/common.sh"
+source_env
+
 echo "INFO: compile tpp if needed $(date)"
 
 if [ -z "${REPODIR}" ] ; then
-  echo "ERROR: env variable REPODIR is required"\
+  echo "ERROR: env variable REPODIR is required"
   exit 1
 fi
 
