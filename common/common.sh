@@ -40,13 +40,13 @@ export DEVENV_USER=${DEVENV_USER:-$(id -nu)}
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"localhost:5000"}
 # check if container registry is in ip:port format
 if [[ $CONTAINER_REGISTRY == *":"* ]]; then
-    export REGISTRY_IP=$(echo $CONTAINER_REGISTRY | cut -f 1 -d ':')
-    export REGISTRY_PORT=$(echo $CONTAINER_REGISTRY | cut -f 2 -d ':')
+  export REGISTRY_IP=$(echo $CONTAINER_REGISTRY | cut -f 1 -d ':')
+  export REGISTRY_PORT=$(echo $CONTAINER_REGISTRY | cut -f 2 -d ':')
 else
-    # no need to setup local registry while using docker hub
-    export CONTRAIL_DEPLOY_REGISTRY=0
-    # skip updating insecure registry for docker
-    export CONTRAIL_SKIP_INSECURE_REGISTRY=1
+  # no need to setup local registry while using docker hub
+  export CONTRAIL_DEPLOY_REGISTRY=0
+  # skip updating insecure registry for docker
+  export CONTRAIL_SKIP_INSECURE_REGISTRY=1
 fi
 export RPM_REPO_IP='localhost'
 export RPM_REPO_PORT='6667'
@@ -87,3 +87,18 @@ if [ -z "${DOCKER_VOLUME_OPTIONS}" ] ; then
     DOCKER_VOLUME_OPTIONS+=",delegated"
   fi
 fi
+
+function source_env()
+{
+  if [[ -e /input/tf-developer-sandbox.env ]] ; then
+    echo "INFO: source env from /input/tf-developer-sandbox.env"
+    source /input/tf-developer-sandbox.env
+  fi
+
+  if [[ -e $DEV_ENV_ROOT/common.env ]] ; then
+    echo "INFO: source env from $DEV_ENV_ROOT/common.env"
+    set -o allexport
+    source $DEV_ENV_ROOT/common.env
+    set +o allexport
+  fi
+}

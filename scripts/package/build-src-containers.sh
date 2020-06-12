@@ -1,12 +1,10 @@
 #!/bin/bash
 
+scriptdir=$(realpath $(dirname "$0"))
+source "$scriptdir/../common/common.sh"
+source_env
+
 [ -n "$DEBUG" ] && set -x
-
-my_file="$(readlink -e "$0")"
-my_dir="$(dirname $my_file)"
-
-source ${my_dir}/../common/common.sh
-source ${my_dir}/../common/functions.sh
 
 echo "INFO: Build sources containers"
 if [[ -z "${REPODIR}" ]] ; then
@@ -20,13 +18,13 @@ if ! [[ -x "${buildsh}" ]] ; then
   exit 1
 fi
 
-publish_list_file=${PUBLISH_LIST_FILE:-"${my_dir}/../src_containers_to_publish"}
+publish_list_file=${PUBLISH_LIST_FILE:-"${scriptdir}/../src_containers_to_publish"}
 if ! [[ -f "${publish_list_file}" ]] ; then
   echo "ERROR: targets for build as src containers must be listed at ${publish_list_file}"
   exit 1
 fi
 
-dockerfile_template=${DOCKERFILE_TEMPLATE:-"${my_dir}/Dockerfile.src.tmpl"}
+dockerfile_template=${DOCKERFILE_TEMPLATE:-"${scriptdir}/Dockerfile.src.tmpl"}
 if ! [[ -f "${dockerfile_template}" ]] ; then
   echo "ERROR: Dockerfile template ${dockerfile_template} is not available."
   exit 1
@@ -73,8 +71,7 @@ mv ${REPODIR}/contrail-container-builder/containers/*.log /output/logs/container
 if [[ $res == 1 ]] ; then
   echo "ERROR: There were some errors when source containers builded."
   exit 1
-else
-  echo "INFO: All source containers has been successfuly built."
-  exit 0
 fi
 
+echo "INFO: All source containers has been successfuly built."
+exit 0

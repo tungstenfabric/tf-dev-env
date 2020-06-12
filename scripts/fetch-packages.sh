@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+scriptdir=$(realpath $(dirname "$0"))
+source "$scriptdir/../common/common.sh"
+source_env
+
 opts=''
 if [[ -n "${SITE_MIRROR}" ]]; then
   opts="--site-mirror ${SITE_MIRROR}"
