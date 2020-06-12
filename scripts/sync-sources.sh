@@ -1,10 +1,11 @@
 #!/bin/bash
 
-[ -n "$DEBUG" ] && set -x
-
-set -o pipefail
-
 scriptdir=$(realpath $(dirname "$0"))
+source "$scriptdir/../common/common.sh"
+source_env
+
+[ -n "$DEBUG" ] && set -x
+set -o pipefail
 
 echo
 echo '[setup contrail git sources]'
@@ -20,7 +21,6 @@ echo "INFO: current folder is $(pwd)"
 repo_init_defauilts='--repo-branch=repo-1'
 repo_sync_defauilts='--no-tags --no-clone-bundle -q'
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
-
 
 REPO_INIT_MANIFEST_URL=${REPO_INIT_MANIFEST_URL:-${CONTRAIL_FETCH_REPO}}
 if [[ -n "$CONTRAIL_BRANCH" ]] ; then
