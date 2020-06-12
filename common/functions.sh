@@ -118,4 +118,3 @@ function install_prerequisites_macosx() {
     brew install $pkgs
   fi
 }
-
