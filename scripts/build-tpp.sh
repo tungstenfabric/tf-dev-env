@@ -27,7 +27,7 @@ fi
 export BUILD_BASE=${REPODIR}
 pushd ${tpp_dir}/upstream/rpm
 make list
-make prep
+sudo make prep
 make all
 popd
 
