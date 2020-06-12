@@ -26,9 +26,12 @@ fi
 
 export BUILD_BASE=${REPODIR}
 pushd ${tpp_dir}/upstream/rpm
+echo "INFO: tpp: make list"
 make list
-make prep
-make all
+echo "INFO: tpp: make prep"
+sudo make prep
+echo "INFO: tpp: make all"
+sudo make all
 popd
 
 if [[ ! -e /etc/yum.repos.d/contrail.repo ]] ; then
