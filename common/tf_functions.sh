@@ -62,26 +62,26 @@ EOF
 function prepare_infra()
 {
   if [[ -e /input/tf-developer-sandbox.env ]] ; then
-      echo "INFO: source env from /input/tf-developer-sandbox.env"
-      source /input/tf-developer-sandbox.env
+    echo "INFO: source env from /input/tf-developer-sandbox.env"
+    source /input/tf-developer-sandbox.env
   fi
 
   cd $CONTRAIL_DEV_ENV
   if [[ -e common.env ]] ; then
-      echo "INFO: source env from common.env"
-      set -o allexport
-      source common.env
-      set +o allexport
+    echo "INFO: source env from common.env"
+    set -o allexport
+    source common.env
+    set +o allexport
   fi
 
   echo "INFO: create symlinks to work directories with artifacts  $(date)"
   mkdir -p $HOME/work
   for folder in ${work_folders[@]} ; do
-      [[ -e $WORK_DIR/$folder ]] || mkdir $WORK_DIR/$folder
-      [[ -e $CONTRAIL_DIR/$folder ]] || ln -s $WORK_DIR/$folder $CONTRAIL_DIR/$folder 
+    [[ -e $WORK_DIR/$folder ]] || mkdir $WORK_DIR/$folder
+    [[ -e $CONTRAIL_DIR/$folder ]] || ln -s $WORK_DIR/$folder $CONTRAIL_DIR/$folder 
   done
   for file in ${work_files[@]} ; do
-      touch $WORK_DIR/$file
-      [[ -e $CONTRAIL_DIR/$file ]] || ln -s $WORK_DIR/$file $CONTRAIL_DIR/$file
+    touch $WORK_DIR/$file
+    [[ -e $CONTRAIL_DIR/$file ]] || ln -s $WORK_DIR/$file $CONTRAIL_DIR/$file
   done
 }
