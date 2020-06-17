@@ -27,8 +27,8 @@ if [[ -n "$CONTRAIL_BRANCH" ]] ; then
   # reset branch to master if no such branch in vnc: openshift-ansible,
   # contrail-tripleo-puppet, contrail-trieplo-heat-templates do not 
   # depend on contrail branch and are openstack depended.
-  if ! curl -s https://review.opencontrail.org/projects/Juniper%2Fcontrail-vnc/branches | grep 'ref' | grep -q "${CONTRAIL_BRANCH}" ; then
-    echo "Ther is no $CONTRAIL_BRANCH branch in contrail-vnc, use master for vnc"
+  if ! curl -s https://review.opencontrail.org/projects/tungstenfabric%2Ftf-vnc/branches | grep 'ref' | grep -q "${CONTRAIL_BRANCH}" ; then
+    echo "Ther is no $CONTRAIL_BRANCH branch in tf-vnc, use master for vnc"
     CONTRAIL_BRANCH="master"
     GERRIT_BRANCH=""
   fi
@@ -76,20 +76,20 @@ if [ ! -e "$patchsets_info_file" ] ; then
 else
   echo "INFO: gerrit URL = ${GERRIT_URL}"
   cat $patchsets_info_file | jq '.'
-  vnc_changes=$(cat $patchsets_info_file | jq -r '.[] | select(.project == "Juniper/contrail-vnc") | .project + " " + .ref + " " + .branch')
+  vnc_changes=$(cat $patchsets_info_file | jq -r '.[] | select(.project == "tungstenfabric/tf-vnc") | .project + " " + .ref + " " + .branch')
   if [[ -n "$vnc_changes" ]] ; then
     # clone from GERRIT_URL cause this is taken from patchsets
     vnc_branch=$(echo "$vnc_changes" | head -n 1 | awk '{print($3)}')
-    rm -rf contrail-vnc
-    cmd="git clone --depth=1 --single-branch -b $vnc_branch ${GERRIT_URL}Juniper/contrail-vnc"
+    rm -rf tf-vnc
+    cmd="git clone --depth=1 --single-branch -b $vnc_branch ${GERRIT_URL}tungstenfabric/tf-vnc tf-vnc"
     echo "INFO: $cmd"
     eval "$cmd" || {
         echo "ERROR: failed to $cmd"
         exit 1
     }
-    pushd contrail-vnc
+    pushd tf-vnc
     echo "$vnc_changes" | while read project ref branch; do
-      cmd="git fetch ${GERRIT_URL}Juniper/contrail-vnc $ref && git cherry-pick FETCH_HEAD "
+      cmd="git fetch ${GERRIT_URL}tungstenfabric/tf-vnc $ref && git cherry-pick FETCH_HEAD "
       echo "INFO: apply patch: $cmd"
       eval "$cmd" || {
         echo "ERROR: failed to $cmd"
@@ -98,7 +98,7 @@ else
     done
     popd
     echo "INFO: replace manifest from review"
-    cp -f contrail-vnc/default.xml .repo/manifest.xml
+    cp -f tf-vnc/default.xml .repo/manifest.xml
   fi
 
   echo "INFO: patching manifest.xml for repo tool"
@@ -151,7 +151,7 @@ fi
 if [ -e "$patchsets_info_file" ] ; then
   # apply patches
   echo "INFO: review dependencies"
-  cat $patchsets_info_file | jq -r '.[] | select(.project != "Juniper/contrail-vnc") | .project + " " + .ref' | while read project ref; do
+  cat $patchsets_info_file | jq -r '.[] | select(.project != "tungstenfabric/tf-vnc") | .project + " " + .ref' | while read project ref; do
     short_name=$(echo $project | cut -d '/' -f 2)
     repo_projects=$($REPO_TOOL list -r "^${short_name}$" | tr -d ':' )
     # use manual filter as repo forall -regex checks both path and project
