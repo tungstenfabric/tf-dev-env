@@ -71,7 +71,7 @@ export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"tungsten.io"}
 
 # Contrail repo branches options
 export CONTRAIL_BRANCH=${CONTRAIL_BRANCH:-${GERRIT_BRANCH:-'master'}}
-export CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO:-"https://github.com/Juniper/contrail-vnc"}
+export CONTRAIL_FETCH_REPO=${CONTRAIL_FETCH_REPO:-"https://github.com/tungstenfabric/tf-vnc"}
 
 # Docker options
 if [ -z "${DOCKER_VOLUME_OPTIONS}" ] ; then

@@ -61,7 +61,7 @@ tf-dev-env/run.sh
 
 Note: The sources are fetched into the directory $WORKSPACE/contrail.
 The [repo tool](https://storage.googleapis.com/git-repo-downloads/repo) is used for fetching.
-The directory structure corresponds to [default.xml](https://github.com/Juniper/contrail-vnc/blob/master/default.xml)
+The directory structure corresponds to [default.xml](https://github.com/tungstenfabric/tf-vnc/blob/master/default.xml)
 
 ### 3. Make changes (if any needed)
 
@@ -223,11 +223,11 @@ There are several options to change standard behaviour of `tf-developer-sandbox`
 
 ### External sources
 
-You can attach you host contrail-vnc sources instead of syncing them from github.com.
+You can attach you host tf-vnc sources instead of syncing them from github.com.
 
 There are special environment variables to set correct behaviour:
 
-- **CONTRAIL_DIR** stores host's path to initialized contrail-vnc repository.
+- **CONTRAIL_DIR** stores host's path to initialized tf-vnc repository.
 - **SITE_MIRROR** stores contrail third-party repository url. It used to collect external packages required by *contrail-third-party* tools. There is an example:
 
 ``` bash
