@@ -11,7 +11,7 @@ set -o pipefail
 [ -n "$DEBUG" ] && set -x
 
 echo "INFO: Build containers"
-if [[ -z "${wordir}" ]] ; then
+if [[ -z "${workdir}" ]] ; then
   echo "ERROR: \$1 Must be set to build containers folder"
   exit 1
 fi
