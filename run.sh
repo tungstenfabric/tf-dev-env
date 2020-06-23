@@ -26,6 +26,7 @@ SITE_MIRROR=${SITE_MIRROR:-}
 if [[ "$stage" == 'upload' ]]; then
   # Pushes devenv (or potentially other containers) to external registry
   echo "INFO: pushing devenv to container registry"
+  sudo docker exec -i ${DEVENV_CONTAINER_NAME} rm -rf work/.stages
   sudo docker stop ${DEVENV_CONTAINER_NAME}
   sudo docker commit ${DEVENV_CONTAINER_NAME} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
   sudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
