@@ -120,6 +120,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     exit 1
   fi
 
+  sudo docker exec -i ${DEVENV_CONTAINER_NAME} rm -rf work/.stages
   echo $DEVENV_CONTAINER_NAME created.
 else
   if is_container_up "$DEVENV_CONTAINER_NAME"; then
