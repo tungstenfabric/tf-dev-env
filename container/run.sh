@@ -119,8 +119,8 @@ function package() {
     fi
 
     # build containers
-    echo "INFO: make containers-only deployers-only test-containers-only  $(date)"
-    make -j 8 containers-only deployers-only test-containers-only src-containers-only
+    echo "INFO: make containers-only deployers-only test-containers  $(date)"
+    make -j 8 containers-only deployers-only test-containers src-containers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then
         echo "INFO: make containers failed with code $build_status $(date)"

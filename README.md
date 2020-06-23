@@ -169,7 +169,7 @@ The descriptions of targets:
 
 #### Source containers
 
-- `make src-containers-only` - build containers with source of deployer code
+- `make src-containers` - build containers with source of deployer code
 
 #### Clean
 

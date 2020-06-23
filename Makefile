@@ -51,7 +51,7 @@ package-tpp:
 
 ##############################################################################
 # Container deployer-src targets
-src-containers-only:
+src-containers:
 	@$(TF_DE_DIR)scripts/package/build-src-containers.sh
 
 ##############################################################################
