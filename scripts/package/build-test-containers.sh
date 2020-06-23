@@ -21,7 +21,7 @@ CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"dev"}
 openstack_versions=${OPENSTACK_VERSIONS:-"queens,rocky"}
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
-tpc_repo="$CONTRAIL_CONFIG_DIR/config/etc/yum.repos.d/tpc.repo"
+tpc_repo="$CONTRAIL_CONFIG_DIR/etc/yum.repos.d/tpc.repo"
 if [ -f $tpc_repo ]; then
   cp $tpc_repo ${CONTRAIL_TEST_DIR}/docker/base/tpc.repo
   cp $tpc_repo ${CONTRAIL_TEST_DIR}/docker/test/tpc.repo
