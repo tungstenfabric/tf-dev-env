@@ -406,3 +406,7 @@ tf-devstack/k8s_manifests/run.sh master
 
 [Slack]: https://tungstenfabric.slack.com/messages/C0DQ23SJF/
 [Google Group]: https://groups.google.com/forum/#!forum/tungsten-dev
+
+## Notes
+
+- Vagrantfile is deprecated and is not supported. Will be removed later
