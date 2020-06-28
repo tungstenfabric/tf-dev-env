@@ -4,8 +4,7 @@
 VAGRANTFILE_API_VERSION = "2"
 USER = "root"
 GROUP = "root"
-DEVENV_USER="root"
-HOME_DIR = "/#{DEVENV_USER}"
+HOME_DIR = "/root"
 DEV_ENV_DIR = "#{HOME_DIR}/tf-dev-env"
 REPOS_DIR = "#{HOME_DIR}/src/review.opencontrail.org/Juniper/"
 

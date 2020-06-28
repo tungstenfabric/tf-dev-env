@@ -34,7 +34,6 @@ elif [ -z "$CONTRAIL_DIR" ] ; then
   BIND_CONTRAIL_DIR=false
 fi
 export CONTRAIL_DIR
-export DEVENV_USER=${DEVENV_USER:-$(id -nu)}
 
 # build environment preparation options
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"localhost:5000"}
