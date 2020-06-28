@@ -16,7 +16,7 @@ export DEBUG=${DEBUG}
 export DEBUGINFO=${DEBUGINFO}
 export LINUX_DISTR=${LINUX_DISTR}
 export LINUX_DISTR_VER=${LINUX_DISTR_VER}
-export DEV_ENV_ROOT=/${DEVENV_USER}/tf-dev-env
+export DEV_ENV_ROOT=/root/tf-dev-env
 export DEVENV_TAG=$DEVENV_TAG
 export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
 export OPENSTACK_VERSIONS=${OPENSTACK_VERSIONS}
@@ -62,13 +62,14 @@ EOF
 function prepare_infra()
 {
   echo "INFO: create symlinks to work directories with artifacts  $(date)"
-  mkdir -p $HOME/work
+  mkdir -p $HOME/work /root/contrail
+  # /root/contrail will be defined later as REPODIR
   for folder in ${work_folders[@]} ; do
     [[ -e $WORK_DIR/$folder ]] || mkdir $WORK_DIR/$folder
-    [[ -e $CONTRAIL_DIR/$folder ]] || ln -s $WORK_DIR/$folder $CONTRAIL_DIR/$folder
+    [[ -e /root/contrail/$folder ]] || ln -s $WORK_DIR/$folder /root/contrail/$folder
   done
   for file in ${work_files[@]} ; do
     touch $WORK_DIR/$file
-    [[ -e $CONTRAIL_DIR/$file ]] || ln -s $WORK_DIR/$file $CONTRAIL_DIR/$file
+    [[ -e /root/contrail/$file ]] || ln -s $WORK_DIR/$file /root/contrail/$file
   done
 }
