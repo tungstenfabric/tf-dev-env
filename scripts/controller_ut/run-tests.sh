@@ -13,8 +13,8 @@ mkdir -p "$logs_path"
 # contrail code assumes this in tests, since it uses socket.fqdn(..) but expects the result
 # to be 'localhost' when for CentOS it would return 'localhost.localdomain'
 # see e.g.: https://github.com/Juniper/contrail-analytics/blob/b488e3cd608643ae5dd1e0dcbc03c9e8768178ce/contrail-opserver/alarmgen.py#L872
-sudo bash -c 'echo "127.0.0.1 localhost" > /etc/hosts'
-sudo bash -c 'echo "::1 localhost" >> /etc/hosts'
+bash -c 'echo "127.0.0.1 localhost" > /etc/hosts'
+bash -c 'echo "::1 localhost" >> /etc/hosts'
 
 unset BUILD_ONLY
 

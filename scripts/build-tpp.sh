@@ -35,16 +35,16 @@ pushd ${tpp_dir}/upstream/rpm
 echo "INFO: tpp: make list"
 make list
 echo "INFO: tpp: make prep"
-sudo make prep
+make prep
 echo "INFO: tpp: make all"
-sudo make all
+make all
 popd
 
 if [[ ! -e /etc/yum.repos.d/contrail.repo ]] ; then
     echo "INFO: enable contrail repo for next compilation steps"
     # enable contrail repo for dev-env if not created
     # (it is for tpp to be available during compile stage)
-    cat <<EOF | sudo tee /etc/yum.repos.d/contrail.repo
+    cat <<EOF | tee /etc/yum.repos.d/contrail.repo
 [contrail]
 name = Contrail repo
 baseurl = ${CONTRAIL_REPOSITORY}

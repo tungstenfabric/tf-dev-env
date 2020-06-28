@@ -131,7 +131,7 @@ sudo docker exec -it tf-dev-sandbox bash
 ``` bash
 cd ~/tf-dev-env
 make sync                # get latest code
-sudo make setup dep      # set up docker container and install build dependencies
+make setup dep      # set up docker container and install build dependencies
 make fetch_packages      # pull third_party dependencies
 ```
 
@@ -139,8 +139,8 @@ The descriptions of targets:
 
 - `make sync` - sync code in `./contrail` directory using `repo` tool
 - `make fetch_packages` - pull `./third_party` dependencies (after code checkout)
-- `sudo make setup` - initial configuration of image (required to run once)
-- `sudo make dep` - installs all build dependencies
+- `make setup` - initial configuration of image (required to run once)
+- `make dep` - installs all build dependencies
 - `make dep-<pkg_name>` - installs build dependencies for <pkg_name>
 
 ### 4. Building artifacts

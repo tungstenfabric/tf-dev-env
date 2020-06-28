@@ -119,7 +119,6 @@ class TungstenTestRunner(object):
         soup = etree.fromstring(xml_doc)
 
         status = TestResult.SUCCESS
-        test_suites = []
         suite_objs = []
 
         # check if the root tag is testsuite, and if not, find
@@ -237,7 +236,7 @@ class TungstenTestRunner(object):
 
 SCons targets executed:
 {% for target in scons_targets %}
-	{{ target }}
+    {{ target }}
 {% endfor %}
 SCons Result:		{{ scons_rc }}
 Analyzer Result:	{{ final_result }}
@@ -292,6 +291,7 @@ Details:
             print(e)
         print(text)
 
+
 def main():
     runner = TungstenTestRunner()
     runner.parse_arguments()
@@ -320,8 +320,8 @@ def main():
         if result == TestResult.SUCCESS:
             break
 
-        logging.warning("Test Failure, {} targets failed:\n".format(len(failed_targets))
-                        + "\n\t".join(failed_targets))
+        logging.warning("Test Failure, {} targets failed:\n".format(len(failed_targets)) +
+                        "\n\t".join(failed_targets))
         logging.info("Retrying, %d attempts remaining.", counter)
 
     runner.generate_test_report(rc, "SUCCESS" if result == TestResult.SUCCESS else "FAILURE")
