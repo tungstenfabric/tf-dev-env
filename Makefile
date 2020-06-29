@@ -52,44 +52,44 @@ package-tpp:
 ##############################################################################
 # Container deployer-src targets
 src-containers:
-	@$(TF_DE_DIR)scripts/package/build-src-containers.sh
+	@$(TF_DE_DIR)scripts/package/build-src-containers.sh |& sed "s/^/src-containers: /"
 
 ##############################################################################
 # Container builder targets
 prepare-containers:
-	@$(TF_DE_DIR)scripts/package/prepare-containers.sh
+	@$(TF_DE_DIR)scripts/package/prepare-containers.sh |& sed "s/^/containers: /"
 
-list-containers: prepare-containers
+list-containers:
 	@$(TF_DE_DIR)scripts/package/list-containers.sh $(CONTAINER_BUILDER_DIR) container
 
-container-%: prepare-containers
-	@$(TF_DE_DIR)scripts/package/build-container.sh $(CONTAINER_BUILDER_DIR) $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
+container-%:
+	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTAINER_BUILDER_DIR) container $(patsubst container-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 containers-only:
-	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTAINER_BUILDER_DIR) container | sed "s/^/containers: /"
+	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTAINER_BUILDER_DIR) container |& sed "s/^/containers: /"
 
 containers: prepare-containers containers-only
 
 ##############################################################################
 # Container deployers targets
 prepare-deployers:
-	@$(TF_DE_DIR)scripts/package/prepare-deployers.sh
+	@$(TF_DE_DIR)scripts/package/prepare-deployers.sh |& sed "s/^/deployers: /"
 
-list-deployers: prepare-deployers
+list-deployers:
 	@$(TF_DE_DIR)scripts/package/list-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer
 
-deployer-%: prepare-deployers
-	@$(TF_DE_DIR)scripts/package/build-container.sh $(CONTRAIL_DEPLOYERS_DIR) $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
+deployer-%:
+	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
 
 deployers-only:
-	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer | sed "s/^/deployers: /"
+	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer |& sed "s/^/deployers: /"
 
 deployers: prepare-deployers deployers-only
 
 ##############################################################################
 # Test container targets
 test-containers:
-	@$(TF_DE_DIR)scripts/package/build-test-containers.sh | sed "s/^/test-containers: /"
+	@$(TF_DE_DIR)scripts/package/build-test-containers.sh |& sed "s/^/test-containers: /"
 
 ##############################################################################
 # Unit Test targets

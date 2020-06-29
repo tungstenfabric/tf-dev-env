@@ -4,8 +4,6 @@ scriptdir=$(realpath $(dirname "$0"))
 source "$scriptdir/../../common/common.sh"
 source_env
 
-[ -n "$DEBUG" ] && set -x
-
 echo "INFO: Build sources containers"
 if [[ -z "${REPODIR}" ]] ; then
   echo "ERROR: REPODIR Must be set for build src containers"
@@ -74,4 +72,3 @@ if [[ $res == 1 ]] ; then
 fi
 
 echo "INFO: All source containers has been successfuly built."
-exit 0

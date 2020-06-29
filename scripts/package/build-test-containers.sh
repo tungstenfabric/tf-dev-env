@@ -4,8 +4,6 @@ scriptdir=$(realpath $(dirname "$0"))
 source "$scriptdir/../../common/common.sh"
 source_env
 
-[ -n "$DEBUG" ] && set -x
-
 REPODIR=${REPODIR:-"."}
 CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/third_party/contrail-test"}
 

@@ -8,7 +8,7 @@ set -o errexit
 export DEBUGINFO=${DEBUGINFO:-FALSE}
 
 # working environment
-# WORKSPACE and two next vars are appcable only outside of sandbox container - on host.
+# WORKSPACE and two next vars are applicable only outside of sandbox container - on host.
 export WORKSPACE=${WORKSPACE:-$(pwd)}
 export TF_CONFIG_DIR=${TF_CONFIG_DIR:-"${HOME}/.tf"}
 export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
