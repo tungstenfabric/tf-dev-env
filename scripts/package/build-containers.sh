@@ -7,9 +7,6 @@ scriptdir=$(realpath $(dirname "$0"))
 source "$scriptdir/../../common/common.sh"
 source_env
 
-set -o pipefail
-[ -n "$DEBUG" ] && set -x
-
 echo "INFO: Build containers"
 if [[ -z "${workdir}" ]] ; then
   echo "ERROR: \$1 Must be set to build containers folder"
