@@ -22,10 +22,6 @@ echo "Building tf-dev-env image: ${DEVENV_IMAGE}" | tee $logfile
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
 build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} --tag ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} -f Dockerfile.${LINUX_DISTR} ."
-if [[ -n "$DEVENV_USER" && "$DEVENV_USER" != 'root' ]] ; then
-    build_opts+=" --build-arg DEVENV_USER=$DEVENV_USER --build-arg DEVENV_UID=$(id -u)"
-    build_opts+=" --build-arg DEVENV_GROUP=$(id -ng) --build-arg DEVENV_GID=$(id -g)"
-fi
 
 if [[ "$ENABLE_RHSM_REPOS" == 'true' ]] ; then
     build_opts+=" --build-arg ENABLE_RHSM_REPOS=$ENABLE_RHSM_REPOS"

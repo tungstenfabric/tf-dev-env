@@ -8,6 +8,7 @@ set -o errexit
 export DEBUGINFO=${DEBUGINFO:-FALSE}
 
 # working environment
+# WORKSPACE and two next vars are appcable only outside of sandbox container - on host.
 export WORKSPACE=${WORKSPACE:-$(pwd)}
 export TF_CONFIG_DIR=${TF_CONFIG_DIR:-"${HOME}/.tf"}
 export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
@@ -25,16 +26,16 @@ else
 fi
 
 # working build directories
+# CONTRAIL_DIR is useful only outside of sandbox container
 if [ -z "${CONTRAIL_DIR+x}" ] ; then
   # not defined => use default
-  CONTRAIL_DIR=${WORKSPACE}/contrail 
+  CONTRAIL_DIR=${WORKSPACE}/contrail
 elif [ -z "$CONTRAIL_DIR" ] ; then
   # defined empty => dont bind contrail dir to host: tf jenkins
-  CONTRAIL_DIR=${WORKSPACE}/contrail 
+  CONTRAIL_DIR=${WORKSPACE}/contrail
   BIND_CONTRAIL_DIR=false
 fi
 export CONTRAIL_DIR
-export DEVENV_USER=${DEVENV_USER:-$(id -nu)}
 
 # build environment preparation options
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"localhost:5000"}

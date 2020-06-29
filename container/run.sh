@@ -31,23 +31,23 @@ function fetch() {
 
 function configure() {
     echo "INFO: make setup  $(date)"
-    sudo make setup
+    make setup
 
     echo "INFO: make dep fetch_packages  $(date)"
     # targets can use yum and will block each other. don't run them in parallel
-    sudo make dep 
+    make dep 
     make fetch_packages
 
     # disable byte compiling
     if [[ ! -f /usr/lib/rpm/brp-python-bytecompile.org  ]] ; then
         echo "INFO: disable byte compiling for python"
-        sudo mv /usr/lib/rpm/brp-python-bytecompile /usr/lib/rpm/brp-python-bytecompile.org
-        cat <<EOF | sudo tee /usr/lib/rpm/brp-python-bytecompile
+        mv /usr/lib/rpm/brp-python-bytecompile /usr/lib/rpm/brp-python-bytecompile.org
+        cat <<EOF | tee /usr/lib/rpm/brp-python-bytecompile
 #!/bin/bash
 # disabled byte compiling
 exit 0
 EOF
-        sudo chmod +x /usr/lib/rpm/brp-python-bytecompile
+        chmod +x /usr/lib/rpm/brp-python-bytecompile
     fi
 }
 

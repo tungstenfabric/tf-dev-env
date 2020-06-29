@@ -26,9 +26,9 @@ SITE_MIRROR=${SITE_MIRROR:-}
 if [[ "$stage" == 'upload' ]]; then
   # Pushes devenv (or potentially other containers) to external registry
   echo "INFO: pushing devenv to container registry"
-  sudo docker stop ${DEVENV_CONTAINER_NAME}
-  sudo docker commit ${DEVENV_CONTAINER_NAME} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
-  sudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+  mysudo docker stop ${DEVENV_CONTAINER_NAME}
+  mysudo docker commit ${DEVENV_CONTAINER_NAME} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+  mysudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
   exit 0
 fi
 
@@ -89,13 +89,13 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   if [[ $DISTRO != "macosx" ]]; then
       volumes+=" -v /etc/localtime:/etc/localtime"
   fi
-  volumes+=" -v ${scriptdir}:/$DEVENV_USER/tf-dev-env:${DOCKER_VOLUME_OPTIONS}"
+  volumes+=" -v ${scriptdir}:/root/tf-dev-env:${DOCKER_VOLUME_OPTIONS}"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     # make dir to create them under current user
     mkdir -p ${CONTRAIL_DIR}
-    volumes+=" -v ${CONTRAIL_DIR}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
+    volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
   elif [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
-    volumes+=" -v ${src_volume_name}:/$DEVENV_USER/contrail:${DOCKER_VOLUME_OPTIONS}"
+    volumes+=" -v ${src_volume_name}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
   # make dir to create them under current user
   mkdir -p ${WORKSPACE}/output
@@ -108,7 +108,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   #  - TF Jenkins CI use non-bind folder for sources
   start_sandbox_cmd="mysudo docker run --network host --privileged --detach \
     --name $DEVENV_CONTAINER_NAME \
-    -w /$DEVENV_USER ${options} \
+    -w /root ${options} \
     $volumes -it \
     ${CONTAINER_REGISTRY}/${DEVENV_IMAGE}"
 
@@ -135,7 +135,7 @@ if [[ "$stage" == 'none' ]] ; then
 fi
 
 echo "run stage $stage with target $target"
-mysudo docker exec -i $DEVENV_CONTAINER_NAME /$DEVENV_USER/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
+mysudo docker exec -i $DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
 if [[ $result == 0 ]] ; then
