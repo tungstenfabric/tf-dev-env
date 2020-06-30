@@ -138,6 +138,13 @@ echo "run stage $stage with target $target"
 mysudo docker exec -i $DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
 result=${PIPESTATUS[0]}
 
+if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
+  # do chown for sources that were cloned with root inside container
+  if ! mysudo chown -R $(id -u):$(id -g) $CONTRAIL_DIR ; then
+    echo "WARNING: owner for sources folder was not changed correctly."
+  fi
+fi
+
 if [[ $result == 0 ]] ; then
   echo
   echo '[DONE]'
