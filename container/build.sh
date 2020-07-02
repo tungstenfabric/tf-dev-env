@@ -23,8 +23,8 @@ echo "Building tf-dev-env image: ${DEVENV_IMAGE}" | tee $logfile
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
 build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} --tag ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} -f Dockerfile.${LINUX_DISTR} ."
 
-if [[ "$ENABLE_RHSM_REPOS" == 'true' ]] ; then
-    build_opts+=" --build-arg ENABLE_RHSM_REPOS=$ENABLE_RHSM_REPOS"
+if [[ "$MULTI_KERNEL_BUILD" == 'true' ]] ; then
+    build_opts+=" --build-arg MULTI_KERNEL_BUILD=$MULTI_KERNEL_BUILD"
 fi
 
 if [[ $DISTRO != 'macosx' ]] ; then
