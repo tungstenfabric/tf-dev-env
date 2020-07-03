@@ -35,25 +35,26 @@ function setup_httpd() {
   RPM_REPO_PORT='6667'
 
   mkdir -p $HOME/contrail/RPMS
-  sudo mkdir -p /run/httpd # For some reason it's not created automatically
+  mkdir -p /run/httpd # For some reason it's not created automatically
 
-  sudo sed -i "s/Listen 80/Listen $RPM_REPO_PORT/" /etc/httpd/conf/httpd.conf
-  sudo sed -i "s/\/var\/www\/html\"/\/var\/www\/html\/repo\"/" /etc/httpd/conf/httpd.conf
-  sudo ln -s $HOME/contrail/RPMS /var/www/html/repo
+  sed -i "s/Listen 80/Listen $RPM_REPO_PORT/" /etc/httpd/conf/httpd.conf
+  sed -i "s/\/var\/www\/html\"/\/var\/www\/html\/repo\"/" /etc/httpd/conf/httpd.conf
+  rm -f /var/www/html/repo
+  ln -s $HOME/contrail/RPMS /var/www/html/repo
 
   # The following is a workaround for when tf-dev-env is run as root (which shouldn't usually happen)
-  sudo chmod 755 -R /var/www/html/repo
-  sudo chmod 755 /root
+  chmod 755 -R /var/www/html/repo
+  chmod 755 /root
 
-  sudo /usr/sbin/httpd
+  /usr/sbin/httpd
 }
 
 function mysudo() {
-    if [[ $DISTRO == "macosx" ]]; then
-	"$@"
-    else
-	sudo "$@"
-    fi
+  if [[ $DISTRO == "macosx" ]]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
 }
 
 function save_tf_devenv_profile() {
