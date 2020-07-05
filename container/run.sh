@@ -27,6 +27,31 @@ function fetch() {
     # Sync sources
     echo "INFO: make sync  $(date)"
     make sync
+    # Invalidate stages after new fetch. For fast build and patchest invalidate only if needed.
+    if [[ $BUILD_MODE == "fast" ]] ; then
+        echo "Checking patches for fast build mode"
+        if patches_exist ; then
+            echo "INFO: patches encountered" $changed_projects
+            if ! [[ -z $changed_containers_projects && -z $changed_deployers_projects && -z $changed_tests_projects ]] ; then
+                echo "Containers or deployers are changed, cleaning package stage"
+                cleanup package
+            fi
+            if [[ -v $changed_product_projects ]] ; then
+                echo "Contrail core is changed, cleaning all stages"
+                cleanup compile
+                cleanup package
+                # vrouter dpdk project uses makefile and relies on date of its artifacts to be fresher than sources
+                # which after resyncing here isn't true, so we'll refresh it if it's unchanged to skip rebuilding
+                if ! [[ ${changed_product_project[@]} =~ "contrail-dpdk" ]] ; then
+                    find $WORK_DIR/build/production/vrouter/dpdk/x86_64-native-linuxapp-gcc/build -type f -exec touch {} +
+                fi
+            fi
+        else
+            echo "No patches encountered"
+        fi
+    else
+        cleanup
+    fi
 }
 
 function configure() {
@@ -99,32 +124,42 @@ function package() {
         return $?
     fi
 
-    echo "INFO: make containers  $(date)"
-    # prepare rpm repo and repos
-    echo "INFO: make prepare-containers prepare-deployers  $(date)"
-    make -j 2 prepare-containers prepare-deployers
-    build_status=$?
-    if [[ "$build_status" != "0" ]]; then
-        echo "INFO: make prepare containers failed with code $build_status  $(date)"
-        exit $build_status
+    # Check if we're run by Jenkins and have an automated patchset
+    if [[ $BUILD_MODE == "fast" ]] && patches_exist ; then
+        make_containers=""
+        if [[ ! -z $changed_containers_projects ]] ; then
+            make_containers="containers src-containers"
+        elif [[ ! -z $changed_deployers_projects ]] ; then
+            make_containers="src-containers"
+        fi
+        if [[ ! -z $changed_tests_projects ]] ; then
+            make_containers="${make_containers} test-containers"
+        fi
+    else
+        make_containers="containers src-containers test-containers"
     fi
-
-    # prebuild general base as it might be used by deployers
-    echo "INFO: make container-general-base  $(date)"
-    make container-general-base
-    build_status=$?
-    if [[ "$build_status" != "0" ]]; then
-        echo "INFO: make general-base container failed with code $build_status $(date)"
-        exit $build_status
-    fi
+    # TODO: We'll have to build all containers until frozen images are available for using
+    make_containers="containers src-containers test-containers"
 
     # build containers
-    echo "INFO: make containers-only deployers-only test-containers  $(date)"
-    make -j 8 containers-only deployers-only test-containers src-containers
+    echo "INFO: make $make_containers $(date)"
+    make -j 8 $make_containers
     build_status=$?
     if [[ "$build_status" != "0" ]]; then
         echo "INFO: make containers failed with code $build_status $(date)"
         exit $build_status
+    fi
+
+    # To be removed. Left here for r1912 only
+    if [[ $BUILD_MODE == "full" ]] ; then
+        # build containers
+        echo "INFO: make deployers $(date)"
+        make deployers
+        build_status=$?
+        if [[ "$build_status" != "0" ]]; then
+            echo "INFO: make deployers failed with code $build_status $(date)"
+            exit $build_status
+        fi
     fi
 
     echo Build of containers with deployers has finished successfully
@@ -178,8 +213,11 @@ elif [[ "$stage" =~ 'build' ]] ; then
         fi
     done
 else
-    # run selected stage
-    run_stage $stage $target
+    # run selected stage unless we're in fast build mode and the stage is finished. TODO: remove skipping package when frozen containers are available.
+    if ! finished_stage "$stage" || [[ $BUILD_MODE == "full" ]] || [[ $stage == "fetch" ]] || [[ $stage == "configure" ]] || [[ $stage == "package" ]] ; then
+        echo "Running stage $stage in $BUILD_MODE mode"
+        run_stage $stage $target
+    fi
 fi
 
 echo "INFO: make successful  $(date)"
