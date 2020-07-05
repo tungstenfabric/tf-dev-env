@@ -72,3 +72,51 @@ function prepare_infra()
     [[ -e /root/contrail/$file ]] || ln -s $WORK_DIR/$file /root/contrail/$file
   done
 }
+
+# Classification of TF projects dealing with containers.
+# TODO: use vnc/default.xml for this information later (loaded to .repo/manifest.xml)
+deployers_projects=("tf-charms" "tf-helm-deployer" "tf-ansible-deployer" \
+  "tf-kolla-ansible" "tf-tripleo-heat-templates" "tf-container-builder" "openshift-ansible")
+containers_projects=("tf-container-builder")
+tests_projects=("tf-test")
+vrouter_dpdk=("contrail-dpdk")
+
+changed_projects=()
+changed_containers_projects=()
+changed_deployers_projects=()
+changed_tests_projects=()
+changed_product_projects=()
+
+# Check patchset and fill changed_projects
+function patches_exist() {
+  if [[ -e "/input/patchsets-info.json" ]] ; then
+    changed_projects=()
+    changed_containers_projects=()
+    changed_deployers_projects=()
+    changed_tests_projects=()
+    changed_product_projects=()
+    projects=$(jq '.[].project' "/input/patchsets-info.json")
+    for project in ${projects[@]}; do
+      project=$(echo $project | cut -f 2 -d "/" | tr -d '"')
+      changed_projects+=$project
+      non_container_project=false
+      if [[ ${containers_projects[@]} =~ $project ]] ; then
+        changed_containers_projects+=$project
+        non_container_project=true
+      fi
+      if [[ ${deployers_projects[@]} =~ $project ]] ; then
+        changed_deployers_projects+=$project
+        non_container_project=true
+      fi
+      if [[ ${tests_projects[@]} =~ $project ]] ; then
+        changed_tests_projects+=$project
+        non_container_project=true
+      fi
+      if $non_container_project ; then
+        changed_product_projects+=$project
+      fi
+    done
+    return 0
+  fi
+  return 1
+}
