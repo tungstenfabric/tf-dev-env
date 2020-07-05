@@ -13,6 +13,9 @@ export WORKSPACE=${WORKSPACE:-$(pwd)}
 export TF_CONFIG_DIR=${TF_CONFIG_DIR:-"${HOME}/.tf"}
 export TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 
+# Build mode allows skipping stages or targets after freeze if patchset is present - values full, fast
+export BUILD_MODE=${BUILD_MODE:-"full"}
+
 [ -e "$TF_DEVENV_PROFILE" ] && source "$TF_DEVENV_PROFILE"
 
 # determined variables
