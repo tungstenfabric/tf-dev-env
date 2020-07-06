@@ -28,6 +28,7 @@ export CONTRAIL_REPOSITORY=http://localhost:${RPM_REPO_PORT}
 export CONTRAIL_REGISTRY=${CONTAINER_REGISTRY}
 export VENDOR_NAME=$VENDOR_NAME
 export VENDOR_DOMAIN=$VENDOR_DOMAIN
+export MULTI_KERNEL_BUILD=$MULTI_KERNEL_BUILD
 EOF
   if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
     export src_volume_name=ContrailSources

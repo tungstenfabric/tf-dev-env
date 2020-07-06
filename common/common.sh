@@ -61,6 +61,9 @@ export DEVENV_TAG=${DEVENV_TAG:-"latest"}
 export DEVENV_PUSH_TAG=${DEVENV_PUSH_TAG:-"frozen"}
 export DEVENV_IMAGE=${DEVENV_IMAGE:-"${DEVENV_IMAGE_NAME}:${DEVENV_TAG}"}
 
+# build options
+export MULTI_KERNEL_BUILD=${MULTI_KERNEL_BUILD:-"false"}
+
 # RHEL specific build options
 export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-'false'}
 
