@@ -30,6 +30,11 @@ if [[ ! -f "$targets_file" ]] ; then
   done
 fi
 
+# target_set as an additional key for some log names
+if [ -e /input/target_set ]; then
+  target_set=$(cat /input/target_set)
+fi
+
 res=0
 echo "INFO: targets to run:"
 cat "$targets_file"
@@ -58,13 +63,18 @@ function process_file() {
 }
 
 # gather scons logs
-input="$logs_path/scons_describe_tests.txt"
-scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $input
+test_list="$logs_path/scons_describe_tests.txt"
+if [[ -n "$target_set" ]] ; test_list+=".$target_set" ; fi
+scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $test_list
 while IFS= read -r line
 do
   process_file "$(echo $line | jq -r ".log_path" 2>/dev/null)" 'log'
   process_file "$(echo $line | jq -r ".xml_path" 2>/dev/null)" 'xml'
-done < "$input"
+done < "$test_list"
+# gzip .log files - they consume several Gb unpacked
+pushd $logs_path
+time find -name *.log | xargs gzip
+popd
 
 if [[ "$res" != '0' ]]; then
   echo "ERROR: some UT failed"
