@@ -64,7 +64,7 @@ function process_file() {
 
 # gather scons logs
 test_list="$logs_path/scons_describe_tests.txt"
-if [[ -n "$target_set" ]] ; test_list+=".$target_set" ; fi
+if [[ -n "$target_set" ]] ; then test_list+=".$target_set" ; fi
 scons -Q --warn=no-all --describe-tests $(cat $targets_file | tr '\n' ' ') > $test_list
 while IFS= read -r line
 do
