@@ -23,9 +23,16 @@ targets_file="/input/unittest_targets.lst"
 if [[ ! -f "$targets_file" ]] ; then
   targets_file='/tmp/unittest_targets.lst'
   rm "$targets_file" && touch "$targets_file"
+  if [ -f controller/ci_skip_tests ]; then
+    skip_tests=($(cat controller/ci_skip_tests | tr "\n" " "))
+  else
+    skip_tests=()
+  fi
   for utest in $(jq -r ".[].scons_test_targets[]"  controller/ci_unittests.json| sort | uniq) ; do
     if [[ -z "$TARGET" || "$utest" == *"$TARGET"* ]]; then
-      echo "$utest" >> "$targets_file"
+      if [[ ! " ${skip_tests[@]} " =~ " ${utest} " ]]; then
+        echo "$utest" >> "$targets_file"
+      fi
     fi
   done
 fi
