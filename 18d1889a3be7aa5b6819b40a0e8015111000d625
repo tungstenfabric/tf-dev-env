@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22ab0cef_616f2d65",
+        "filename": "scripts/controller_ut/run-tests.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-17T12:49:51Z",
+      "side": 1,
+      "message": "personally i would avoid name \u0027CI\u0027 in dev-env.\nAndrey?",
+      "range": {
+        "startLine": 45,
+        "startChar": 107,
+        "endLine": 45,
+        "endChar": 110
+      },
+      "revId": "18d1889a3be7aa5b6819b40a0e8015111000d625",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
