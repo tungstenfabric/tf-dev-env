@@ -60,6 +60,7 @@ class TungstenTestRunner(object):
         parser = argparse.ArgumentParser(description="Tungsten Test Runner")
         parser.add_argument("--debug", dest="debug", action="store_true")
         parser.add_argument("--less-strict", dest="strict", action="store_false")
+        parser.add_argument("--skip-tests", dest="skip_tests", action="store")
         parser.add_argument("-j", help="Allow N jobs at once for scons run.", dest="job_count", type=int)
         parser.add_argument("targets", type=str, nargs="+")
 
@@ -75,7 +76,10 @@ class TungstenTestRunner(object):
         logging.info("Gathering tests for the following targets: %s", (self.args.targets))
         command = [shutil.which("python2"),
                    shutil.which("scons"),
-                   "--describe-tests"] + self.args.targets
+                   "--describe-tests"]
+        if self.args.skip_tests:
+            command += ["--skip-tests=" + str(self.args.skip_tests)]
+        command += self.args.targets
         lines = subprocess.check_output(command).decode('utf-8').split("\n")
         for line in lines:
             if len(line) == 0 or line[0] != '{':
@@ -102,7 +106,10 @@ class TungstenTestRunner(object):
         command = [shutil.which("python2"),
                    shutil.which("scons"),
                    "-j", str(self.args.job_count),
-                   "--keep-going"] + args + targets
+                   "--keep-going"]
+        if self.args.skip_tests:
+            command += ["--skip-tests=" + str(self.args.skip_tests)]
+        command += args + targets
         logging.info("Executing SCons command: %s", " ".join(command))
         rc = subprocess.call(command, env=scons_env)
         return rc, targets
