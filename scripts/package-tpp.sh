@@ -12,14 +12,12 @@ if [ -z "${REPODIR}" ] ; then
 fi
 
 patchsets_info_file=/input/patchsets-info.json
-if [[ ! -e "$patchsets_info_file" ]] ; then
-    echo "INFO: skip tpp: there is no patchset info"
-    exit
-fi
-files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-third-party-packages")) | select(has("files")) | .files[]')
-if [[ -z "$files" ]] ; then 
-    echo "INFO: skip tpp: there is no changes in the files for contrail-third-party-packages"
-    exit
+if [[ -e "$patchsets_info_file" ]] ; then
+    files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("tf-third-party-packages")) | select(has("files")) | .files[]')
+    if [[ -z "$files" ]] ; then
+        echo "INFO: skip tpp: there is no changes in the files for tf-third-party-packages"
+        exit
+    fi
 fi
 
 working_dir=${REPODIR}/tpp-container-build
