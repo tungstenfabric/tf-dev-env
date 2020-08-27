@@ -89,7 +89,7 @@ Run the unit-testing
 tf-dev-env/run.sh test
 ```
 
-To skip some tests, you need to create a tf-dev-env/skip_tests file listing such tests. Example file:
+To skip some tests, you need to create a `tf-dev-env/skip_tests` file listing such tests. Example file:
 
 ```
 test_query_security_group_with_one_tag
@@ -97,6 +97,7 @@ test_connection_status
 test_uuid_in_duplicate_name
 test_query_all_floating_ip_with_match_any
 ```
+Note, that skipping tests doesn't work for `src/contrail-analytics/contrail-broadview:test`, `src/contrail-analytics/contrail-snmp-collector:test` and `src/contrail-analytics/contrail-topology:test` targets.
 
 ## Targets
 
