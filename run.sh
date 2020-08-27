@@ -48,9 +48,6 @@ eval "cat <<< \"$(<$scriptdir/common.env.tmpl)\"" > $scriptdir/common.env
 echo "INFO: common.env content:"
 cat $scriptdir/common.env
 
-timestamp=$(date +"%d_%m_%Y__%H_%M_%S")
-log_path="${WORKSPACE}/build_${timestamp}.log"
-
 # make env profile to run inside container
 # input dir can be already created and had files like patchsets-info.json, unittest_targets.lst
 input_dir="${scriptdir}/input"
@@ -113,7 +110,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     ${CONTAINER_REGISTRY}/${DEVENV_IMAGE}"
 
   echo "INFO: start cmd '$start_sandbox_cmd'"
-  eval $start_sandbox_cmd 2>&1 | tee ${log_path}
+  eval $start_sandbox_cmd 2>&1
   if [[ ${PIPESTATUS[0]} != 0 ]] ; then
     echo
     echo "ERROR: Failed to run $DEVENV_CONTAINER_NAME container."
@@ -135,7 +132,7 @@ if [[ "$stage" == 'none' ]] ; then
 fi
 
 echo "run stage $stage with target $target"
-mysudo docker exec -i $DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stage $target | tee -a ${log_path}
+mysudo docker exec -i $DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stage $target
 result=${PIPESTATUS[0]}
 
 if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
