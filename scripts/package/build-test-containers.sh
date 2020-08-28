@@ -29,7 +29,12 @@ pushd ${CONTRAIL_TEST_DIR}
 
 if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d" ]] ; then
   # apply same repos for test containers
-  cp -f ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/* ./docker/base/
+  cp -f ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/* docker/base/
+  # replace google-chrome repo with mirror explicitely 
+  if [ -f docker/base/mirror-google-chrome.repo ]; then
+    rm -f docker/base/google-chrome.repo
+    mv docker/base/mirror-google-chrome.repo docker/base/google-chrome.repo
+  fi
 fi
 
 function append_log() {
