@@ -71,6 +71,13 @@ do
   process_file "$(echo $line | jq -r ".log_path" 2>/dev/null)" 'log'
   process_file "$(echo $line | jq -r ".xml_path" 2>/dev/null)" 'xml'
 done < "$test_list"
+
+# gather test logs
+for file in $(find build/ -name '*.log' ! -size 0) ; do 
+  mkdir -p $logs_path/$(dirname $file)
+  cp -u $file $logs_path/$file
+done
+
 # gzip .log files - they consume several Gb unpacked
 pushd $logs_path
 time find -name *.log | xargs gzip
