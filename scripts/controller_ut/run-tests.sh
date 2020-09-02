@@ -7,8 +7,11 @@ scriptdir=$(realpath $(dirname "$0"))
 source $scriptdir/definitions.sh
 
 cd $HOME/contrail
+dump_path="/output/cores"
 logs_path="/output/logs"
 mkdir -p "$logs_path"
+rm -rf "$dump_path"
+mkdir -p "$dump_path"
 
 # contrail code assumes this in tests, since it uses socket.fqdn(..) but expects the result
 # to be 'localhost' when for CentOS it would return 'localhost.localdomain'
@@ -36,6 +39,10 @@ if [ -e /input/target_set ]; then
 fi
 
 res=0
+echo "INFO: enable core dumps"
+ulimit -c unlimited
+echo "$dump_path/core-%i-%p-%E" > /proc/sys/kernel/core_pattern
+
 echo "INFO: targets to run:"
 cat "$targets_file"
 echo ; echo
@@ -71,6 +78,21 @@ do
   process_file "$(echo $line | jq -r ".log_path" 2>/dev/null)" 'log'
   process_file "$(echo $line | jq -r ".xml_path" 2>/dev/null)" 'xml'
 done < "$test_list"
+
+# gather core dumps
+cat <<COMMAND > $dump_path/commands.txt
+set height 0
+t a a bt
+quit
+COMMAND
+for core in $dump_path/core-*
+do
+  x=$(basename "${core}")
+  y=${x/#core-*[0-9]-*[0-9]-/}
+  y=${y//\!//}
+gdb --command=$dump_path/commands.txt -c $core $y > build/$x-bt.log
+done
+rm -rf $dump_path
 
 # gather test logs
 for file in $(find build/ -name '*.log' ! -size 0) ; do 
