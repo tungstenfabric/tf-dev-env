@@ -16,7 +16,7 @@ if [[ -z "${CONTRAIL_REPOSITORY}" ]]; then
 fi
 
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"dev"}
-openstack_versions=${OPENSTACK_VERSIONS:-"queens,rocky"}
+openstack_version="train"
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
 tpc_repo="$CONTRAIL_CONFIG_DIR/etc/yum.repos.d/tpc.repo"
@@ -61,7 +61,7 @@ function build_for_os_version() {
     echo "INFO: Start build test container for ${openstack_version}" | append_log $logfile true
     ./build-container.sh test \
         --base-tag ${CONTRAIL_CONTAINER_TAG} \
-        --tag ${openstack_version}-${CONTRAIL_CONTAINER_TAG} \
+        --tag ${CONTRAIL_CONTAINER_TAG} \
         --registry-server ${CONTRAIL_REGISTRY} \
         --sku ${openstack_version} \
         --contrail-repo ${CONTRAIL_REPOSITORY} \
@@ -94,21 +94,7 @@ else
 fi
 
 if [[ $res == '0' ]]; then
-  declare -A jobs
-  for openstack_version in ${openstack_versions//,/ } ; do
-      build_for_os_version $openstack_version &
-      jobs+=( [$openstack_version]=$! )
-  done
-
-  for openstack_version in ${openstack_versions//,/ } ; do
-    if (( res != 0 )) ; then
-      # kill other jobs because previous is failed
-      kill %${jobs[$openstack_version]}
-    fi
-    if ! wait ${jobs[$openstack_version]} ; then
-      res=1
-    fi
-  done
+  build_for_os_version $openstack_version
 fi
 
 popd
