@@ -19,6 +19,7 @@ COPY *.repo /etc/yum.repos.d/
 
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
+
 RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
     yum -y update && \
     curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/get-pip.py | python2 - 'pip==20.1' && \
