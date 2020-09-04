@@ -4,8 +4,6 @@ ARG LC_ALL=en_US.UTF-8
 ARG LANG=en_US.UTF-8
 ARG LANGUAGE=en_US.UTF-8
 
-ARG ENABLE_RHSM_REPOS=false
-
 ENV USER root
 ENV HOME /root
 ENV CONTRAIL $HOME/contrail
@@ -19,12 +17,10 @@ WORKDIR $CONTRAIL
 # Inject repositories that we might need
 COPY *.repo /etc/yum.repos.d/
 
-RUN if [[ "$ENABLE_RHSM_REPOS" == 'true' ]] ; then \
-        yum-config-manager --enable rhel-7-server-optional-rpms \
-                                    rhel-7-server-extras-rpms \
-                                    rhel-server-rhscl-7-rpms \
-                                    hel-7-server-ose-3.11-rpms ; \
-    fi && \
+# NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
+# /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
+
+RUN \
     if ! yum repolist | grep -q epel ; then \
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || exit 1 ; \
     fi && \
