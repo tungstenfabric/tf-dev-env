@@ -17,9 +17,12 @@ WORKDIR $CONTRAIL
 # Inject repositories that we might need
 COPY *.repo /etc/yum.repos.d/
 
-# NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
+# NOTE:
+#  - we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
+# - disable subscription-manager - rhel/ubi build use only mirrors that dont requrie subscription
 RUN \
+    sed 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
     if ! yum repolist | grep -q epel ; then \
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || exit 1 ; \
     fi && \
