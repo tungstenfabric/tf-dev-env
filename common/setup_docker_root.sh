@@ -81,6 +81,7 @@ echo '[docker config]'
 default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
 
 CONTRAIL_SKIP_INSECURE_REGISTRY=${CONTRAIL_SKIP_INSECURE_REGISTRY:-0}
+INSECURE_REGISTRIES=${INSECURE_REGISTRIES:-}
 registry_ip=${REGISTRY_IP}
 UPDATE_INSECURE_REGISTRY=false
 if [ "$CONTRAIL_SKIP_INSECURE_REGISTRY" != 0 ]; then
@@ -90,10 +91,11 @@ else
     # use default ip as registry ip if it's not passed to the script
     registry_ip=`ip addr show dev $default_iface | awk '/inet /{print $2}' | cut -f '1' -d '/'`
   fi
-  if ! check_docker_value "insecure-registries" "${registry_ip}:${REGISTRY_PORT}"; then
+  if ! check_docker_value "insecure-registries" "${registry_ip}:${REGISTRY_PORT}" || [ -n "$INSECURE_REGISTRIES" ] ; then
     UPDATE_INSECURE_REGISTRY=true
   fi
 fi
+
 
 default_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
 
@@ -110,6 +112,9 @@ except Exception:
   pass
 if "$UPDATE_INSECURE_REGISTRY" == "true":
   data.setdefault("insecure-registries", list()).append("${registry_ip}:${REGISTRY_PORT}")
+  for i in "$INSECURE_REGISTRIES".split(','):
+    if i not in data["insecure-registries"]:
+      data["insecure-registries"].append(i)
 data["mtu"] = $default_iface_mtu
 data["live-restore"] = True
 with open("/etc/docker/daemon.json", "w") as f:
