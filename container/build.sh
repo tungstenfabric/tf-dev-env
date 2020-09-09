@@ -22,7 +22,7 @@ echo "Building tf-dev-env image: ${DEVENV_IMAGE}" | tee $logfile
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
 docker_file="Dockerfile.ubi7"
-[[ "$LINUX_DISTR" == 'centos' ]] && docker_file="Dockerfile.centos"
+[[ "$LINUX_DISTR" =~ 'centos' ]] && docker_file="Dockerfile.centos"
 build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} --tag ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} -f $docker_file ."
 
 if [[ $DISTRO != 'macosx' ]] ; then
