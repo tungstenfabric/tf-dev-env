@@ -258,6 +258,18 @@ export CONTAINER_REGISTRY=10.1.1.190:5000
 ./run.sh build
 ```
 
+### Building kernel module files for current kernel version
+
+You can find default kernel versions in `tf-packages` repository in `kernel_version.info`, `kernel_version.rhel.info` and `kernel_version.ubi.info` files. So, if you want to use different kernel version, you must add it into the corresponding file.
+
+For example, if you need to build kernel modules for CentOS with kernel version `3.10.0-1127.13.1.el7.x86_64`, you can do:
+
+```bash
+./tf-dev-env/run.sh fetch
+echo "3.10.0-1127.13.1.el7.x86_64" >> contrail/tools/packages/kernel_version.info
+./tf-dev-env/run.sh build 
+```
+
 ## Full TF dev suite
 
 IMPORTANT: some of the parts and pieces are still under construction
