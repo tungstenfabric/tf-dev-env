@@ -80,7 +80,7 @@ do
 done < "$test_list"
 
 # gather core dumps
-cat <<COMMAND > $dump_path/commands.txt
+cat <<COMMAND > /tmp/commands.txt
 set height 0
 t a a bt
 quit
@@ -90,7 +90,7 @@ for core in $dump_path/core-* ; do
   x=$(basename "${core}")
   y=${x/#core-*[0-9]-*[0-9]-/}
   y=${y//\!//}
-  gdb --command=$dump_path/commands.txt -c $core $y > build/$x-bt.log
+  gdb --command=/tmp/commands.txt -c $core $y > build/$x-bt.log
 done
 rm -rf $dump_path
 
