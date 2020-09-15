@@ -85,12 +85,12 @@ set height 0
 t a a bt
 quit
 COMMAND
-for core in $dump_path/core-*
-do
+echo "INFO: cores: $(ls -l $dump_path/)"
+for core in $dump_path/core-* ; do
   x=$(basename "${core}")
   y=${x/#core-*[0-9]-*[0-9]-/}
   y=${y//\!//}
-gdb --command=$dump_path/commands.txt -c $core $y > build/$x-bt.log
+  gdb --command=$dump_path/commands.txt -c $core $y > build/$x-bt.log
 done
 rm -rf $dump_path
 
