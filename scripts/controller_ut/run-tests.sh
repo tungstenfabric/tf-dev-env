@@ -86,7 +86,7 @@ t a a bt
 quit
 COMMAND
 echo "INFO: cores: $(ls -l $dump_path/)"
-for core in $dump_path/core-* ; do
+for core in $(ls -1 dump_path/core-*) ; do
   x=$(basename "${core}")
   y=${x/#core-*[0-9]-*[0-9]-/}
   y=${y//\!//}
