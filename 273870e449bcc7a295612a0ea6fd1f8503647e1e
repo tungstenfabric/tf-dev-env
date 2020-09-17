@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "550f24a2_00e506b0",
+        "filename": "scripts/package/build-test-containers.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-09-17T15:28:24Z",
+      "side": 1,
+      "message": "please add TODO about logs collecting",
+      "revId": "273870e449bcc7a295612a0ea6fd1f8503647e1e",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
