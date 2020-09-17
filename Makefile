@@ -90,6 +90,7 @@ deployers: prepare-deployers deployers-only
 # Test container targets
 test-containers:
 	@$(TF_DE_DIR)scripts/package/build-test-containers.sh |& sed "s/^/test-containers: /"
+	@$(REPODIR)/tf-deployment-test/build-containers.sh |& sed "s/^/test-deployment-containers: /"
 
 ##############################################################################
 # Unit Test targets
