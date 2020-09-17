@@ -11,11 +11,13 @@ if [[ -z "${CONTRAIL_REGISTRY}" ]]; then
   echo "CONTRAIL_REGISTRY is not set" && exit 1
 fi
 
+export CONTRAIL_REGISTRY
+
 if [[ -z "${CONTRAIL_REPOSITORY}" ]]; then
   echo "CONTRAIL_REPOSITORY is not set" && exit 1
 fi
 
-CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"dev"}
+export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"dev"}
 openstack_version="train"
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
@@ -102,5 +104,11 @@ popd
 mkdir -p /output/logs/contrail-test
 # do not fail script if logs files are absent
 mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test || /bin/true
+
+
+if [[ $res == '0' ]]; then
+  # TODO: add logs collecting
+  ${REPODIR}/tf-deployment-test/build-containers.sh
+fi
 
 exit $res
