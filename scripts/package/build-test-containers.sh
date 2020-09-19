@@ -106,7 +106,7 @@ mkdir -p /output/logs/contrail-test
 mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test || /bin/true
 
 
-if [[ $res == '0' ]]; then
+if [[ $res == '0' && -e ${REPODIR}/tf-deployment-test/build-containers.sh ]]; then
   # TODO: add logs collecting
   ${REPODIR}/tf-deployment-test/build-containers.sh
 fi
