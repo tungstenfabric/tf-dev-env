@@ -106,9 +106,14 @@ mkdir -p /output/logs/contrail-test
 mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test || /bin/true
 
 
+deployment_test_logfile="${WORKSPACE}/tf_deployment_test_build_containers.log"
 if [[ $res == '0' && -e ${REPODIR}/tf-deployment-test/build-containers.sh ]]; then
-  # TODO: add logs collecting
-  ${REPODIR}/tf-deployment-test/build-containers.sh
+  ${REPODIR}/tf-deployment-test/build-containers.sh | append_log $deployment_test_logfile true || res=1
 fi
+
+mkdir -p /output/logs/tf-deployment-test
+# do not fail script if logs file is absent
+mv $deployment_test_logfile /output/logs/tf-deployment-test || /bin/true
+
 
 exit $res
