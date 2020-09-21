@@ -160,11 +160,13 @@ The descriptions of targets:
 - `make list` - lists all available RPM targets
 - `make rpm` - builds all RPMs
 - `make rpm-<pkg_name>` - builds single RPM for <pkg_name>
+- `make create-repo` - creates repository with built RPMs
+- `make setup-httpd` - configures httpd for building images
 
 #### Container images
 
 - `make list-containers` - lists all container targets
-- `make containers` - builds all containers' images, requires RPM packages in ~/contrail/RPMS
+- `make containers` - builds all containers' images, requires RPM packages in ~/contrail/RPMS and configured httpd
 - `make container-<container_name>` - builds single container as a target, with all docker dependencies
 
 #### Deployers
