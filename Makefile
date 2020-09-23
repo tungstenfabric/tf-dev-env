@@ -41,6 +41,9 @@ update-repo:
 clean-repo:
 	@test -d $(REPODIR)/RPMS/repodata && rm -rf $(REPODIR)/RPMS/repodata || true
 
+setup-httpd:
+	@$(TF_DE_DIR)scripts/setup-httpd.sh
+
 ##############################################################################
 # Contrail third party packaged
 build-tpp:

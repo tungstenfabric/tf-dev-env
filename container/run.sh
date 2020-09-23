@@ -89,7 +89,7 @@ function package() {
 
     # Setup and start httpd for RPM repo if not present
     if ! pidof httpd ; then
-        setup_httpd
+        make setup-httpd
     fi
 
     # Check if we're packaging only a single target
