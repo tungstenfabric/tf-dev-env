@@ -161,10 +161,16 @@ The descriptions of targets:
 - `make rpm` - builds all RPMs
 - `make rpm-<pkg_name>` - builds single RPM for <pkg_name>
 
+#### Before containers build
+
+- `make create-repo` - creates repository with built RPMs
+- `make update-repo` - updates repository with built RPMs (in case when some RPM-s were rebuilt)
+- `make setup-httpd` - configures httpd for building images (can be run once after RPM's repository creation)
+
 #### Container images
 
 - `make list-containers` - lists all container targets
-- `make containers` - builds all containers' images, requires RPM packages in ~/contrail/RPMS
+- `make containers` - builds all containers' images, requires RPM packages in ~/contrail/RPMS and configured httpd
 - `make container-<container_name>` - builds single container as a target, with all docker dependencies
 
 #### Deployers
@@ -183,7 +189,7 @@ The descriptions of targets:
 
 #### Clean
 
-- `make clean{-containers,-deployers,-repo,-rpm}` - delete artifacts
+- `make clean{-containers,-deployers,-repo,-rpm}` - delete artefacts
 
 #### Alternate build methods
 
