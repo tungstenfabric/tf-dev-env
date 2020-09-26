@@ -70,7 +70,10 @@ function compile() {
     # from gerrit. So, for now it relies on tha fact that it is first step of RPMs.
     make package-tpp
     echo "INFO: make rpm  $(date)"
-    make rpm
+
+    make rpm -j 2 contrail contrail-web-controller
+    make rpm -j 8
+
     echo "INFO: update rpm repo $(date)"
     make update-repo
 }
