@@ -38,7 +38,7 @@ fi
 export CONTRAIL_DIR
 
 # build environment preparation options
-export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"localhost:5000"}
+export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"localhost:5001"}
 # check if container registry is in ip:port format
 if [[ $CONTAINER_REGISTRY == *":"* ]]; then
   export REGISTRY_IP=$(echo $CONTAINER_REGISTRY | cut -f 1 -d ':')
