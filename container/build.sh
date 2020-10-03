@@ -12,7 +12,7 @@ function mysudo() {
 }
 
 LINUX_DISTR=${LINUX_DISTR:-'centos'}
-LINUX_DISTR_VER=${LINUX_DISTR_VER:-}
+LINUX_DISTR_VER=${LINUX_DISTR_VER:-7}
 
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
@@ -21,8 +21,29 @@ logfile="${WORKSPACE}/output/logs/build-tf-dev-env.log"
 echo "Building tf-dev-env image: ${DEVENV_IMAGE}" | tee $logfile
 
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
-docker_file="Dockerfile.ubi7"
-[[ "$LINUX_DISTR" =~ 'centos' ]] && docker_file="Dockerfile.centos"
+build_opts+=" --build-arg LINUX_DISTR=$LINUX_DISTR --build-arg LINUX_DISTR_VER=$LINUX_DISTR_VER"
+if [[ "$LINUX_DISTR" =~ 'centos' ]] ; then
+    docker_file="Dockerfile.centos"
+else
+    docker_file="Dockerfile.ubi7"
+fi
+
+docker_ver=$(mysudo docker -v | awk -F' ' '{print $3}' | sed 's/,//g')
+echo "Docker version: $docker_ver"
+
+if [[ "$docker_ver" < '17.06' ]] ; then
+    # old docker can't use ARG-s before FROM:
+    # comment all ARG-s before FROM
+    cat ${docker_file} | awk '{if(ncmt!=1 && $1=="ARG"){print("#"$0)}else{print($0)}; if($1=="FROM"){ncmt=1}}' > ${docker_file}.nofromargs
+    # and then change FROM-s that uses ARG-s
+    sed -i \
+        -e "s|^FROM \${CONTRAIL_REGISTRY}/\([^:]*\):\${CONTRAIL_CONTAINER_TAG}|FROM ${CONTRAIL_REGISTRY}/\1:${tag}|" \
+        -e "s|^FROM \$LINUX_DISTR:\$LINUX_DISTR_VER|FROM $LINUX_DISTR:$LINUX_DISTR_VER|" \
+        -e "s|^FROM \$UBUNTU_DISTR:\$UBUNTU_DISTR_VERSION|FROM $UBUNTU_DISTR:$UBUNTU_DISTR_VERSION|" \
+        ${docker_file}.nofromargs
+    docker_file="${docker_file}.nofromargs"
+fi
+
 build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} --tag ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} -f $docker_file ."
 
 if [[ $DISTRO != 'macosx' ]] ; then
