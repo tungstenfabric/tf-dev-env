@@ -73,7 +73,7 @@ class TungstenTestRunner(object):
         return path[rel_start:]
 
     def _skip_tests_args(self):
-        args = "";
+        args = ""
         if not self.args.skip_tests:
             return args
         command = [shutil.which("python2"),
