@@ -210,7 +210,7 @@ echo
 
 echo "INFO: replace symlinks inside .git folder to real files to be able to use them at deployment stage"
 # replace symlinks with target files for all .git files
-for item in $(find ${REPODIR}/ -type l -print | grep "/.git/") ; do
+for item in $(find ${REPODIR}/ -type l -print | grep "/.git/" | grep -v "/.repo/") ; do
   idir=$(dirname $item)
   target=$(realpath $item)
   rm -f "$item"
