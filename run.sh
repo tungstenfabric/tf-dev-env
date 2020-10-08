@@ -82,9 +82,10 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   fi
 
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
-  volumes="-v /var/run:/var/run:${DOCKER_VOLUME_OPTIONS}"
+  volumes=""
   if [[ $DISTRO != "macosx" ]]; then
-      volumes+=" -v /etc/localtime:/etc/localtime"
+    volumes+=" -v /var/run:/var/run:${DOCKER_VOLUME_OPTIONS}"
+    volumes+=" -v /etc/localtime:/etc/localtime:${DOCKER_VOLUME_OPTIONS}"
   fi
   volumes+=" -v ${scriptdir}:/root/tf-dev-env:${DOCKER_VOLUME_OPTIONS}"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
