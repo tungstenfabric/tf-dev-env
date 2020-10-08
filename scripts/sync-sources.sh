@@ -214,5 +214,7 @@ for item in $(find ${REPODIR}/ -type l -print | grep "/.git/" | grep -v "/.repo/
   idir=$(dirname $item)
   target=$(realpath $item)
   rm -f "$item"
-  cp -arf $target $idir/
+  if [ -f $target ]; then
+    cp -arf $target $idir/
+  fi
 done
