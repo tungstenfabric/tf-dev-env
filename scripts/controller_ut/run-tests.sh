@@ -102,7 +102,7 @@ done
 
 # gzip .log files - they consume several Gb unpacked
 pushd $logs_path
-time find -name *.log | xargs gzip
+time find $(pwd) -name '*.log' | xargs gzip
 popd
 
 if [[ "$res" != '0' ]]; then
