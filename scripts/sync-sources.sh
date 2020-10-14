@@ -148,6 +148,8 @@ while read repo_project ; do
         echo "ERROR: failed switch to branch $revision with remote $remote for $repo_path : $repo_project"
         exit 1
       }
+      git log -3 --oneline
+      echo ''
     popd
   done < <($REPO_TOOL info -l $repo_project | awk '/Mount path:|Current revision:|Manifest revision:/ {print($3)}')
 done < <($REPO_TOOL list --name-only | sort -u)
