@@ -3,6 +3,7 @@
 scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common/common.sh
 source ${scriptdir}/common/functions.sh
+source ${scriptdir}/common/tf_functions.sh
 
 function print_help() {
   echo -e "Usage:\n"\
@@ -67,6 +68,13 @@ if [[ $remove_tf_dev_config -eq 1 ]] ; then
   echo
   echo '[tf dev config]'
   [ -d "$TF_CONFIG_DIR" ] && mysudo rm -rf "$TF_CONFIG_DIR"
+fi
+
+# clean build output
+tf_container_env_file="${scriptdir}/input/tf-developer-sandbox.env"
+if [[ -r "$tf_container_env_file" ]]; then
+  . "$tf_container_env_file" 
+  rm -rf "$WORK_DIR" "$ROOT_CONTRAIL"
 fi
 
 echo tf-dev-env cleanup finished

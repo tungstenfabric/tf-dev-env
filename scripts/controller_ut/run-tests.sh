@@ -6,9 +6,9 @@ TARGET_TIMEOUT=${TARGET_TIMEOUT:-"120m"}
 scriptdir=$(realpath $(dirname "$0"))
 source $scriptdir/definitions.sh
 
-cd $HOME/contrail
-dump_path="/output/cores"
-logs_path="/output/logs"
+cd "${ROOT_CONTRAIL:-$HOME/contrail}"
+dump_path="${CONTRAIL_OUTPUT_DIR:-/output}/cores"
+logs_path="${CONTRAIL_OUTPUT_DIR:-/output}/logs"
 mkdir -p "$logs_path"
 rm -rf "$dump_path"
 mkdir -p "$dump_path"
@@ -22,7 +22,7 @@ bash -c 'echo "::1 localhost" >> /etc/hosts'
 unset BUILD_ONLY
 
 echo "INFO: Prepare targets $(date)"
-targets_file="/input/unittest_targets.lst"
+targets_file="${CONTRAIL_INPUT_DIR:-/input}/unittest_targets.lst"
 if [[ ! -f "$targets_file" ]] ; then
   targets_file='/tmp/unittest_targets.lst'
   rm "$targets_file" && touch "$targets_file"
@@ -34,8 +34,9 @@ if [[ ! -f "$targets_file" ]] ; then
 fi
 
 # target_set as an additional key for some log names
-if [ -e /input/target_set ]; then
-  target_set=$(cat /input/target_set)
+target_set_file="${CONTRAIL_INPUT_DIR:-/input}/target_set" 
+if [ -e "$target_set_file" ]; then
+  target_set=$(cat "$target_set_file")
 fi
 
 res=0
@@ -63,7 +64,7 @@ function process_file() {
     return
   fi
   for file in $(ls -1 ${src_file%.${ext}}.*.${ext} 2>/dev/null) ; do
-    dst_file=$(echo $file | sed "s~$HOME/contrail~$logs_path~g")
+    dst_file=$(echo $file | sed "s~${ROOT_CONTRAIL:-$HOME/contrail}~$logs_path~g")
     mkdir -p $(dirname $dst_file)
     cp $file $dst_file
   done

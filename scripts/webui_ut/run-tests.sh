@@ -2,9 +2,10 @@
 
 scriptdir=$(realpath $(dirname "$0"))
 
-src_root=$HOME/contrail
+src_root="${ROOT_CONTRAIL:-$HOME/contrail}"
 cd $src_root
-logs_path="/output/logs"
+
+logs_path="${CONTRAIL_OUTPUT_DIR:-/output}/logs"
 test_reports_dir="$logs_path/test-reports"
 coverage_reports_dir="$logs_path/coverage-reports"
 mkdir -p "$logs_path" "$test_reports_dir" "$coverage_reports_dir"
@@ -42,7 +43,7 @@ function copy_reports(){
     cp -p contrail-web*/$report_dir/tests/*-test-results.xml $test_reports_dir || true
 
     echo "info: gathering XML coverage reports..."
-    cp -p $HOME/contrail/contrail-web-controller/$report_dir/coverage/*/*/cobertura-coverage.xml $coverage_reports_dir/controller-cobertura-coverage.xml || true
+    cp -p "${ROOT_CONTRAIL:-$HOME/contrail}/contrail-web-controller/$report_dir/coverage/*/*/cobertura-coverage.xml" "$coverage_reports_dir/controller-cobertura-coverage.xml" || true
 }
 
 #This installs node, npm and does a fetch_packages, make prod env, test setup
@@ -58,7 +59,7 @@ res=$?
 if [[ "$res" != '0' ]]; then
   echo "ERROR: some UT failed"
 fi
-echo "INFO: Unit test log is available at contrail/output/logs/web_controller_unittests.log"
-echo "INFO: Test report is available at  contrail/output/logs/test-reports/web-controller-test-results.xml"
-echo "INFO: Coverage report is available at contrail/output/logs/coverage-reports/controller-cobertura-coverage.xml"
+echo "INFO: Unit test log is available at $logs_path/web_controller_unittests.log"
+echo "INFO: Test report is available at  $test_reports_dir/web-controller-test-results.xml"
+echo "INFO: Coverage report is available at $coverage_reports_dir/controller-cobertura-coverage.xml"
 exit $res
