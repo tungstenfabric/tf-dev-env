@@ -96,9 +96,10 @@ fi
 
 popd
 
-mkdir -p /output/logs/contrail-test
+contrail_test_logs="${CONTRAIL_OUTPUT_DIR:-/output}/logs/contrail-test"
+mkdir -p "$contrail_test_logs"
 # do not fail script if logs files are absent
-mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test || /bin/true
+mv "${CONTRAIL_TEST_DIR}"/*.log "$contrail_test_logs" || /bin/true
 
 
 deployment_test_logfile="${WORKSPACE}/tf_deployment_test_build_containers.log"
@@ -106,9 +107,10 @@ if [[ $res == '0' && -e ${REPODIR}/tf-deployment-test/build-containers.sh ]]; th
   ${REPODIR}/tf-deployment-test/build-containers.sh | append_log $deployment_test_logfile true || res=1
 fi
 
-mkdir -p /output/logs/tf-deployment-test
+tf_deployment_test_logs="${CONTRAIL_OUTPUT_DIR:-/output}/logs/tf-deployment-test"
+mkdir -p "$tf_deployment_test_logs"
 # do not fail script if logs file is absent
-mv $deployment_test_logfile /output/logs/tf-deployment-test || /bin/true
+mv "$deployment_test_logfile" "$tf_deployment_test_logs" || /bin/true
 
 
 exit $res

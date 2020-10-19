@@ -22,9 +22,9 @@ repo_init_defauilts='--repo-branch=repo-1'
 repo_sync_defauilts='--no-tags --no-clone-bundle -q'
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
-REPO_INIT_MANIFEST_URL="https://github.com/tungstenfabric/tf-vnc"
-VNC_ORGANIZATION="tungstenfabric"
-VNC_REPO="tf-vnc"
+: ${REPO_INIT_MANIFEST_URL:="https://github.com/tungstenfabric/tf-vnc"}
+: ${VNC_ORGANIZATION:="tungstenfabric"}
+: ${VNC_REPO:="tf-vnc"}
 if [[ -n "$CONTRAIL_BRANCH" ]] ; then
   # check branch in tf-vnc, then in contrail-vnc and then fallback to master branch in tf-vnc
   if ! curl -s https://review.opencontrail.org/projects/tungstenfabric%2Ftf-vnc/branches | grep 'ref' | grep -q "${CONTRAIL_BRANCH}" ; then
@@ -80,15 +80,15 @@ if [[ -n "$GERRIT_BRANCH" ]] ; then
 fi
 
 # file for patchset info if any
-patchsets_info_file=/input/patchsets-info.json
+patchsets_info_file="${CONTRAIL_INPUT_DIR:-/input}/patchsets-info.json"
 
 # resolve changes if any
 if [ ! -e "$patchsets_info_file" ] ; then
   echo "INFO: There is no file $patchsets_info_file - skipping cherry-picking."
 else
   echo "INFO: gerrit URL = ${GERRIT_URL}"
-  cat $patchsets_info_file | jq '.'
-  vnc_changes=$(cat $patchsets_info_file | jq -r ".[] | select(.project == \"${VNC_ORGANIZATION}/${VNC_REPO}\") | .project + \" \" + .ref + \" \" + .branch")
+  cat "$patchsets_info_file" | jq '.'
+  vnc_changes=$(cat "$patchsets_info_file" | jq -r ".[] | select(.project == \"${VNC_ORGANIZATION}/${VNC_REPO}\") | .project + \" \" + .ref + \" \" + .branch")
   if [[ -n "$vnc_changes" ]] ; then
     # clone from GERRIT_URL cause this is taken from patchsets
     vnc_branch=$(echo "$vnc_changes" | head -n 1 | awk '{print($3)}')
@@ -118,7 +118,7 @@ else
     --remote "$GERRIT_URL" \
     $branch_opts \
     --source ./.repo/manifest.xml \
-    --patchsets $patchsets_info_file \
+    --patchsets "$patchsets_info_file" \
     --output ./.repo/manifest.xml || exit 1
   echo "INFO: patched manifest.xml"
   cat ./.repo/manifest.xml
@@ -151,7 +151,8 @@ while read repo_project ; do
         echo "ERROR: failed switch to branch $revision with remote $remote for $repo_path : $repo_project"
         exit 1
       }
-      git log -3 --oneline
+      # pipe git log output to cat to avoid pagination
+      git log -3 --oneline | cat
       echo ''
     popd
   done < <($REPO_TOOL info -l $repo_project | awk '/Mount path:|Current revision:|Manifest revision:/ {print($3)}')
@@ -171,7 +172,7 @@ fi
 if [ -e "$patchsets_info_file" ] ; then
   # apply patches
   echo "INFO: review dependencies"
-  cat $patchsets_info_file | jq -r '.[] | select(.project != "${VNC_ORGANIZATION}/${VNC_REPO}") | .project + " " + .ref' | while read project ref; do
+  cat "$patchsets_info_file" | jq -r '.[] | select(.project != "${VNC_ORGANIZATION}/${VNC_REPO}") | .project + " " + .ref' | while read project ref; do
     short_name=$(echo $project | cut -d '/' -f 2)
     repo_projects=$($REPO_TOOL list -r "^${short_name}$" | tr -d ':' )
     # use manual filter as repo forall -regex checks both path and project
@@ -202,15 +203,16 @@ if [ -e "$patchsets_info_file" ] ; then
 fi
 
 echo "INFO: gathering UT targets"
+unittest_targets_list="${CONTRAIL_OUTPUT_DIR:-/output}/unittest_targets.lst"
 if [ -e "$patchsets_info_file" ] ; then
   # this script uses ci_unittests.json from controller to eval required UT targets from changes
-  ${scriptdir}/gather-unittest-targets.py < $patchsets_info_file | sort | uniq > /output/unittest_targets.lst || exit 1
+  ${scriptdir}/gather-unittest-targets.py < "$patchsets_info_file" | sort | uniq > "$unittest_targets_list" || exit 1
 else
   # take default
   # TODO: take misc_targets into accout
-  cat ${REPODIR}/controller/ci_unittests.json | jq -r ".[].scons_test_targets[]" | sort | uniq > /output/unittest_targets.lst
+  cat ${REPODIR}/controller/ci_unittests.json | jq -r ".[].scons_test_targets[]" | sort | uniq > "$unittest_targets_list"
 fi
-cat /output/unittest_targets.lst
+cat "$unittest_targets_list"
 echo
 
 echo "INFO: replace symlinks inside .git folder to real files to be able to use them at deployment stage"

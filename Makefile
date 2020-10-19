@@ -2,10 +2,13 @@ TF_DE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TF_DE_TOP := $(abspath $(TF_DE_DIR)/../)/
 SHELL=/bin/bash -o pipefail
 
-# include RPM-building targets
--include $(TF_DE_TOP)contrail/tools/packages/Makefile
+# Use ROOT_CONTRAIL env var for REPODIR. Default is ./contrail
+ROOT_CONTRAIL ?= $(TF_DE_TOP)contrail
+REPODIR=$(ROOT_CONTRAIL)
 
-REPODIR=$(TF_DE_TOP)contrail
+# include RPM-building targets
+-include $(ROOT_CONTRAIL)/tools/packages/Makefile
+
 CONTAINER_BUILDER_DIR=$(REPODIR)/contrail-container-builder
 CONTRAIL_DEPLOYERS_DIR=$(REPODIR)/contrail-deployers-containers
 CONTRAIL_TEST_DIR=$(REPODIR)/third_party/contrail-test

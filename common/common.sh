@@ -1,5 +1,7 @@
 #!/bin/bash
 
+declare -a default_stages=(fetch configure)
+
 [ -n "$DEBUG" ] && set -x
 set -o errexit
 
@@ -106,15 +108,17 @@ fi
 
 function source_env()
 {
-  if [[ -e /input/tf-developer-sandbox.env ]] ; then
-    echo "INFO: source env from /input/tf-developer-sandbox.env"
-    source /input/tf-developer-sandbox.env
+  tf_env="${CONTRAIL_INPUT_DIR:-/input}/tf-developer-sandbox.env"
+  if [[ -e "$tf_env" ]] ; then
+    echo "INFO: source env from $tf_env"
+    source "$tf_env"
   fi
 
-  if [[ -e $DEV_ENV_ROOT/common.env ]] ; then
-    echo "INFO: source env from $DEV_ENV_ROOT/common.env"
+  common_env="$DEV_ENV_ROOT/common.env" 
+  if [[ -e "$common_env" ]] ; then
+    echo "INFO: source env from $common_env"
     set -o allexport
-    source $DEV_ENV_ROOT/common.env
+    source "$common_env"
     set +o allexport
   fi
 }

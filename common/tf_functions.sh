@@ -1,7 +1,8 @@
 #!/bin/bash
 
-WORK_DIR="${HOME}/work"
+: ${WORK_DIR:="${HOME}/work"}
 STAGES_DIR="${WORK_DIR}/.stages"
+: ${ROOT_CONTRAIL:="${HOME}/contrail"}
 
 # Folders and artifacts which have to be symlinked in order to separate them from sources
 
@@ -17,7 +18,7 @@ export DEBUGINFO=${DEBUGINFO}
 export LINUX_DISTR=${LINUX_DISTR}
 export LINUX_DISTR_VER=${LINUX_DISTR_VER}
 export BUILD_MODE=${BUILD_MODE}
-export DEV_ENV_ROOT=/root/tf-dev-env
+export DEV_ENV_ROOT=${DEV_ENV_ROOT=/root/tf-dev-env}
 export DEVENV_TAG=$DEVENV_TAG
 export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
 export SITE_MIRROR=${SITE_MIRROR}
@@ -30,6 +31,14 @@ export VENDOR_NAME=$VENDOR_NAME
 export VENDOR_DOMAIN=$VENDOR_DOMAIN
 export MULTI_KERNEL_BUILD=$MULTI_KERNEL_BUILD
 export KERNEL_REPOSITORIES_RHEL8="$KERNEL_REPOSITORIES_RHEL8"
+export WORK_DIR="$WORK_DIR"
+export ROOT_CONTRAIL="$ROOT_CONTRAIL"
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+export CONTRAIL_CONFIG_DIR="${CONTRAIL_CONFIG_DIR:-/config}"
+export CONTRAIL_INPUT_DIR="${CONTRAIL_INPUT_DIR:-/input}"
+export CONTRAIL_OUTPUT_DIR="${CONTRAIL_OUTPUT_DIR:-/output}"
 EOF
   if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
     export src_volume_name=ContrailSources
@@ -47,10 +56,6 @@ EOF
     echo "export RHEL_HOST_REPOS=${RHEL_HOST_REPOS}" >> $tf_container_env_file
   fi
 
-  if [[ -d "${scriptdir}/config" ]]; then
-    echo "export CONTRAIL_CONFIG_DIR=${CONTRAIL_CONFIG_DIR:-'/config'}" >> $tf_container_env_file
-  fi
-
   # code review system options
   if [[ -n "$GERRIT_URL" ]]; then
     echo "export GERRIT_URL=${GERRIT_URL}" >> $tf_container_env_file
@@ -61,20 +66,35 @@ EOF
   if [[ -n "$GERRIT_PROJECT" ]]; then
     echo "export GERRIT_PROJECT=${GERRIT_PROJECT}" >> $tf_container_env_file
   fi
+
+  # repo path overrides
+  if [[ -n $REPO_INIT_MANIFEST_URL ]]; then
+    echo "export REPO_INIT_MANIFEST_URL=${REPO_INIT_MANIFEST_URL}" >> $tf_container_env_file
+  fi
+  if [[ -n $VNC_ORGANIZATION ]]; then
+    echo "export VNC_ORGANIZATION=${VNC_ORGANIZATION}" >> $tf_container_env_file
+  fi
+  if [[ -n $VNC_REPO ]]; then
+    echo "export VNC_REPO=${VNC_REPO}" >> $tf_container_env_file
+  fi
 }
 
 function prepare_infra()
 {
+  # Do nothing if directories are the same (dev case)
+  if [[ "$WORK_DIR" == "$ROOT_CONTRAIL" ]]; then
+    return 0
+  fi
   echo "INFO: create symlinks to work directories with artifacts  $(date)"
-  mkdir -p $HOME/work /root/contrail
-  # /root/contrail will be defined later as REPODIR
-  for folder in ${work_folders[@]} ; do
-    [[ -e $WORK_DIR/$folder ]] || mkdir $WORK_DIR/$folder
-    [[ -e /root/contrail/$folder ]] || ln -s $WORK_DIR/$folder /root/contrail/$folder
+  mkdir -p "$WORK_DIR" "$ROOT_CONTRAIL"
+  # "$ROOT_CONTRAIL" will be defined later as REPODIR
+  for folder in "${work_folders[@]}" ; do
+    [[ -e "$WORK_DIR/$folder" ]] || mkdir "$WORK_DIR/$folder"
+    [[ -e "$ROOT_CONTRAIL/$folder" ]] || ln -s "$WORK_DIR/$folder" "$ROOT_CONTRAIL/$folder"
   done
-  for file in ${work_files[@]} ; do
-    touch $WORK_DIR/$file
-    [[ -e /root/contrail/$file ]] || ln -s $WORK_DIR/$file /root/contrail/$file
+  for file in "${work_files[@]}" ; do
+    touch "$WORK_DIR/$file"
+    [[ -e "$ROOT_CONTRAIL/$file" ]] || ln -s "$WORK_DIR/$file" "$ROOT_CONTRAIL/$file"
   done
 }
 

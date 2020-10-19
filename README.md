@@ -121,7 +121,7 @@ Supported targets:
 
 ## Advanced usage
 
-It is possible to use  more finegraned build process via running make tool for building artifacts manually.
+It is possible to use  more fine-grained build process via running make tool for building artifacts manually.  It's also possible to enable builds directly on suitable host without containers to simplify debugging.
 Note: the described way below uses internal commands and might be changed in future.
 
 ### 1. Prepare developer-sandbox container and dont run any targets
@@ -229,6 +229,12 @@ To build and run unit test against your code:
 ``` bash
 RTE_KERNELDIR=/path/to/custom_kernel_headers scons --kernel-dir=/path/to/custom_kernel_headers test
 ```
+
+### 5. Debugging Directly on Development Host (EXPERIMENTAL)
+
+There is a variables of the ```run.sh``` script that can be used to do many of the same develpment operations directly on the host.  This can be useful for ensuring that you have a development environment suitable for natively debugging code within a graphical debugger. To enable this, simply use the ```dev.sh``` script instead of ```run.sh```
+
+Note that this script must be run as the "root" user.  By default, sources are downloaded into the ```/contrail``` directly created within the tf-dev-env directory.
 
 ## Customizing dev-env container
 
