@@ -11,8 +11,8 @@ source_env
 res=0
 ${workdir}/containers/build.sh $container || res=1
 
-mkdir -p /output/logs/${prefix}s
+mkdir -p "${CONTRAIL_OUTPUT_DIR:-/output}/logs/${prefix}s"
 # do not fail script if logs files are absent
-mv ${workdir}/containers/*.log /output/logs/${prefix}s/ || /bin/true
+mv ${workdir}/containers/*.log "${CONTRAIL_OUTPUT_DIR:-/output}/logs/${prefix}s/" || /bin/true
 
 exit $res

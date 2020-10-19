@@ -11,12 +11,12 @@ if [ -z "${REPODIR}" ] ; then
   exit 1
 fi
 
-patchsets_info_file=/input/patchsets-info.json
+patchsets_info_file="${CONTRAIL_INPUT_DIR:-/input}/patchsets-info.json"
 if [[ ! -e "$patchsets_info_file" ]] ; then
     echo "INFO: skip tpp: there is no patchset info"
     exit
 fi
-files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("tf-third-party-packages")) | select(has("files")) | .files[]')
+files=$(cat "$patchsets_info_file" | jq -r '.[] | select(.project | contains("tf-third-party-packages")) | select(has("files")) | .files[]')
 if [[ -z "$files" ]] ; then 
     echo "INFO: skip tpp: there is no changes in the files for tf-third-party-packages"
     exit

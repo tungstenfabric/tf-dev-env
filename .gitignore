@@ -11,3 +11,4 @@ vars.yaml
 /input
 /contrail
 build*.log
+/work

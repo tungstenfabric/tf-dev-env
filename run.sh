@@ -63,6 +63,10 @@ cp -f ${scriptdir}/tpc.repo ${scriptdir}/config/etc/yum.repos.d/
 
 echo
 echo '[environment setup]'
+
+# set paths used to build inside the container
+. "$tf_container_env_file"
+
 if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created ${CONTAINER_REGISTRY}/$DEVENV_IMAGE ; then
     if ! mysudo docker inspect ${CONTAINER_REGISTRY}/$DEVENV_IMAGE >/dev/null 2>&1 && ! mysudo docker pull ${CONTAINER_REGISTRY}/$DEVENV_IMAGE ; then
@@ -81,32 +85,32 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     cd ${scriptdir}
   fi
 
-  options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   volumes=""
   if [[ $DISTRO != "macosx" ]]; then
     volumes+=" -v /var/run:/var/run:${DOCKER_VOLUME_OPTIONS}"
     volumes+=" -v /etc/localtime:/etc/localtime:${DOCKER_VOLUME_OPTIONS}"
   fi
-  volumes+=" -v ${scriptdir}:/root/tf-dev-env:${DOCKER_VOLUME_OPTIONS}"
+  volumes+=" -v ${scriptdir}:${DEV_ENV_ROOT}:${DOCKER_VOLUME_OPTIONS}"
   if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
     # make dir to create them under current user
     mkdir -p ${CONTRAIL_DIR}
-    volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
+    volumes+=" -v ${CONTRAIL_DIR}:${ROOT_CONTRAIL}:${DOCKER_VOLUME_OPTIONS}"
   elif [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
-    volumes+=" -v ${src_volume_name}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
+    volumes+=" -v ${src_volume_name}:${ROOT_CONTRAIL}:${DOCKER_VOLUME_OPTIONS}"
   fi
+
   # make dir to create them under current user
   mkdir -p ${WORKSPACE}/output
-  volumes+=" -v ${WORKSPACE}/output:/output:${DOCKER_VOLUME_OPTIONS}"
-  volumes+=" -v ${input_dir}:/input:${DOCKER_VOLUME_OPTIONS}"
-  volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
+  volumes+=" -v ${WORKSPACE}/output:${CONTRAIL_OUTPUT_DIR}:${DOCKER_VOLUME_OPTIONS}"
+  volumes+=" -v ${input_dir}:${CONTRAIL_INPUT_DIR}:${DOCKER_VOLUME_OPTIONS}"
+  volumes+=" -v ${scriptdir}/config:${CONTRAIL_CONFIG_DIR}:${DOCKER_VOLUME_OPTIONS}"
   # Provide env variables because:
   #  - there is backward compatibility case with manual doing docker exec
   #  into container and user of make.
   #  - TF Jenkins CI use non-bind folder for sources
   start_sandbox_cmd="mysudo docker run --network host --privileged --detach \
     --name $DEVENV_CONTAINER_NAME \
-    -w /root ${options} \
+    -w /root \
     $volumes -it \
     ${CONTAINER_REGISTRY}/${DEVENV_IMAGE}"
 
@@ -132,8 +136,8 @@ if [[ "$stage" == 'none' ]] ; then
   exit 0
 fi
 
-echo "run stage $stage with target $target"
-mysudo docker exec -i $DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stage $target
+echo "run stage(s) ${stage:-${default_stages[@]}} with target ${target:-all}"
+mysudo docker exec -i $DEVENV_CONTAINER_NAME "${DEV_ENV_ROOT}/container/run.sh" $stage $target
 result=${PIPESTATUS[0]}
 
 if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
@@ -144,24 +148,7 @@ if [[ "$BIND_CONTRAIL_DIR" != 'false' ]] ; then
 fi
 
 if [[ $result == 0 ]] ; then
-  echo
-  echo '[DONE]'
-  echo "There are stages available to run ./run.sh <stage>:"
-  echo "  build     - perform sequence of stages: fetch, configure, compile, package"
-  echo "              (if stage was run previously it be skipped)"
-  echo "  fetch     - sync TF git repos"
-  echo "  configure - fetch third party packages and install dependencies"
-  echo "  compile   - build TF binaries"
-  echo "  package   - package TF into docker containers (you can specify target container to build like container-vrouter)"
-  echo "  test      - run unittests"
-  echo "  freeze    - prepare tf-dev-env for pushing to container registry for future reuse by compressing contrail directory"
-  echo "  upload    - pushes tf-dev-env to container registry"
-  echo "For advanced usage You can now connect to the sandbox container by using:"
-  if [[ $DISTRO != "macosx" ]]; then
-    echo "  sudo docker exec -it $DEVENV_CONTAINER_NAME bash"
-  else
-    echo "  docker exec -it $DEVENV_CONTAINER_NAME bash"
-  fi
+  help
 else
   echo
   echo 'ERROR: There were failures. See logs for details.'
