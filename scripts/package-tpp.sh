@@ -11,7 +11,7 @@ if [ -z "${REPODIR}" ] ; then
   exit 1
 fi
 
-patchsets_info_file=/input/patchsets-info.json
+patchsets_info_file="${CONTRAIL_INPUT_DIR:-/input}/patchsets-info.json"
 if [[ ! -e "$patchsets_info_file" ]] ; then
     echo "INFO: skip tpp: there is no patchset info"
     exit

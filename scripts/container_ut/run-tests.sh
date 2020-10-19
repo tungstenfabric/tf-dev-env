@@ -4,11 +4,11 @@ set -o pipefail
 [ "${DEBUG,,}" == "true" ] && set -x
 scriptdir=$(realpath $(dirname "$0"))
 
-src_root=$HOME/contrail
-logs_path="/output/logs"
+src_root="${ROOT_CONTRAIL:-$HOME/contrail}"
+logs_path="${CONTRAIL_OUTPUT_DIR:-/output}/logs"
 cd $src_root
 mkdir -p "$logs_path"
-repo_dir="$HOME/contrail/contrail-container-builder"
+repo_dir="${ROOT_CONTRAIL:-$HOME/contrail}/contrail-container-builder"
 
 res=0
 targets=$($repo_dir/run-tests.sh list | grep -P '^containers')

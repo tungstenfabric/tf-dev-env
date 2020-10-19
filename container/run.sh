@@ -20,7 +20,6 @@ cd $DEV_ENV_ROOT
 [ -n "$DEBUG" ] && set -x
 
 declare -a all_stages=(fetch configure compile package test freeze)
-declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
 function fetch() {
@@ -182,7 +181,7 @@ function freeze() {
 
 function run_stage() {
     $1 $2
-    touch $STAGES_DIR/$1 || true
+    mkdir -p "$STAGES_DIR" && touch $STAGES_DIR/$1 || true
 }
 
 function finished_stage() {
