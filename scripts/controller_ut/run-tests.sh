@@ -90,7 +90,7 @@ for core in $(ls -1 $dump_path/core-*) ; do
   x=$(basename "${core}")
   y=${x/#core-*[0-9]-*[0-9]-/}
   y=${y//\!//}
-  gdb --command=/tmp/commands.txt -c $core $y > build/$x-bt.log
+  timeout -s 9 30 gdb --command=/tmp/commands.txt -c $core $y > build/$x-bt.log
 done
 rm -rf $dump_path
 
