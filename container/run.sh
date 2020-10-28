@@ -215,8 +215,10 @@ elif [[ "$stage" =~ 'build' ]] ; then
 else
     # run selected stage unless we're in fast build mode and the stage is finished. TODO: remove skipping package when frozen containers are available.
     if ! finished_stage "$stage" || [[ $BUILD_MODE == "full" ]] || [[ $stage == "fetch" ]] || [[ $stage == "configure" ]] || [[ $stage == "package" ]] ; then
-        echo "Running stage $stage in $BUILD_MODE mode"
+        echo "INFO: Running stage $stage in $BUILD_MODE mode"
         run_stage $stage $target
+    else
+        echo "INFO: Skipping stage $stage in $BUILD_MODE mode"
     fi
 fi
 
