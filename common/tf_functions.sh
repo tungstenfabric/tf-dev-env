@@ -100,18 +100,18 @@ function patches_exist() {
     for project in ${projects[@]}; do
       project=$(echo $project | cut -f 2 -d "/" | tr -d '"')
       changed_projects+=$project
-      non_container_project=false
+      non_container_project=true
       if [[ ${containers_projects[@]} =~ $project ]] ; then
         changed_containers_projects+=$project
-        non_container_project=true
+        non_container_project=false
       fi
       if [[ ${deployers_projects[@]} =~ $project ]] ; then
         changed_deployers_projects+=$project
-        non_container_project=true
+        non_container_project=false
       fi
       if [[ ${tests_projects[@]} =~ $project ]] ; then
         changed_tests_projects+=$project
-        non_container_project=true
+        non_container_project=false
       fi
       if $non_container_project ; then
         changed_product_projects+=$project
