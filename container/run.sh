@@ -36,7 +36,7 @@ function fetch() {
                 echo "Containers or deployers are changed, cleaning package stage"
                 cleanup package
             fi
-            if [[ -v $changed_product_projects ]] ; then
+            if [[ -n $changed_product_projects ]] ; then
                 echo "Contrail core is changed, cleaning all stages"
                 cleanup compile
                 cleanup package
