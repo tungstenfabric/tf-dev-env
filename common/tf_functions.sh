@@ -74,6 +74,11 @@ function prepare_infra()
   done
 }
 
+function get_current_container_tag()
+{
+  echo $(curl -s "http://tf-nexus.progmaticlab.com:8082/frozen/tag")
+}
+
 # Classification of TF projects dealing with containers.
 # TODO: use vnc/default.xml for this information later (loaded to .repo/manifest.xml)
 deployers_projects=("tf-charms" "tf-helm-deployer" "tf-ansible-deployer" \
@@ -87,10 +92,14 @@ changed_containers_projects=()
 changed_deployers_projects=()
 changed_tests_projects=()
 changed_product_projects=()
+unchanged_containers=()
 
-# Check patchset and fill changed_projects
+# Check patchset and fill changed_projects, also collect containers NOT to build
 function patches_exist() {
   if [[ -e "/input/patchsets-info.json" ]] ; then
+    # First fetch existing containers list
+    frozen_containers=($(curl http://$FROZEN_REGISTRY/v2/_catalog | jq -r '.repositories | .[]'))
+    # Next initialize projects lists and look for changes
     changed_projects=()
     changed_containers_projects=()
     changed_deployers_projects=()
@@ -99,24 +108,44 @@ function patches_exist() {
     projects=$(jq '.[].project' "/input/patchsets-info.json")
     for project in ${projects[@]}; do
       project=$(echo $project | cut -f 2 -d "/" | tr -d '"')
-      changed_projects+=$project
+      changed_projects+=($project)
       non_container_project=true
       if [[ ${containers_projects[@]} =~ $project ]] ; then
-        changed_containers_projects+=$project
+        changed_containers_projects+=($project)
         non_container_project=false
       fi
       if [[ ${deployers_projects[@]} =~ $project ]] ; then
-        changed_deployers_projects+=$project
+        changed_deployers_projects+=($project)
         non_container_project=false
       fi
       if [[ ${tests_projects[@]} =~ $project ]] ; then
-        changed_tests_projects+=$project
+        changed_tests_projects+=($project)
         non_container_project=false
       fi
       if $non_container_project ; then
-        changed_product_projects+=$project
+        changed_product_projects+=($project)
+        # No containers are reused in this case - all should be rebuilt
+        frozen_containers=()
       fi
     done
+
+    # Now scan through frozen containers and remove ones to rebuild
+    for container in ${frozen_containers[@]}; do
+      if [[ $container == *-test ]] ; then
+        if [[ -z $changed_tests_projects ]] ; then
+          unchanged_containers+=($container)
+        fi
+      elif [[ $container == *-src ]] ; then
+        if [[ -z $changed_deployers_projects ]] ; then
+          unchanged_containers+=($container)
+        fi
+      else
+        if [[ $container != *-sandbox ]] && [[ -z $changed_containers_projects ]] ; then
+          unchanged_containers+=($container)
+        fi
+      fi
+    done
+
     return 0
   fi
   return 1
