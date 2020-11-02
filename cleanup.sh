@@ -54,7 +54,7 @@ if [[ $remove_image -eq 1 ]] ; then
   echo '[images]'
   mysudo docker inspect ${DEVENV_IMAGE} >/dev/null 2>&1 && mysudo docker rmi -f ${DEVENV_IMAGE}
   mysudo docker inspect ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} >/dev/null 2>&1 && mysudo docker rmi -f ${CONTAINER_REGISTRY}/${DEVENV_IMAGE}
-  echo "image $DEVENV_IMAGE removed"
+  echo "image $ removed"
 fi
 
 if [[ $remove_sources -eq 1 ]] ; then

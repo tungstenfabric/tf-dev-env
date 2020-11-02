@@ -64,21 +64,28 @@ mkdir -p ${scriptdir}/config
 mkdir -p ${scriptdir}/config/etc/yum.repos.d
 cp -f ${scriptdir}/tpc.repo ${scriptdir}/config/etc/yum.repos.d/
 
+local devenv_image="$CONTAINER_REGISTRY/$DEVENV_IMAGE"
+
 echo
 echo '[environment setup]'
 if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
-  if [[ "$BUILD_DEV_ENV" != '1' ]] && ! is_container_created ${CONTAINER_REGISTRY}/$DEVENV_IMAGE ; then
-    if ! mysudo docker inspect ${CONTAINER_REGISTRY}/$DEVENV_IMAGE >/dev/null 2>&1 && ! mysudo docker pull ${CONTAINER_REGISTRY}/$DEVENV_IMAGE ; then
+  if [[ "$stage" == 'frozen' ]]; then
+    echo "INFO: fetching frozen tf-dev-env from CI registry"
+    devenv_image="$FROZEN_REGISTRY/$DEVENV_IMAGE_NAME:frozen"
+  fi
+
+  if [[ "$BUILD_DEVDEV_ENV" != '1' ]] && ! is_container_created ${devenv_image} ; then
+    if ! mysudo docker inspect $devenv_image >/dev/null 2>&1 && ! mysudo docker pull $devenv_image ; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
         exit 1
       fi
-      echo "No image $DEVENV_IMAGE is available. Try to build."
+      echo "No image $devenv_image is available. Try to build."
       BUILD_DEV_ENV=1
     fi
   fi
 
   if [[ "$BUILD_DEV_ENV" == '1' ]]; then
-    echo "Build $DEVENV_IMAGE docker image"
+    echo "Build $DEVENV_IMAGE_NAME:$DEVENV_TAG docker image"
     cd ${scriptdir}/container
     ./build.sh -i ${DEVENV_IMAGE_NAME} ${DEVENV_TAG}
     cd ${scriptdir}
@@ -110,7 +117,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     --name $DEVENV_CONTAINER_NAME \
     -w /root ${options} \
     $volumes -it \
-    ${CONTAINER_REGISTRY}/${DEVENV_IMAGE}"
+    $devenv_image"
 
   echo "INFO: start cmd '$start_sandbox_cmd'"
   eval $start_sandbox_cmd 2>&1 | tee ${log_path}
@@ -157,7 +164,9 @@ if [[ $result == 0 ]] ; then
   echo "  package   - package TF into docker containers (you can specify target container to build like container-vrouter)"
   echo "  test      - run unittests"
   echo "  freeze    - prepare tf-dev-env for pushing to container registry for future reuse by compressing contrail directory"
-  echo "  upload    - pushes tf-dev-env to container registry"
+  echo "  upload    - push tf-dev-env to container registry"
+  echo "  none      - create the tf-dev-env container empty"
+  echo "  frozen    - fetch frozen tf-dev-env from Ci registry, you still have to use run.sh or fetch/configure to get sources"
   echo "For advanced usage You can now connect to the sandbox container by using:"
   if [[ $DISTRO != "macosx" ]]; then
     echo "  sudo docker exec -it $DEVENV_CONTAINER_NAME bash"
