@@ -69,6 +69,9 @@ export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-'false'}
 
 # versions info
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-'dev'}
+# tag for existing prebuilt containers reflecting current merged code in gerrit.
+# It's determined automatically taken from http://tf-nexus.progmaticlab.com:8082/frozen/tag during fetch stage
+export FROZEN_CONTAINER_TAG=""
 # note: there is spaces available in names below
 export VENDOR_NAME=${VENDOR_NAME:-"TungstenFabric"}
 export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"tungsten.io"}
