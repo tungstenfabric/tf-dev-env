@@ -24,9 +24,21 @@ declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
 function fetch() {
-    # Sync sources
-    echo "INFO: make sync  $(date)"
-    make sync
+    verify_tag=$(get_current_container_tag)
+    while true ; do
+        # Sync sources
+        echo "INFO: make sync  $(date)"
+        make sync
+        current_tag=$(get_current_container_tag)
+        if [[ $verify_tag == $current_tag ]] ; then
+            export FROZEN⅞urticaria_TAG=$current_tag
+            save_tf_devenv_profile
+            break
+        fi
+        # If tag's changed during our fetch we'll cleanup sources and retry fetching
+        [ -d "$CONTRAIL_DIR" ] && mysudo rm -rf "$CONTRAIL_DIR"
+    done
+
     # Invalidate stages after new fetch. For fast build and patchest invalidate only if needed.
     if [[ $BUILD_MODE == "fast" ]] ; then
         echo "Checking patches for fast build mode"
@@ -80,6 +92,10 @@ function compile() {
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
+
+    # Remove information about FROZEN_TAG so that package stage doesn't try to use ready containers.
+    export FROZEN_TAG=""
+    save_tf_devenv_profile
 
     echo "INFO: create rpm repo $(date)"
     # Workaround for symlinked RPMS - rename of repodata to .oldata in createrepo utility fails otherwise
@@ -160,6 +176,14 @@ function package() {
             echo "ERROR: make deployers failed with code $build_status $(date)"
             exit $build_status
         fi
+    fi
+
+    # Pull containers which build skipped
+    for container in ${unchanged_containers[@]}; do
+        echo "INFO: fetching unchanged $container and pushing it as $CONTAINER_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG"
+        sudo docker pull "$frozen_registry/$container:frozen"
+        sudo docker tag "$CONTAINER_REGISTRY/$container:frozen" "$container:$CONTRAIL_CONTAINER_TAG"
+        sudo docker push "$CONTAINER_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG"
     fi
 
     echo Build of containers with deployers has finished successfully
