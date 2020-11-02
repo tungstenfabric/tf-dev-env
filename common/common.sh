@@ -52,6 +52,10 @@ else
   # skip updating insecure registry for docker
   export CONTRAIL_SKIP_INSECURE_REGISTRY=1
 fi
+# FROZEN_REGISTRY is the source container registry where existing containers reside to skip rebuilding unchanged ones
+# Also it is the registry to take frozen tf-dev-sandbox container from
+export FROZEN_REGISTRY=${FROZEN_REGISTRY:-"tf-nexus.progmaticlab.com:5001"}
+
 export RPM_REPO_IP='localhost'
 export RPM_REPO_PORT='6667'
 export REGISTRY_CONTAINER_NAME=${REGISTRY_CONTAINER_NAME:-"tf-dev-env-registry"}
@@ -69,6 +73,9 @@ export ENABLE_RHSM_REPOS=${ENABLE_RHSM_REPOS:-'false'}
 
 # versions info
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-'dev'}
+# tag for existing prebuilt containers reflecting current merged code in gerrit.
+# It's determined automatically taken from http://tf-nexus.progmaticlab.com:8082/frozen/tag during fetch stage
+export FROZEN_TAG=""
 # note: there is spaces available in names below
 export VENDOR_NAME=${VENDOR_NAME:-"TungstenFabric"}
 export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"tungsten.io"}
