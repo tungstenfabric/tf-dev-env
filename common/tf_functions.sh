@@ -58,6 +58,9 @@ EOF
   if [[ -n "$GERRIT_BRANCH" ]]; then
     echo "export GERRIT_BRANCH=${GERRIT_BRANCH}" >> $tf_container_env_file
   fi
+  if [[ -n "$GERRIT_PROJECT" ]]; then
+    echo "export GERRIT_PROJECT=${GERRIT_PROJECT}" >> $tf_container_env_file
+  fi
 }
 
 function prepare_infra()
