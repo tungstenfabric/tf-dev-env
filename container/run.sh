@@ -16,6 +16,17 @@ set -eo pipefail
 load_tf_devenv_profile
 source_env
 prepare_infra
+
+set -x
+ls -la /etc/yum.repos.d/
+yum install -y python3-sphinx python-sphinx
+
+if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" ]]; then
+  sudo cp -rf ${CONTRAIL_CONFIG_DIR}/* /
+fi
+
+yum install -y python3-sphinx python-sphinx
+
 cd $DEV_ENV_ROOT
 
 [ -n "$DEBUG" ] && set -x
