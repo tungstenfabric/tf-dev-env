@@ -7,7 +7,7 @@ source_env
 REPODIR=${REPODIR:-"."}
 CONTRAIL_TEST_DIR=${CONTRAIL_TEST_DIR:-"${REPODIR}/third_party/contrail-test"}
 
-if [[ -z "${CONTRAIL_REGISTRY}" ]]; then
+if [[ -z "${}" ]]; then
   echo "CONTRAIL_REGISTRY is not set" && exit 1
 fi
 
