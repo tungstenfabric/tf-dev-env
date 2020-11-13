@@ -15,6 +15,9 @@ set -eo pipefail
 
 source_env
 prepare_infra
+if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" ]]; then
+  sudo cp -rf ${CONTRAIL_CONFIG_DIR}/* /
+fi
 cd $DEV_ENV_ROOT
 
 [ -n "$DEBUG" ] && set -x
