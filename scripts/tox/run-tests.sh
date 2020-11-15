@@ -12,7 +12,7 @@ fi
 
 if [ ! -e /input/target_set ]; then
   echo "INFO: /input/target_set is absent - run all tox targets"
-  target_set="all"
+  target_set="ALL"
 else
   target_set=$(cat /input/target_set)
 fi
