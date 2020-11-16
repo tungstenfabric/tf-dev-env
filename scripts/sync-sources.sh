@@ -60,6 +60,9 @@ echo "INFO: Init contrail sources git repos"
 git config --get user.name >/dev/null  2>&1 || git config --global user.name "tf-dev-env"
 git config --get user.email >/dev/null 2>&1 || git config --global user.email "tf-dev-env@tf"
 
+# temporary hack for expired SSL certs at review.opencontrail.org
+git config --global http.sslVerify false
+
 REPO_INIT_OPTS+=" -u $REPO_INIT_MANIFEST_URL -b $REPO_INIT_MANIFEST_BRANCH"
 echo "INFO: cmd: $REPO_TOOL init $REPO_INIT_OPTS"
 # disable pipefail because 'yes' fails if repo init doesnt read at least once 
