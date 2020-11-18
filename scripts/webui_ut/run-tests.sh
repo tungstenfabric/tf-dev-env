@@ -6,8 +6,10 @@ src_root=$HOME/contrail
 cd $src_root
 
 # ensure that all packages are installed
+pushd $DEV_ENV_ROOT
 make dep-contrail-web-core
 make dep-contrail-web-controller
+popd
 
 logs_path="/output/logs"
 test_reports_dir="$logs_path/test-reports"

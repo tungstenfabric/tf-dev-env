@@ -30,7 +30,7 @@ RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
                    rpmdevtools sudo gcc-c++ net-tools httpd \
                    python-virtualenv python-future python-tox \
                    google-chrome-stable \
-                   scons flex bison boost python3-devel \
+                   scons flex bison boost-devel python3-devel \
                    elfutils-libelf-devel && \
     yum clean all && \
     rm -rf /var/cache/yum && \
