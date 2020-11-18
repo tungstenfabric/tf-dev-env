@@ -30,6 +30,8 @@ function fetch() {
         # Sync sources
         echo "INFO: make sync  $(date)"
         make sync
+        make fetch_packages
+
         current_tag=$(get_current_container_tag)
         if [[ $verify_tag == $current_tag ]] ; then
             export FROZEN_TAG=$current_tag
@@ -69,9 +71,7 @@ function configure() {
     make setup
 
     echo "INFO: make dep fetch_packages  $(date)"
-    # targets can use yum and will block each other. don't run them in parallel
     make dep
-    make fetch_packages
 
     # disable byte compiling
     if [[ ! -f /usr/lib/rpm/brp-python-bytecompile.org  ]] ; then
