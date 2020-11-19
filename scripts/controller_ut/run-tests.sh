@@ -23,7 +23,7 @@ unset BUILD_ONLY
 
 echo "INFO: Prepare targets $(date)"
 targets_file="/input/unittest_targets.lst"
-if [[ ! -f "$targets_file" ]] ; then
+if [[ ! -f "$targets_file" || -n "$TARGET" ]] ; then
   targets_file='/tmp/unittest_targets.lst'
   rm "$targets_file" && touch "$targets_file"
   for utest in $(jq -r ".[].scons_test_targets[]"  controller/ci_unittests.json| sort | uniq) ; do
