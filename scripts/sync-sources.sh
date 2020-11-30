@@ -19,7 +19,7 @@ cd $REPODIR
 echo "INFO: current folder is $(pwd)"
 
 repo_init_defauilts='--repo-branch=repo-1'
-repo_sync_defauilts='--no-tags --no-clone-bundle -q'
+repo_sync_defauilts='--force-sync --no-tags --no-clone-bundle -q '
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
 REPO_INIT_MANIFEST_URL="https://github.com/tungstenfabric/tf-vnc"
