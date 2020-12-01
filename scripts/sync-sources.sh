@@ -19,7 +19,7 @@ cd $REPODIR
 echo "INFO: current folder is $(pwd)"
 
 repo_init_defauilts='--repo-branch=repo-1'
-repo_sync_defauilts='--force-sync --no-tags --no-clone-bundle -q '
+repo_sync_defauilts='--no-tags --no-clone-bundle -q '
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
 REPO_INIT_MANIFEST_URL="https://github.com/tungstenfabric/tf-vnc"
@@ -130,8 +130,11 @@ threads=$(( $(nproc) * 8 ))
 if (( threads > 16 )) ; then
   threads=16
 fi
+if [ -n "$($REPO_TOOL --trace forall -c 'echo $REPO_PROJECT')" ] ; then
+  REPO_SYNC_OPTS="-n ${REPO_SYNC_OPTS}"
+fi
 echo "INFO: cmd: $REPO_TOOL sync $REPO_SYNC_OPTS -j $threads"
-$REPO_TOOL sync $REPO_SYNC_OPTS -j $threads
+$REPO_TOOL --trace sync $REPO_SYNC_OPTS -j $threads
 if [[ $? != 0 ]] ; then
   echo  "ERROR: repo sync failed"
   exit 1
