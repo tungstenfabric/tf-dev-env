@@ -1,6 +1,0 @@
-[contrail-tpc]
-name=Third parties for Contrail
-baseurl=http://38.108.68.79/repository/yum-tpc/
-enabled = 1
-gpgcheck = 0
-cost = 500

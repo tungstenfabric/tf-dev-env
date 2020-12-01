@@ -59,7 +59,6 @@ create_env_file "$tf_container_env_file"
 mkdir -p ${scriptdir}/config
 # and put tpc.repo there cause stable image doesn't have it
 mkdir -p ${scriptdir}/config/etc/yum.repos.d
-cp -f ${scriptdir}/tpc.repo ${scriptdir}/config/etc/yum.repos.d/
 
 devenv_image="$CONTAINER_REGISTRY/$DEVENV_IMAGE"
 
