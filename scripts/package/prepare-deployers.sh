@@ -7,7 +7,7 @@ source_env
 REPODIR=${REPODIR:-"."}
 CONTRAIL_DEPLOYERS_DIR=${CONTRAIL_DEPLOYERS_DIR:-"${REPODIR}/contrail-deployers-containers"}
 
-tpc_repo="$CONTRAIL_CONFIG_DIR/etc/yum.repos.d/tpc.repo"
+tpc_repo="/etc/yum.repos.d/tpc.repo"
 if [ -e $tpc_repo ]; then
   cp $tpc_repo ${CONTRAIL_DEPLOYERS_DIR}/tpc.repo.template
 fi
