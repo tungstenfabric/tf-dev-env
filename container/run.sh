@@ -39,8 +39,6 @@ function fetch() {
         # If tag's changed during our fetch we'll cleanup sources and retry fetching
         echo "WARNING: tag was changed ($verify_tag -> $current_tag). Run sync again..."
         verify_tag=$current_tag
-        # TODO: fix second call to 'make sync' and remove next line
-        [ -d "$CONTRAIL_DIR" ] && rm -rf $CONTRAIL_DIR/*
     done
 
     # Invalidate stages after new fetch. For fast build and patchest invalidate only if needed.
