@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 TARGET=${1:-}
 TARGET_TIMEOUT=${TARGET_TIMEOUT:-"120m"}
@@ -34,7 +34,8 @@ popd
 logs_path="/output/logs"
 mkdir -p "$logs_path"
 # gather log files
-cp -R $path/.tox/$target_set/log/ $logs_path/ || /bin/true
+echo "may be here"
+# cp -R $path/.tox/$target_set/log/ $logs_path/ || /bin/true
 
 # gzip .log files - they consume several Gb unpacked
 pushd $logs_path

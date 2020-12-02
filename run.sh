@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common/common.sh
@@ -101,6 +101,8 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   fi
   # make dir to create them under current user
   mkdir -p ${WORKSPACE}/output
+  # may be 1
+  echo "may be 1"
   volumes+=" -v ${WORKSPACE}/output:/output:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${input_dir}:/input:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
