@@ -34,7 +34,7 @@ popd
 logs_path="/output/logs"
 mkdir -p "$logs_path"
 # gather log files
-cp -R $path/.tox/$target_set/log/ $logs_path/ || /bin/true
+# cp -R $path/.tox/$target_set/log/ $logs_path/ || /bin/true
 
 # gzip .log files - they consume several Gb unpacked
 pushd $logs_path
