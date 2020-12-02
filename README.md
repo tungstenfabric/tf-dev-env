@@ -89,14 +89,28 @@ Run the unit-testing
 tf-dev-env/run.sh test
 ```
 
-To skip some tests, you need to create a `tf-dev-env/skip_tests` file listing such tests. Example file:
+This command can be parameterized
 
+``` bash
+tf-dev-env/run.sh test TARGET
 ```
+
+TARGET can be:
+
+- ui. WebUI unit tests will be run.
+- tox. tox will be run for project $GERRIT_PROJECT. Specific tox target like pep8 can be run with placing target's name into file tf-dev-env/input/target_set
+- any test name from Scons (example can be found in file ci_unittests.json of tf-controller repository)
+- without any arguments default set of Scons UT will be run (please refer to default section of ci_unittests.json)
+
+To skip some tests, you have to create a `tf-dev-env/skip_tests` file listing such tests. Example file:
+
+```bash
 test_query_security_group_with_one_tag
 test_connection_status
 test_uuid_in_duplicate_name
 test_query_all_floating_ip_with_match_any
 ```
+
 Note, that skipping tests doesn't work for `src/contrail-analytics/contrail-broadview:test`, `src/contrail-analytics/contrail-snmp-collector:test` and `src/contrail-analytics/contrail-topology:test` targets.
 
 ## Targets
@@ -236,6 +250,7 @@ There are several options to change standard behaviour of `tf-dev-sandbox` conta
 
 - Attach external sources to container
 - Use external docker registry to store TF container images
+- Building kernel module files for current kernel versio
 
 ### External sources
 
