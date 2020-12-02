@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 TARGET=${1:-}
 TARGET_TIMEOUT=${TARGET_TIMEOUT:-"120m"}
@@ -95,9 +95,16 @@ done
 rm -rf $dump_path
 
 # gather test logs
+echo "may be 01"
+ls $logs_path -la
+echo "may be 02"
 for file in $(find build/ -name '*.log' ! -size 0) ; do 
   mkdir -p $logs_path/$(dirname $file)
+  ls $logs_path/$(dirname $file)
+  echo "may be 03"
   cp -u $file $logs_path/$file
+  ls $logs_path/$(dirname $file)
+  echo "may be 04"
 done
 
 # gzip .log files - they consume several Gb unpacked

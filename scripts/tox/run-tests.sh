@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 TARGET=${1:-}
 TARGET_TIMEOUT=${TARGET_TIMEOUT:-"120m"}
