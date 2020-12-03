@@ -28,6 +28,11 @@ echo "INFO: project path: $path"
 
 res=0
 pushd $path
+if [ ! -e tox.ini ]; then
+  echo "WARNING: tox.ini is absent. Skipping tests."
+  exit 0
+fi
+
 tox -e $target_set || res=1
 popd
 
