@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 TARGET=${1:-}
 TARGET_TIMEOUT=${TARGET_TIMEOUT:-"120m"}
@@ -26,6 +26,12 @@ echo "INFO: short project name: $project"
 path=$(./repo list -f -r $project | awk '{print $1}')
 echo "INFO: project path: $path"
 
+echo "for test 01"
+ls $path/.tox -la
+echo "for test 02"
+ls /tmp/.tox -la
+echo "for test 03"
+
 res=0
 pushd $path
 if [ ! -e tox.ini ]; then
@@ -36,8 +42,19 @@ fi
 tox -e $target_set || res=1
 popd
 
+echo "for test 11"
+ls $path/.tox -la
+echo "for test 12"
+ls /tmp/.tox -la
+echo "for test 13"
+ls /tmp/.tox/$target_set -la
+echo "for test 14"
+ls /tmp/.tox/$target_set/log -la
+echo "for test 15"
+
 logs_path="/output/logs"
 mkdir -p "$logs_path"
+mkdir -p $path/.tox/$target_set/log
 # gather log files
 cp -R $path/.tox/$target_set/log/ $logs_path/ || /bin/true
 
