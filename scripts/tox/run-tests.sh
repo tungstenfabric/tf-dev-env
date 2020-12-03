@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 TARGET=${1:-}
 TARGET_TIMEOUT=${TARGET_TIMEOUT:-"120m"}
@@ -19,12 +19,25 @@ fi
 
 echo "INFO: Running tox tests for project: $GERRIT_PROJECT, tox target: $target_set"
 
+echo "HOME is $HOME"
+echo "GERRIT_PROJECT is $GERRIT_PROJECT"
+
 cd $HOME/contrail
 
 project=$(echo $GERRIT_PROJECT | cut -d '/' -f 2)
 echo "INFO: short project name: $project"
+echo "my test 01"
+echo "$(./repo list -f -r $project)"
+echo "my test 02"
 path=$(./repo list -f -r $project | awk '{print $1}')
-echo "INFO: project path: $path"
+echo "INFO: old project path: $path"
+path="/root/contrail/contrail-container-builder"
+echo "INFO: new project path: $path"
+echo "my test 03"
+ls "/root/contrail/contrail-container-builder" -la
+echo "my test 04"
+ls "/root/contrail/tf-container-builder" -la
+echo "my test 05"
 
 res=0
 pushd $path
