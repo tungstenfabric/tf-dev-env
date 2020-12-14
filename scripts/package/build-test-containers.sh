@@ -91,7 +91,7 @@ else
 fi
 
 if [[ $res == '0' ]]; then
-  build_for_os_version $openstack_version
+  build_for_os_version $openstack_version || res=1
 fi
 
 popd
@@ -99,7 +99,6 @@ popd
 mkdir -p /output/logs/contrail-test
 # do not fail script if logs files are absent
 mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test || /bin/true
-
 
 deployment_test_logfile="${WORKSPACE}/tf_deployment_test_build_containers.log"
 if [[ $res == '0' && -e ${REPODIR}/tf-deployment-test/build-containers.sh ]]; then
@@ -109,6 +108,5 @@ fi
 mkdir -p /output/logs/tf-deployment-test
 # do not fail script if logs file is absent
 mv $deployment_test_logfile /output/logs/tf-deployment-test || /bin/true
-
 
 exit $res
