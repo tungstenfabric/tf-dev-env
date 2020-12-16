@@ -16,3 +16,7 @@ done
 if [ -e common.env ]; then
   cp common.env ${CONTAINER_BUILDER_DIR}
 fi
+
+if [ -e $CONTRAIL_CONFIG_DIR/etc/pip.conf ]; then
+  cp $CONTRAIL_CONFIG_DIR/etc/pip.conf ${CONTAINER_BUILDER_DIR}/containers/general-base/
+fi

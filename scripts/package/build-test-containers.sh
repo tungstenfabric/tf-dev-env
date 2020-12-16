@@ -34,6 +34,10 @@ if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d" ]
   cp -f ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/* docker/base/
 fi
 
+if [ -e $CONTRAIL_CONFIG_DIR/etc/pip.conf ]; then
+  cp $CONTRAIL_CONFIG_DIR/etc/pip.conf docker/base/
+fi
+
 function append_log() {
   local logfile=$1
   local always_echo=${2:-'false'}
