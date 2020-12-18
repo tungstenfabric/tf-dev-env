@@ -9,7 +9,7 @@ export JOBS=${JOBS:-$(nproc)}
 
 scriptdir=$(realpath $(dirname "$0"))
 
-if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" ]]; then
+if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "$CONTRAIL_CONFIG_DIR" && -n "$(ls -A ${CONTRAIL_CONFIG_DIR}/)" ]]; then
   cp -rf ${CONTRAIL_CONFIG_DIR}/* /
 fi
 
