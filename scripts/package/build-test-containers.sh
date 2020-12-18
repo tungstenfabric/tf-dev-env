@@ -29,7 +29,7 @@ fi
 
 pushd ${CONTRAIL_TEST_DIR}
 
-if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d" ]] ; then
+if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d" && -n "$(ls ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/)" ]] ; then
   # apply same repos for test containers
   cp -f ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/* docker/base/
 fi
