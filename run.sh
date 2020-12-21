@@ -131,7 +131,7 @@ else
   fi
 fi
 
-if [[ "$stage" == @(none|frozen) ]] ; then
+if [[ "$stage" == 'none' || "$stage" == 'frozen' ]] ; then
   echo "INFO: don't run any stages"
   exit 0
 fi
