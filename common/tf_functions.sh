@@ -80,7 +80,9 @@ function prepare_infra()
 
 function get_current_container_tag()
 {
-  echo $(curl -s "http://tf-nexus.progmaticlab.com:8082/frozen/tag")
+  if curl -sI "http://tf-nexus.progmaticlab.com:8082/frozen/tag" | grep -q "HTTP/1.1 200 OK" ; then
+    curl -s "http://tf-nexus.progmaticlab.com:8082/frozen/tag"
+  fi
 }
 
 # Classification of TF projects dealing with containers.
