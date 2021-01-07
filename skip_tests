@@ -1,1 +1,2 @@
 test.test_analytics_uve.AnalyticsUveTest.test_06_alarmgen_basic
+schema_transformer.tests.test_bgpvpn.TestBgpvpnWithVirtualNetwork.test_route_target_removed_when_resource_deleted
