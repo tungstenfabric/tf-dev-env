@@ -57,7 +57,7 @@ fi
 export FROZEN_REGISTRY=${FROZEN_REGISTRY:-"tf-nexus.progmaticlab.com:5001"}
 
 # Gerrit URL is used when patchsets-info.json is provided
-export GERRIT_URL=https://review.opencontrail.org/
+export GERRIT_URL=${GERRIT_URL:-https://review.opencontrail.org/}
 
 export RPM_REPO_IP='localhost'
 export RPM_REPO_PORT='6667'
