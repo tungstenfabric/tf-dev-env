@@ -6,11 +6,11 @@
 # Please visit opencontrail.org additional information.
 #
 # e.g. After changes are complete and commited to a local branch, do
-# 'git review' to submit changeset to review.opencontrail.org Code Review
+# 'git review' to submit changeset to gerrit.tungsten.io Code Review
 # (gerrit) System.
 #
 [gerrit]
-host=review.opencontrail.org
+host=gerrit.tungsten.io
 port=29418
 project=tungstenfabric/tf-dev-env.git
 defaultbranch=master
