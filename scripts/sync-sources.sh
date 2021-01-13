@@ -27,8 +27,8 @@ VNC_ORGANIZATION="tungstenfabric"
 VNC_REPO="tf-vnc"
 if [[ -n "$CONTRAIL_BRANCH" ]] ; then
   # check branch in tf-vnc, then in contrail-vnc and then fallback to master branch in tf-vnc
-  if ! curl -s https://review.opencontrail.org/projects/tungstenfabric%2Ftf-vnc/branches | grep 'ref' | grep -q "${CONTRAIL_BRANCH}" ; then
-    if curl -s https://review.opencontrail.org/projects/Juniper%2Fcontrail-vnc/branches | grep 'ref' | grep -q "${CONTRAIL_BRANCH}" ; then
+  if ! curl -s https://api.github.com/repos/tungstenfabric/tf-vnc/branches | jq -r '.[].name' | grep -q "${CONTRAIL_BRANCH}" ; then
+    if curl -s https://api.github.com/repos/Juniper/contrail-vnc/branches | jq -r '.[].name' | grep -q "${CONTRAIL_BRANCH}" ; then
       REPO_INIT_MANIFEST_URL="https://github.com/Juniper/contrail-vnc"
       VNC_ORGANIZATION="Juniper"
       VNC_REPO="contrail-vnc"
@@ -61,7 +61,7 @@ git config --get user.name >/dev/null  2>&1 || git config --global user.name "tf
 git config --get user.email >/dev/null 2>&1 || git config --global user.email "tf-dev-env@tf"
 
 # temporary hack for expired SSL certs at review.opencontrail.org
-git config --global http.sslVerify false
+# git config --global http.sslVerify false
 
 REPO_INIT_OPTS+=" -u $REPO_INIT_MANIFEST_URL -b $REPO_INIT_MANIFEST_BRANCH"
 echo "INFO: cmd: $REPO_TOOL init $REPO_INIT_OPTS"
