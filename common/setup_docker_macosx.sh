@@ -5,7 +5,6 @@ source ${scriptdir}/common.sh
 source ${scriptdir}/functions.sh
 
 docker_cfg="$HOME/.docker/daemon.json"
-echo $docker_cfg
 
 function check_docker_value() {
   local name=$1
@@ -14,21 +13,26 @@ function check_docker_value() {
 }
 
 echo
-echo '[docker install]'
+echo "INFO: [docker install]"
 if ! which docker >/dev/null 2>&1 ; then
     brew install docker
 else
-  echo "docker installed: $(docker --version)"
+  echo "INFO: docker installed: $(docker --version)"
+  version=$(docker version --format '{{.Client.Version}}' 2>/dev/null | head -1 | cut -d '.' -f 1)
+  if (( version < 16)); then
+    echo "ERROR: docker is too old. please remove it. tf-dev-env will install correct version."
+    exit 1
+  fi
 fi
 
 echo docker ps > /dev/null 2>&1
 if [[ $? != 0 ]]; then
-  echo "Please start Docker Deskop (Docker.app) before to continue..."
+  echo "ERROR: Please start Docker Deskop (Docker.app) before to continue..."
   exit 1
 fi
 
 echo
-echo '[docker config]'
+echo "INFO: [docker config]"
 default_iface=`route get 1 | grep interface | awk  '{print $2}'`
 registry_ip=${REGISTRY_IP}
 if [ -z $registry_ip ]; then
@@ -55,16 +59,16 @@ with open("${docker_cfg}", "w") as f:
 EOF
   docker_reload=1
 else
-  echo "no config changes required"
+  echo "INFO: no config changes required"
 fi
 
 runtime_docker_mtu=`docker network inspect --format='{{index .Options "com.docker.network.driver.mtu"}}' bridge`
 if [[ "$default_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]]; then
-  echo "set docker0 mtu to $default_iface_mtu"
+  echo "INFO: set docker0 mtu to $default_iface_mtu"
   ifconfig docker0 mtu $default_iface_mtu || true
-  echo 'Please restart Docker Desktop.'
+  echo "INFO: Please restart Docker Desktop."
 else
-  echo "no docker service restart required"
+  echo "INFO: no docker service restart required"
 fi
 
 echo "REGISTRY_IP: $registry_ip"

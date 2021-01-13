@@ -7,10 +7,11 @@ source ${scriptdir}/functions.sh
 CONTRAIL_SETUP_DOCKER=${CONTRAIL_SETUP_DOCKER:-1}
 [[ "$CONTRAIL_SETUP_DOCKER" != 1 ]] && { echo "INFO: setup docker skipped" && exit ; }
 if [ $DISTRO == "macosx" ] ; then
-  registry_ip=$(${scriptdir}/setup_docker_macosx.sh | awk '/^REGISTRY_IP: .*/{print($2)}' | head -n 1)
+  output=$(${scriptdir}/setup_docker_macosx.sh)
 else
-  registry_ip=$(sudo -E ${scriptdir}/setup_docker_root.sh | awk '/^REGISTRY_IP: .*/{print($2)}' | head -n 1)
+  output=$(sudo -E ${scriptdir}/setup_docker_root.sh)
 fi
+echo "$output"
 
-export REGISTRY_IP=${registry_ip}
+export REGISTRY_IP=$(echo "$output" | awk '/^REGISTRY_IP: .*/{print($2)}' | head -n 1)
 save_tf_devenv_profile

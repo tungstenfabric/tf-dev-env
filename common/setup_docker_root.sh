@@ -54,9 +54,9 @@ function check_docker_value() {
   python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$name'));" 2>/dev/null| grep -qi "$value"
 }
 
-echo
-echo '[docker install]'
-echo "$DISTRO detected"
+echo ""
+echo "INFO: [docker install]"
+echo "INFO: $DISTRO detected"
 if ! which docker >/dev/null 2>&1 ; then
   if [ x"$DISTRO" == x"centos" ]; then
     systemctl stop firewalld || true
@@ -72,12 +72,17 @@ if ! which docker >/dev/null 2>&1 ; then
     install_docker_ubuntu
   fi
 else
-  echo "docker installed: $(docker --version)"
+  echo "INFO: docker installed: $(docker --version)"
+  version=$(docker version --format '{{.Client.Version}}' 2>/dev/null | head -1 | cut -d '.' -f 1)
+  if (( version < 16)); then
+    echo "ERROR: docker is too old. please remove it. tf-dev-env will install correct version."
+    exit 1
+  fi
 fi
 
 
 echo
-echo '[docker config]'
+echo "INFO: [docker config]"
 default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
 
 CONTRAIL_SKIP_INSECURE_REGISTRY=${CONTRAIL_SKIP_INSECURE_REGISTRY:-0}
@@ -127,14 +132,14 @@ with open("/etc/docker/daemon.json", "w") as f:
 EOF
   docker_reload=1
 else
-  echo "no config changes required"
+  echo "INFO: no config changes required"
 fi
 
 runtime_docker_mtu=`docker network inspect --format='{{index .Options "com.docker.network.driver.mtu"}}' bridge`
 if [[ "$default_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]]; then
-  echo "set docker0 mtu to $default_iface_mtu"
+  echo "INFO: set docker0 mtu to $default_iface_mtu"
   ifconfig docker0 mtu $default_iface_mtu || true
-  echo 'restart docker'
+  echo "INFO: restart docker"
   if [ x"$DISTRO" == x"centos" -o x"$DISTRO" == x"rhel" ]; then
     systemctl restart docker
   elif [ x"$DISTRO" == x"ubuntu" ]; then
@@ -144,6 +149,7 @@ if [[ "$default_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]
     exit 1
   fi
 else
-  echo "no docker service restart required"
+  echo "INFO: no docker service restart required"
 fi
+
 echo "REGISTRY_IP: $registry_ip"
