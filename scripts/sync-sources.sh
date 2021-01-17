@@ -26,9 +26,11 @@ REPO_INIT_MANIFEST_URL="https://github.com/tungstenfabric/tf-vnc"
 VNC_ORGANIZATION="tungstenfabric"
 VNC_REPO="tf-vnc"
 if [[ -n "$CONTRAIL_BRANCH" ]] ; then
+  echo "INFO: CONTRAIL_BRANCH is not empty - $CONTRAIL_BRANCH"
   # check branch in tf-vnc, then in contrail-vnc and then fallback to master branch in tf-vnc
-  if ! curl -s https://api.github.com/repos/tungstenfabric/tf-vnc/branches | jq -r '.[].name' | grep -q "${CONTRAIL_BRANCH}" ; then
-    if curl -s https://api.github.com/repos/Juniper/contrail-vnc/branches | jq -r '.[].name' | grep -q "${CONTRAIL_BRANCH}" ; then
+  if [[ $(curl -s https://api.github.com/repos/tungstenfabric/tf-vnc/branches/${CONTRAIL_BRANCH} | jq -r '.name') != "${CONTRAIL_BRANCH}" ]]; then
+    if [[ $(curl -s https://api.github.com/repos/Juniper/contrail-vnc/branches/${CONTRAIL_BRANCH} | jq -r '.name') != "${CONTRAIL_BRANCH}" ]]; then
+      echo "INFO: using Juniper/contrail-vnc"
       REPO_INIT_MANIFEST_URL="https://github.com/Juniper/contrail-vnc"
       VNC_ORGANIZATION="Juniper"
       VNC_REPO="contrail-vnc"
@@ -36,10 +38,16 @@ if [[ -n "$CONTRAIL_BRANCH" ]] ; then
       # reset branch to master if no such branch in both vnc: openshift-ansible,
       # contrail-tripleo-puppet, contrail-trieplo-heat-templates do not 
       # depend on contrail branch and they are openstack depended.
-      echo "There is no $CONTRAIL_BRANCH branch in tf-vnc or in contrail-vnc, use master for vnc"
+      echo "INFO: There is no $CONTRAIL_BRANCH branch in tf-vnc or in contrail-vnc, use master for tf-vnc"
+      echo "INFO: tungstenfabric/tf-vnc answer"
+      curl -s https://api.github.com/repos/tungstenfabric/tf-vnc/branches/${CONTRAIL_BRANCH}
+      echo "INFO: Juniper/contrail-vnc asnwer"
+      curl -s https://api.github.com/repos/Juniper/contrail-vnc/branches/${CONTRAIL_BRANCH}
       CONTRAIL_BRANCH="master"
       GERRIT_BRANCH=""
     fi
+  else
+    echo "INFO: using tungstenfabric/tf-vnc"
   fi
 fi
 
