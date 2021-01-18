@@ -29,7 +29,7 @@ if [[ -n "$CONTRAIL_BRANCH" ]] ; then
   echo "INFO: CONTRAIL_BRANCH is not empty - $CONTRAIL_BRANCH"
   # check branch in tf-vnc, then in contrail-vnc and then fallback to master branch in tf-vnc
   if [[ $(curl -s https://api.github.com/repos/tungstenfabric/tf-vnc/branches/${CONTRAIL_BRANCH} | jq -r '.name') != "${CONTRAIL_BRANCH}" ]]; then
-    if [[ $(curl -s https://api.github.com/repos/Juniper/contrail-vnc/branches/${CONTRAIL_BRANCH} | jq -r '.name') != "${CONTRAIL_BRANCH}" ]]; then
+    if [[ $(curl -s https://api.github.com/repos/Juniper/contrail-vnc/branches/${CONTRAIL_BRANCH} | jq -r '.name') == "${CONTRAIL_BRANCH}" ]]; then
       echo "INFO: using Juniper/contrail-vnc"
       REPO_INIT_MANIFEST_URL="https://github.com/Juniper/contrail-vnc"
       VNC_ORGANIZATION="Juniper"
