@@ -84,7 +84,7 @@ export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-'dev'}
 export FROZEN_TAG=""
 # note: there is spaces available in names below
 export VENDOR_NAME=${VENDOR_NAME:-"TungstenFabric"}
-export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"tungsten.io"}
+export VENDOR_DOMAIN=${VENDOR_DOMAIN:-"io.tungsten"}
 
 # Contrail repo branches options
 export CONTRAIL_BRANCH=${CONTRAIL_BRANCH:-${GERRIT_BRANCH:-'master'}}
