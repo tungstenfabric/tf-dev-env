@@ -90,6 +90,11 @@ deployers-only:
 deployers: prepare-deployers deployers-only
 
 ##############################################################################
+# Operator container targets
+operator-containers:
+	@$(TF_DE_DIR)scripts/package/build-operator-containers.sh |& sed "s/^/operator-containers: /"
+
+##############################################################################
 # Test container targets
 test-containers:
 	@$(TF_DE_DIR)scripts/package/build-test-containers.sh |& sed "s/^/test-containers: /"

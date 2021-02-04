@@ -41,6 +41,12 @@ RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
 ADD entrypoint.sh /
 
 RUN echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc && \
-    echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc
+    echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc && \
+    wget -nv https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.14.2.linux-amd64.tar.gz && \
+    rm -f go1.14.2.linux-amd64.tar.gz && \
+    echo export PATH=$PATH:/usr/local/go/bin >> $HOME/.bashrc && \
+    wget  -nv https://github.com/operator-framework/operator-sdk/releases/download/v0.17.2/operator-sdk-v0.17.2-x86_64-linux-gnu -O /usr/local/bin/operator-sdk && \
+    chmod u+x /usr/local/bin/operator-sdk
 
 ENTRYPOINT ["/entrypoint.sh"]
