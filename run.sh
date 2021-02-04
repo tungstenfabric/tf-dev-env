@@ -16,9 +16,6 @@ cd "$scriptdir"
 export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 export BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-1}
 
-# enable build from sources (w/o RPMs)
-export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE:-}
-
 # variables that can be redefined outside (for CI)
 SITE_MIRROR=${SITE_MIRROR:-}
 
@@ -96,8 +93,6 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     # make dir to create them under current user
     mkdir -p ${CONTRAIL_DIR}
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
-  elif [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && -n "${src_volume_name}" ]] ; then
-    volumes+=" -v ${src_volume_name}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
   # make dir to create them under current user
   mkdir -p ${WORKSPACE}/output

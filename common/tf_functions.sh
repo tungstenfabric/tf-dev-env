@@ -19,7 +19,6 @@ export LINUX_DISTR_VER=${LINUX_DISTR_VER}
 export BUILD_MODE=${BUILD_MODE}
 export DEV_ENV_ROOT=/root/tf-dev-env
 export DEVENV_TAG=$DEVENV_TAG
-export CONTRAIL_BUILD_FROM_SOURCE=${CONTRAIL_BUILD_FROM_SOURCE}
 export SITE_MIRROR=${SITE_MIRROR}
 export CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES}
 export CONTRAIL_BRANCH=${CONTRAIL_BRANCH}
@@ -30,13 +29,8 @@ export VENDOR_NAME=$VENDOR_NAME
 export VENDOR_DOMAIN=$VENDOR_DOMAIN
 export MULTI_KERNEL_BUILD=$MULTI_KERNEL_BUILD
 export KERNEL_REPOSITORIES_RHEL8="$KERNEL_REPOSITORIES_RHEL8"
+export CONTRAIL_SOURCE=${CONTRAIL_DIR}
 EOF
-  if [[ -n "$CONTRAIL_BUILD_FROM_SOURCE" && "$BIND_CONTRAIL_DIR" == 'false' ]] ; then
-    export src_volume_name=ContrailSources
-    echo "export CONTRAIL_SOURCE=${src_volume_name}" >> $tf_container_env_file
-  else
-    echo "export CONTRAIL_SOURCE=${CONTRAIL_DIR}" >> $tf_container_env_file
-  fi
   if [[ -n "${GENERAL_EXTRA_RPMS+x}" ]] ; then
     echo "export GENERAL_EXTRA_RPMS=${GENERAL_EXTRA_RPMS}" >> $tf_container_env_file
   fi
