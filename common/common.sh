@@ -104,8 +104,7 @@ if [ -z "${DOCKER_VOLUME_OPTIONS}" ] ; then
   fi
 fi
 
-function source_env()
-{
+function source_env() {
   if [[ -e /input/tf-developer-sandbox.env ]] ; then
     echo "INFO: source env from /input/tf-developer-sandbox.env"
     source /input/tf-developer-sandbox.env
