@@ -63,6 +63,11 @@ function build_operator() {
 res=0
 
 operator_logfile="${WORKSPACE}/tf_operator_build_containers.log"
+if [ ! -d ${REPODIR}/tf-operator ] ; then
+  echo "WARNING: tf-operator is absent. Won't be built"
+  exit 0
+fi
+
 build_operator | append_log $operator_logfile true || res=1
 
 mkdir -p /output/logs/tf-operator
