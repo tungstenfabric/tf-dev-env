@@ -25,12 +25,11 @@ CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
 function append_log() {
   local logfile=$1
-  local always_echo=${2:-'false'}
   while read line ; do
-    if [[ "${CONTRAIL_KEEP_LOG_FILES,,}" != 'true' || "$always_echo" != 'false' ]] ; then
-      echo "$line" | tee -a $logfile
-    else
+    if [[ "${CONTRAIL_KEEP_LOG_FILES,,}" == 'true' ]] ; then
       echo "$line" >> $logfile
+    else
+      echo "$line" | tee -a $logfile
     fi
   done
 }
@@ -68,7 +67,7 @@ if [ ! -d ${REPODIR}/tf-operator ] ; then
   exit 0
 fi
 
-build_operator | append_log $operator_logfile true || res=1
+build_operator 2>&1 | append_log $operator_logfile || res=1
 
 mkdir -p /output/logs/tf-operator
 # do not fail script if logs file is absent
