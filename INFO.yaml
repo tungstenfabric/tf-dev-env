@@ -1,0 +1,73 @@
+---
+project: 'tf-dev-env'
+project_creation_date: '2018-01-04'
+project_category: ''
+lifecycle_state: 'Incubation'
+project_lead: &tungstenfabric_tf-dev-env_ptl
+    name: 'Andrey Pavlov'
+    email: 'andrey-mp@yandex.ru'
+    id: 'Andrey-mp'
+    company: 'Progmaticlab'
+    timezone: 'Europe/Moscow'
+primary_contact: *tungstenfabric_tf-dev-env_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.tungsten.io/projects/'
+    key: ''
+mailing_list:
+    type: 'groups.io'
+    url: ''
+    tag: '[]'
+realtime_discussion:
+    type: ''
+    server: ''
+    channel: ''
+meetings:
+    - type: ''
+      agenda: ''
+      url: ''
+      server: ''
+      channel: ''
+      repeats: ''
+      time: ''
+repositories:
+    - tungstenfabric/tf-dev-env
+committers:
+    - <<: *tungstenfabric_tf-dev-env_ptl
+    - name: 'Alexandre Levine'
+      email: 'alevine@progmaticlab.com'
+      company: 'Progmaticlab'
+      id: 'alexandrelevine'
+      timezone: 'Europe/Moscow'
+    - name: 'Alexey Morlang'
+      email: 'alexey.morlang@gmail.com'
+      company: 'Progmaticlab'
+      id: 'alexey-mr'
+      timezone: 'Europe/Moscow'
+    - name: 'Darien Hirotsu'
+      email: 'darien@tachtech.net'
+      company: ''
+      id: 'dhirotsu'
+      timezone: 'America/Los_Angeles'
+    - name: 'Michał Krawczyk'
+      email: 'krawczyk.michal91@gmail.com'
+      company: ''
+      id: 'kravvcu'
+      timezone: ''
+    - name: 'Will Stevens'
+      email: 'williamstevens@gmail.com'
+      company: ''
+      id: 'swill'
+      timezone: ''
+    - name: 'Szymon Krasuski'
+      email: 'krasuski.szymon.piotr@gmail.com'
+      company: 'CodiLime'
+      id: 'Dysproz'
+      timezone: 'Europe/Warsaw'
+tsc:
+    # yamllint disable rule:line-length
+    approval: 'https://wiki.tungsten.io/display/TUN/Projects'
+    changes:
+        - type: 'initial approval'
+          name: ''
+          link: ''
