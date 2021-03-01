@@ -9,3 +9,4 @@ tf-tripleo-heat-templates
 tf-helm-deployer
 tf-openshift-ansible
 tf-operator
+tf-openshift
