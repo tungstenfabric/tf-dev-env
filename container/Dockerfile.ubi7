@@ -2,6 +2,7 @@ ARG LINUX_DISTR=registry.access.redhat.com/ubi7/ubi
 ARG LINUX_DISTR_VER=latest
 FROM $LINUX_DISTR:$LINUX_DISTR_VER
 
+ARG SITE_MIRROR
 ARG LC_ALL=en_US.UTF-8
 ARG LANG=en_US.UTF-8
 ARG LANGUAGE=en_US.UTF-8
@@ -31,7 +32,7 @@ RUN \
     fi && \
     yum -y update && \
     yum -y downgrade nss* && \
-    curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
+    curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
     yum -y install python3 iproute \
                    autoconf automake createrepo docker-client docker-python gcc gdb git git-review jq libtool \
                    make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
@@ -48,11 +49,11 @@ ADD entrypoint.sh /
 
 RUN echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc && \
     echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc && \
-    wget -nv https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz && \
+    wget -nv ${SITE_MIRROR:-"https://dl.google.com"}/go/go1.14.2.linux-amd64.tar.gz && \
     tar -C /usr/local -xzf go1.14.2.linux-amd64.tar.gz && \
     rm -f go1.14.2.linux-amd64.tar.gz && \
     echo export PATH=$PATH:/usr/local/go/bin >> $HOME/.bashrc && \
-    wget  -nv https://github.com/operator-framework/operator-sdk/releases/download/v0.17.2/operator-sdk-v0.17.2-x86_64-linux-gnu -O /usr/local/bin/operator-sdk && \
+    wget -nv ${SITE_MIRROR:-"https://github.com"}/operator-framework/operator-sdk/releases/download/v0.17.2/operator-sdk-v0.17.2-x86_64-linux-gnu -O /usr/local/bin/operator-sdk && \
     chmod u+x /usr/local/bin/operator-sdk
 
 ENTRYPOINT ["/entrypoint.sh"]
