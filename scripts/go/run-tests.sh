@@ -9,6 +9,10 @@ fi
 
 echo "INFO: Running go tests for project: $GERRIT_PROJECT"
 
+type go >/dev/null 2>&1 || {
+  export PATH=$PATH:/usr/local/go/bin
+}
+
 cd $HOME/contrail
 
 project=$(echo $GERRIT_PROJECT | cut -d '/' -f 2)
