@@ -18,6 +18,8 @@ if [[ "$TARGET" == 'ui' ]]; then
   $scriptdir/webui_ut/run-tests.sh
 elif [[ "$TARGET" == 'tox' ]]; then
   $scriptdir/tox/run-tests.sh
+elif [[ "$TARGET" == 'go' ]]; then
+  $scriptdir/go/run-tests.sh
 else
   echo "INFO: Running controller tests"
   $scriptdir/controller_ut/run-tests.sh $TARGET

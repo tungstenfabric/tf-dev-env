@@ -1,6 +1,5 @@
 #!/bin/bash
 
-TARGET=${1:-}
 TARGET_TIMEOUT=${TARGET_TIMEOUT:-"120m"}
 
 scriptdir=$(realpath $(dirname "$0"))
