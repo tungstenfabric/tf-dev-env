@@ -71,6 +71,8 @@ function prepare_infra()
     touch $WORK_DIR/$file
     [[ -e /root/contrail/$file ]] || ln -s $WORK_DIR/$file /root/contrail/$file
   done
+  # to re-read yum data before each run - mirror list or mirrors itself can be changed since previous run
+  yum clean all
 }
 
 function get_current_container_tag()
