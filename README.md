@@ -129,7 +129,7 @@ Supported targets:
 
 - fetch     - sync TF git repos
 - configure - fetch third party packages and install dependencies
-- compile   - buld TF binaries
+- compile   - build TF binaries (RPM-s)
 - package   - package TF into docker containers
 - test      - run unittests
 
