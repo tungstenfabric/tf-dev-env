@@ -104,6 +104,16 @@ mkdir -p /output/logs/contrail-test
 # do not fail script if logs files are absent
 mv ${CONTRAIL_TEST_DIR}/*.log /output/logs/contrail-test || /bin/true
 
+mkdir -p ${REPODIR}/tf-deployment-test/mirrors
+if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d" && -n "$(ls ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/)" ]] ; then
+  # apply same repos for test containers
+  cp -f ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/* ${REPODIR}/tf-deployment-test/mirrors/
+fi
+
+if [ -e $CONTRAIL_CONFIG_DIR/etc/pip.conf ]; then
+  cp $CONTRAIL_CONFIG_DIR/etc/pip.conf ${REPODIR}/tf-deployment-test/mirrors/
+fi
+
 deployment_test_logfile="${WORKSPACE}/tf_deployment_test_build_containers.log"
 if [[ $res == '0' && -e ${REPODIR}/tf-deployment-test/build-containers.sh ]]; then
   ${REPODIR}/tf-deployment-test/build-containers.sh | append_log $deployment_test_logfile true || res=1
