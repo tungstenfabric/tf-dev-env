@@ -18,7 +18,8 @@ ENV PS1="sandbox:\[\033[01;34m\]\w\[\033[00m\]\$ "
 WORKDIR $CONTRAIL
 
 # Inject repositories that we might need
-COPY *.repo /etc/yum.repos.d/
+# copy pip.conf to the same place and move it to right place later to simplify build script
+COPY *.repo pip.conf* /etc/yum.repos.d/
 
 # NOTE:
 #  - we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
@@ -27,6 +28,7 @@ COPY *.repo /etc/yum.repos.d/
 # NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
 RUN \
     sed 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
+    if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     if ! yum repolist | grep -q epel ; then \
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || exit 1 ; \
     fi && \

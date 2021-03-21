@@ -18,12 +18,14 @@ ENV PS1="sandbox:\[\033[01;34m\]\w\[\033[00m\]\$ "
 WORKDIR $CONTRAIL
 
 # Inject repositories that we might need
-COPY *.repo /etc/yum.repos.d/
+# copy pip.conf to the same place and move it to right place later to simplify build script
+COPY *.repo pip.conf* /etc/yum.repos.d/
 
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
 # NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
 RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
+    if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     yum -y update && \
     yum -y downgrade nss* && \
     curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
