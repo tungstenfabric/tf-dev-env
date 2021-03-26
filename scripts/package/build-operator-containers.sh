@@ -54,9 +54,17 @@ function build_operator() {
   }
   export CGO_ENABLED=1
 
+  echo "INFO: build tf-operator"
   local target=${CONTAINER_REGISTRY}/tf-operator:${CONTRAIL_CONTAINER_TAG}
   run_cmd operator-sdk build $target
   run_cmd docker push $target
+
+  # olm bundle
+  echo "INFO: build tf-operator bundle for olm"
+  local build_tag=${CONTAINER_REGISTRY}/tf-operator-bundle:${CONTRAIL_CONTAINER_TAG}
+  local build_opts=" --no-cache --tag $build_tag -f deploy/bundle/bundle.Dockerfile deploy/bundle"
+  run_cmd docker build $build_opts
+  run_cmd docker push $build_tag
 }
 
 res=0
