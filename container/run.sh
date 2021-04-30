@@ -139,10 +139,10 @@ function package() {
         return $?
     fi
 
+    local make_containers=""
     # Check if we're run by Jenkins and have an automated patchset
     if [[ $BUILD_MODE == "fast" ]] && [[ -n $FROZEN_TAG ]] && patches_exist ; then
         echo "INFO: checking containers changes for fast build"
-        make_containers=""
         if [[ ! -z $changed_containers_projects ]] ; then
             echo "INFO: core containers has changed"
             make_containers="containers src-containers"
@@ -165,11 +165,9 @@ function package() {
     # build containers
     if [[ -n $make_containers ]] ; then
         echo "INFO: make $make_containers $(date)"
-        make -j 8 $make_containers
-        build_status=$?
-        if [[ "$build_status" != "0" ]]; then
-            echo "INFO: make containers failed with code $build_status $(date)"
-            exit $build_status
+        if ! make -j 8 $make_containers ; then
+            echo "INFO: make containers failed $(date)"
+            exit 1
         fi
     fi
 
@@ -177,25 +175,29 @@ function package() {
     if [[ $BUILD_MODE == "full" ]] ; then
         # build containers
         echo "INFO: make deployers $(date)"
-        make deployers
-        build_status=$?
-        if [[ "$build_status" != "0" ]]; then
-            echo "ERROR: make deployers failed with code $build_status $(date)"
-            exit $build_status
+        if ! make deployers ; then
+            echo "ERROR: make deployers failed $(date)"
+            exit 1
         fi
     fi
 
+    local res=0
     # Pull containers which build skipped
     for container in ${unchanged_containers[@]}; do
         # TODO: CONTRAIL_REGISTRY here should actually be CONTAINER_REGISTRY but the latter is not passed inside the container now
         echo "INFO: fetching unchanged $container and pushing it as $CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG"
         if [[ $(sudo docker pull "$FROZEN_REGISTRY/$container:$FROZEN_TAG") ]] ; then
-            sudo docker tag "$FROZEN_REGISTRY/$container:$FROZEN_TAG" "$CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG"
-            sudo docker push "$CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG"
+            sudo docker tag "$FROZEN_REGISTRY/$container:$FROZEN_TAG" "$CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG" || res=1
+            sudo docker push "$CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG" || res=1
         else
+            res=1
             echo "INFO: not found frozen $container with tag $FROZEN_TAG"
         fi
     done
+    if [[ "$res" != '0' ]]; then
+        echo "ERROR: failed to re-tag some unchanged containers"
+        exit 1
+    fi
 
     echo "INFO: Build of containers with deployers has finished successfully"
 }

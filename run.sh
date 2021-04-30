@@ -29,9 +29,9 @@ if [[ "$stage" == 'upload' ]]; then
   exit 0
 fi
 
-echo tf-dev-env startup
+echo "INFO: tf-dev-env startup"
 echo
-echo '[ensure python is present]'
+echo 'INFO: ensure python is present'
 install_prerequisites_$DISTRO
 
 # prepare env
@@ -58,7 +58,7 @@ mkdir -p ${scriptdir}/config
 devenv_image="$CONTAINER_REGISTRY/$DEVENV_IMAGE"
 
 echo
-echo '[environment setup]'
+echo 'INFO: environment setup'
 if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   if [[ "$stage" == 'frozen' ]]; then
     echo "INFO: fetching frozen tf-dev-env from CI registry"
@@ -70,13 +70,13 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
       if [[ "$BUILD_DEV_ENV_ON_PULL_FAIL" != '1' ]]; then
         exit 1
       fi
-      echo "No image $devenv_image is available. Try to build."
+      echo "INFO: No image $devenv_image is available. Try to build."
       BUILD_DEV_ENV=1
     fi
   fi
 
   if [[ "$BUILD_DEV_ENV" == '1' ]]; then
-    echo "Build $DEVENV_IMAGE_NAME:$DEVENV_TAG docker image"
+    echo "INFO: Build $DEVENV_IMAGE_NAME:$DEVENV_TAG docker image"
     cd ${scriptdir}/container
     ./build.sh -i ${DEVENV_IMAGE_NAME} ${DEVENV_TAG}
     cd ${scriptdir}
@@ -120,9 +120,9 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   echo $DEVENV_CONTAINER_NAME created.
 else
   if is_container_up "$DEVENV_CONTAINER_NAME"; then
-    echo "$DEVENV_CONTAINER_NAME already running."
+    echo "INFO: $DEVENV_CONTAINER_NAME already running."
   else
-    echo "$(mysudo docker start $DEVENV_CONTAINER_NAME) started."
+    echo "INFO: $(mysudo docker start $DEVENV_CONTAINER_NAME) started."
   fi
 fi
 
@@ -131,7 +131,7 @@ if [[ "$stage" == 'none' || "$stage" == 'frozen' ]] ; then
   exit 0
 fi
 
-echo "run stage $stage with target $target"
+echo "INFO: run stage $stage with target $target"
 mysudo docker exec -i $DEVENV_CONTAINER_NAME /root/tf-dev-env/container/run.sh $stage $target
 result=${PIPESTATUS[0]}
 

@@ -54,7 +54,7 @@ else
 fi
 # FROZEN_REGISTRY is the source container registry where existing containers reside to skip rebuilding unchanged ones
 # Also it is the registry to take frozen tf-dev-sandbox container from
-export FROZEN_REGISTRY=${FROZEN_REGISTRY:-"tf-nexus.progmaticlab.com:5001"}
+export FROZEN_REGISTRY=${FROZEN_REGISTRY:-"tf-nexus.progmaticlab.com:5101"}
 
 # Gerrit URL is used when patchsets-info.json is provided
 export GERRIT_URL=${GERRIT_URL:-https://gerrit.tungsten.io/}
