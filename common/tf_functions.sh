@@ -102,69 +102,71 @@ unchanged_containers=()
 
 # Check patchset and fill changed_projects, also collect containers NOT to build
 function patches_exist() {
-  if [[ -e "/input/patchsets-info.json" ]] ; then
-    # First fetch existing containers list
-    frozen_containers=($(curl http://$FROZEN_REGISTRY/v2/_catalog | jq -r '.repositories | .[]'))
-    # Next initialize projects lists and look for changes
-    changed_projects=()
-    changed_containers_projects=()
-    changed_deployers_projects=()
-    changed_operator_projects=()
-    changed_tests_projects=()
-    changed_product_projects=()
-    projects=$(jq '.[].project' "/input/patchsets-info.json")
-    for project in ${projects[@]}; do
-      project=$(echo $project | cut -f 2 -d "/" | tr -d '"')
-      changed_projects+=($project)
-      non_container_project=true
-      if [[ ${infra_projects[@]} =~ $project ]] ; then
-        continue
-      fi
-      if [[ ${containers_projects[@]} =~ $project ]] ; then
-        changed_containers_projects+=($project)
-        non_container_project=false
-      fi
-      if [[ ${deployers_projects[@]} =~ $project ]] ; then
-        changed_deployers_projects+=($project)
-        non_container_project=false
-      fi
-      if [[ ${operator_projects[@]} =~ $project ]] ; then
-        changed_operator_projects+=($project)
-        non_container_project=false
-      fi
-      if [[ ${tests_projects[@]} =~ $project ]] ; then
-        changed_tests_projects+=($project)
-        non_container_project=false
-      fi
-      if $non_container_project ; then
-        changed_product_projects+=($project)
-        # No containers are reused in this case - all should be rebuilt
-        frozen_containers=()
-      fi
-    done
-
-    # Now scan through frozen containers and remove ones to rebuild
-    for container in ${frozen_containers[@]}; do
-      if [[ $container == *-test ]] ; then
-        if [[ -z $changed_tests_projects ]] ; then
-          unchanged_containers+=($container)
-        fi
-      elif [[ $container == *-src ]] ; then
-        if [[ -z $changed_deployers_projects ]] ; then
-          unchanged_containers+=($container)
-        fi
-      elif [[ $container == *-operator ]] ; then
-        if [[ -z $changed_operator_projects ]] ; then
-          unchanged_containers+=($container)
-        fi
-      else
-        if [[ $container != *-sandbox ]] && [[ -z $changed_containers_projects ]] ; then
-          unchanged_containers+=($container)
-        fi
-      fi
-    done
-
-    return 0
+  if [[ ! -e "/input/patchsets-info.json" ]] ; then
+    return 1
   fi
-  return 1
+
+  # First fetch existing containers list
+  # TODO: detect protocol first
+  frozen_containers=($(curl https://$FROZEN_REGISTRY/v2/_catalog | jq -r '.repositories | .[]'))
+  # Next initialize projects lists and look for changes
+  changed_projects=()
+  changed_containers_projects=()
+  changed_deployers_projects=()
+  changed_operator_projects=()
+  changed_tests_projects=()
+  changed_product_projects=()
+  projects=$(jq '.[].project' "/input/patchsets-info.json")
+  for project in ${projects[@]}; do
+    project=$(echo $project | cut -f 2 -d "/" | tr -d '"')
+    changed_projects+=($project)
+    non_container_project=true
+    if [[ ${infra_projects[@]} =~ $project ]] ; then
+      continue
+    fi
+    if [[ ${containers_projects[@]} =~ $project ]] ; then
+      changed_containers_projects+=($project)
+      non_container_project=false
+    fi
+    if [[ ${deployers_projects[@]} =~ $project ]] ; then
+      changed_deployers_projects+=($project)
+      non_container_project=false
+    fi
+    if [[ ${operator_projects[@]} =~ $project ]] ; then
+      changed_operator_projects+=($project)
+      non_container_project=false
+    fi
+    if [[ ${tests_projects[@]} =~ $project ]] ; then
+      changed_tests_projects+=($project)
+      non_container_project=false
+    fi
+    if $non_container_project ; then
+      changed_product_projects+=($project)
+      # No containers are reused in this case - all should be rebuilt
+      frozen_containers=()
+    fi
+  done
+
+  # Now scan through frozen containers and remove ones to rebuild
+  for container in ${frozen_containers[@]}; do
+    if [[ $container == *-test ]] ; then
+      if [[ -z $changed_tests_projects ]] ; then
+        unchanged_containers+=($container)
+      fi
+    elif [[ $container == *-src ]] ; then
+      if [[ -z $changed_deployers_projects ]] ; then
+        unchanged_containers+=($container)
+      fi
+    elif [[ $container == *-operator ]] ; then
+      if [[ -z $changed_operator_projects ]] ; then
+        unchanged_containers+=($container)
+      fi
+    else
+      if [[ $container != *-sandbox ]] && [[ -z $changed_containers_projects ]] ; then
+        unchanged_containers+=($container)
+      fi
+    fi
+  done
+
+  return 0
 }
