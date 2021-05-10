@@ -206,6 +206,11 @@ if [ -e "$patchsets_info_file" ] ; then
   [[ $? != 0 ]] && exit 1
 fi
 
+# build one more src container - with manifest.xml to save git SHA for repos in the build
+#TODO: think about repos with non-master branches: tf-kolla-ansible, tf-tripleo-heat-templates
+mkdir -p ${REPODIR}/tf-manifest
+$REPO_TOOL manifest -r -o ${REPODIR}/tf-manifest/manifest.xml
+
 echo "INFO: gathering UT targets"
 if [ -e "$patchsets_info_file" ] ; then
   # this script uses ci_unittests.json from controller to eval required UT targets from changes

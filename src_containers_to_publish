@@ -1,6 +1,7 @@
 # In this file there is a list of directories which will be packed into containers
 # when you use make containers, make container-<container name>
 # one line = one source directory
+tf-manifest
 tf-charms
 tf-ansible-deployer
 tf-kolla-ansible
