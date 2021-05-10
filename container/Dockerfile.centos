@@ -23,11 +23,10 @@ COPY *.repo pip.conf* /etc/yum.repos.d/
 
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
-# NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
+# NOTE: pin nss version (or do not update to newer version) due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
 RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
-    yum -y update && \
-    echo "TODO: revert 'yum -y downgrade nss*' when yum repos will be fixed" && \
+    yum -y update -x nss* && \
     curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
     yum -y install python3 iproute \
                    autoconf automake createrepo docker-client docker-python gcc gdb git git-review jq libtool \
