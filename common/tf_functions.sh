@@ -90,7 +90,7 @@ containers_projects=("tf-container-builder")
 operator_projects=("tf-operator")
 tests_projects=("tf-test" "tf-deployment-test")
 vrouter_dpdk=("tf-dpdk")
-infra_projects=("tf-dev-env")
+infra_projects=("tf-jenkins" "tf-dev-env" "tf-devstack" "tf-dev-test")
 
 changed_projects=()
 changed_containers_projects=()
@@ -108,7 +108,7 @@ function patches_exist() {
 
   # First fetch existing containers list
   # TODO: detect protocol first
-  frozen_containers=($(curl https://$FROZEN_REGISTRY/v2/_catalog | jq -r '.repositories | .[]'))
+  frozen_containers=($(curl -fSs https://$FROZEN_REGISTRY/v2/_catalog | jq -r '.repositories | .[]'))
   # Next initialize projects lists and look for changes
   changed_projects=()
   changed_containers_projects=()
