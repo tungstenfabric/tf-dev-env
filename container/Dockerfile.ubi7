@@ -25,7 +25,8 @@ COPY *.repo pip.conf* /etc/yum.repos.d/
 #  - we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
 # - disable subscription-manager - rhel/ubi build use only mirrors that dont requrie subscription
-# NOTE: pin nss version (or do not update to newer version) due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
+# NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
+# in centos it's possible to downgrade, in rhel yum issues prevent downgrade
 RUN \
     sed 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
