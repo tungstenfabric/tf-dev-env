@@ -17,7 +17,7 @@ if [[ ! -e "$patchsets_info_file" ]] ; then
     exit
 fi
 files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-third-party-packages")) | select(has("files")) | .files[]')
-if [[ -z "$files" ]] ; then 
+if [[ -z "$files" ]] ; then
     echo "INFO: skip tpp: there is no changes in the files for contrail-third-party-packages"
     exit
 fi

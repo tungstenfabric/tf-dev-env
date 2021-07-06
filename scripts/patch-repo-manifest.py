@@ -54,11 +54,11 @@ class Manifest(object):
             p.set('remote', remote)
             if branch:
                 p.set('revision', branch)
-        
+
 
     def apply_patches(self, patchsets):
         for p in patchsets:
-            self._apply_patch(p)            
+            self._apply_patch(p)
 
     def dump(self, file):
         if not file:

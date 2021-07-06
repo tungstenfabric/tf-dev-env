@@ -17,12 +17,12 @@ if [[ ! -e "$patchsets_info_file" ]] ; then
     exit
 fi
 files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("tf-third-party-packages")) | select(has("files")) | .files[]')
-if [[ -z "$files" ]] ; then 
+if [[ -z "$files" ]] ; then
     echo "INFO: skip tpp: there is no changes in the files for tf-third-party-packages"
     exit
 fi
 
-# check path third_party/contrail-third-party-packages because 
+# check path third_party/contrail-third-party-packages because
 # in vnc it is downloaded into contrail-third-party-packages
 tpp_dir=${REPODIR}/third_party/contrail-third-party-packages
 if [[ ! -e $tpp_dir ]] ; then

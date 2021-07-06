@@ -99,7 +99,7 @@ done
 rm -rf $dump_path
 
 # gather test logs
-for file in $(find build/ -name '*.log' ! -size 0) ; do 
+for file in $(find build/ -name '*.log' ! -size 0) ; do
   mkdir -p $logs_path/$(dirname $file)
   cp -u $file $logs_path/$file
 done
