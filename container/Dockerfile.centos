@@ -29,8 +29,9 @@ RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
     yum -y update -x nss* && \
     yum -y downgrade nss* && \
     curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
-    yum -y install python3 iproute \
-                   autoconf automake createrepo docker-client docker-python gcc gdb git git-review jq libtool \
+    yum -y install centos-release-scl && \
+    yum -y install python3 iproute devtoolset-7-gcc devtoolset-7-binutils \
+                   autoconf automake createrepo docker-client docker-python gdb git git-review jq libtool \
                    make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
                    rpmdevtools sudo gcc-c++ net-tools httpd \
                    python-virtualenv python-future python-tox \
