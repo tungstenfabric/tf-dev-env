@@ -292,7 +292,7 @@ For example, if you need to build kernel modules for CentOS with kernel version 
 ```bash
 ./tf-dev-env/run.sh fetch
 echo "3.10.0-1127.13.1.el7.x86_64" >> contrail/tools/packages/kernel_version.info
-./tf-dev-env/run.sh build 
+./tf-dev-env/run.sh build
 ```
 
 ## Full TF dev suite

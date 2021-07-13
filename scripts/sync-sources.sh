@@ -36,7 +36,7 @@ if [[ -n "$CONTRAIL_BRANCH" ]] ; then
       VNC_REPO="contrail-vnc"
     else
       # reset branch to master if no such branch in both vnc: openshift-ansible,
-      # contrail-tripleo-puppet, contrail-trieplo-heat-templates do not 
+      # contrail-tripleo-puppet, contrail-trieplo-heat-templates do not
       # depend on contrail branch and they are openstack depended.
       echo "INFO: There is no $CONTRAIL_BRANCH branch in tf-vnc or in contrail-vnc, use master for tf-vnc"
       echo "INFO: tungstenfabric/tf-vnc answer"
@@ -73,7 +73,7 @@ git config --get user.email >/dev/null 2>&1 || git config --global user.email "t
 
 REPO_INIT_OPTS+=" -u $REPO_INIT_MANIFEST_URL -b $REPO_INIT_MANIFEST_BRANCH"
 echo "INFO: cmd: $REPO_TOOL init $REPO_INIT_OPTS"
-# disable pipefail because 'yes' fails if repo init doesnt read at least once 
+# disable pipefail because 'yes' fails if repo init doesnt read at least once
 set +o pipefail
 yes | $REPO_TOOL init $REPO_INIT_OPTS
 if [[ $? != 0 ]] ; then

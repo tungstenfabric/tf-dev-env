@@ -12,7 +12,7 @@ cd "$scriptdir"
 
 # Build options
 
-# enable build of development sandbox 
+# enable build of development sandbox
 export BUILD_DEV_ENV=${BUILD_DEV_ENV:-0}
 export BUILD_DEV_ENV_ON_PULL_FAIL=${BUILD_DEV_ENV_ON_PULL_FAIL:-1}
 
