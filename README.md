@@ -135,7 +135,7 @@ Supported targets:
 
 ## Advanced usage
 
-It is possible to use  more finegraned build process via running make tool for building artifacts manually.
+It is possible to use more finegraned build process via running make tool for building artifacts manually.
 Note: the described way below uses internal commands and might be changed in future.
 
 ### 1. Prepare developer-sandbox container and dont run any targets
