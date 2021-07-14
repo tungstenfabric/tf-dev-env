@@ -154,9 +154,9 @@ sudo docker exec -it tf-dev-sandbox bash
 
 ``` bash
 cd ~/tf-dev-env
-make sync                # get latest code
-make setup dep      # set up docker container and install build dependencies
-make fetch_packages      # pull third_party dependencies
+make sync              # get latest code
+make setup dep         # set up docker container and install build dependencies
+make fetch_packages    # pull third_party dependencies
 ```
 
 The descriptions of targets:
