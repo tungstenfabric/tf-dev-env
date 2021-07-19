@@ -24,7 +24,7 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
-if [ 'R1912' != "${CONTRAIL_BRANCH^^}" ] && [ "${CONTRAIL_BRANCH^^}" != 'R2011' ]; then
+if [ 'R1912' != "${CONTRAIL_BRANCH^^}" ] && [ "${CONTRAIL_BRANCH^^}" != 'R2011' ] && [ "$stage" != 'test' ]; then
     if [ -e /opt/rh/devtoolset-7/enable ]; then
         source /opt/rh/devtoolset-7/enable
     fi
