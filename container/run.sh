@@ -192,9 +192,9 @@ function package() {
     for container in ${unchanged_containers[@]}; do
         # TODO: CONTRAIL_REGISTRY here should actually be CONTAINER_REGISTRY but the latter is not passed inside the container now
         echo "INFO: fetching unchanged $container and pushing it as $CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG"
-        if [[ $(sudo docker pull "$FROZEN_REGISTRY/$container:$FROZEN_TAG") ]] ; then
-            sudo docker tag "$FROZEN_REGISTRY/$container:$FROZEN_TAG" "$CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG" || res=1
-            sudo docker push "$CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG" || res=1
+        if [[ $(docker pull "$FROZEN_REGISTRY/$container:$FROZEN_TAG") ]] ; then
+            docker tag "$FROZEN_REGISTRY/$container:$FROZEN_TAG" "$CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG" || res=1
+            docker push "$CONTRAIL_REGISTRY/$container:$CONTRAIL_CONTAINER_TAG" || res=1
         else
             res=1
             echo "INFO: not found frozen $container with tag $FROZEN_TAG"
