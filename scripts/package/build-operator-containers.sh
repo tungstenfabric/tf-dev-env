@@ -41,7 +41,7 @@ function run_cmd(){
     return
   fi
   if ! grep -q "^docker:.*:$me" /etc/group ; then
-    sudo usermod -aG docker $me
+    /usr/bin/sudo usermod -aG docker $me
   fi
   echo $@ | sg docker -c bash
 }
