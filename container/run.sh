@@ -24,12 +24,6 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
-if [ 'R1912' != "${CONTRAIL_BRANCH^^}" ] && [ "${CONTRAIL_BRANCH^^}" != 'R2011' ] && [ "$stage" != 'test' ]; then
-    if [ -e /opt/rh/devtoolset-7/enable ]; then
-        source /opt/rh/devtoolset-7/enable
-    fi
-fi
-
 function fetch() {
     verify_tag=$(get_current_container_tag)
     while true ; do
@@ -115,6 +109,13 @@ function compile() {
     # at this moment tpp packages are built only if there are changes there
     # from gerrit. So, for now it relies on tha fact that it is first step of RPMs.
     make package-tpp
+
+    if [ 'R1912' != "${CONTRAIL_BRANCH^^}" ] && [ "${CONTRAIL_BRANCH^^}" != 'R2011' ]; then
+        if [ -e /opt/rh/devtoolset-7/enable ]; then
+            source /opt/rh/devtoolset-7/enable
+        fi
+    fi
+
     echo "INFO: make rpm  $(date)"
     make rpm
     echo "INFO: update rpm repo $(date)"
