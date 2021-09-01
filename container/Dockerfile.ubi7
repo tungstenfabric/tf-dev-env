@@ -27,12 +27,14 @@ COPY *.repo pip.conf* /etc/yum.repos.d/
 # - disable subscription-manager - rhel/ubi build use only mirrors that dont requrie subscription
 # NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
 # in centos it's possible to downgrade, in rhel yum issues prevent downgrade
+# NOTE: /etc/yum.repos.d/google-chrome.repo is overwritten by google-chrome-stable package. save it before and restore after
 RUN \
     sed 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     if ! yum repolist | grep -q epel ; then \
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || exit 1 ; \
     fi && \
+    cp /etc/yum.repos.d/google-chrome.repo /tmp && \
     yum -y update -x nss* && \
     curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
     yum -y install python3 iproute devtoolset-7-gcc devtoolset-7-binutils \
@@ -42,6 +44,7 @@ RUN \
                    python-virtualenv python-future python-tox \
                    google-chrome-stable \
                    elfutils-libelf-devel && \
+    cp /tmp/google-chrome.repo /etc/yum.repos.d/google-chrome.repo && \
     yum clean all && \
     rm -rf /var/cache/yum && \
     pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2 && \
