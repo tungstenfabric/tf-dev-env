@@ -110,7 +110,7 @@ function compile() {
     # from gerrit. So, for now it relies on tha fact that it is first step of RPMs.
     make package-tpp
 
-    if [ 'R1912' != "${CONTRAIL_BRANCH^^}" ] && [ "${CONTRAIL_BRANCH^^}" != 'R2011' ]; then
+    if [[ ! "${CONTRAIL_BRANCH^^}" =~ 'R1912' ]] && [[ ! "${CONTRAIL_BRANCH^^}" =~ 'R2011' ]]; then
         if [ -e /opt/rh/devtoolset-7/enable ]; then
             source /opt/rh/devtoolset-7/enable
         fi
