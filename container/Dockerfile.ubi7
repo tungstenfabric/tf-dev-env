@@ -1,6 +1,7 @@
 ARG LINUX_DISTR=registry.access.redhat.com/ubi7/ubi
 ARG LINUX_DISTR_VER=latest
 FROM $LINUX_DISTR:$LINUX_DISTR_VER
+ARG YUM_SM_PLUGIN_ENABLED=0
 
 ARG SITE_MIRROR
 ARG LC_ALL=en_US.UTF-8
@@ -29,7 +30,7 @@ COPY *.repo pip.conf* /etc/yum.repos.d/
 # in centos it's possible to downgrade, in rhel yum issues prevent downgrade
 # NOTE: /etc/yum.repos.d/google-chrome.repo is overwritten by google-chrome-stable package. save it before and restore after
 RUN \
-    sed 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
+    sed 's/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     if ! yum repolist | grep -q epel ; then \
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || exit 1 ; \

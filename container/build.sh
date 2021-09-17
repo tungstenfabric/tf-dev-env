@@ -27,6 +27,9 @@ if [[ "$LINUX_DISTR" =~ 'centos' ]] ; then
     docker_file="Dockerfile.centos"
 else
     docker_file="Dockerfile.ubi7"
+    if [[ -n "$YUM_SM_PLUGIN_ENABLED" ]] ; then
+        build_opts+=" --build-arg YUM_SM_PLUGIN_ENABLED=$YUM_SM_PLUGIN_ENABLED"
+    fi
 fi
 
 docker_ver=$(mysudo docker -v | awk -F' ' '{print $3}' | sed 's/,//g')

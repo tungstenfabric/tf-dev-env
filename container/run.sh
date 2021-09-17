@@ -109,9 +109,10 @@ function compile() {
     # at this moment tpp packages are built only if there are changes there
     # from gerrit. So, for now it relies on tha fact that it is first step of RPMs.
     make package-tpp
-
+    echo "INFO: CONTRAIL_BRANCH=${CONTRAIL_BRANCH^^}"
     if [[ ! "${CONTRAIL_BRANCH^^}" =~ 'R1912' ]] && [[ ! "${CONTRAIL_BRANCH^^}" =~ 'R2011' ]]; then
         if [ -e /opt/rh/devtoolset-7/enable ]; then
+            echo "INFO: enable /opt/rh/devtoolset-7/enable"
             source /opt/rh/devtoolset-7/enable
         fi
     fi
