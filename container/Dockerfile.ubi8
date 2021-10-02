@@ -1,0 +1,109 @@
+ARG LINUX_DISTR=registry.access.redhat.com/ubi8/ubi
+ARG LINUX_DISTR_VER=latest
+FROM $LINUX_DISTR:$LINUX_DISTR_VER
+ARG YUM_SM_PLUGIN_ENABLED=0
+
+ARG SITE_MIRROR
+ARG YUM_ENABLE_REPOS=""
+ARG LC_ALL=en_US.UTF-8
+ARG LANG=en_US.UTF-8
+ARG LANGUAGE=en_US.UTF-8
+
+ENV USER        root
+ENV HOME        /root
+ENV CONTRAIL    $HOME/contrail
+ENV LC_ALL      $LC_ALL
+ENV LANG        $LANG
+ENV LANGUAGE    $LANGUAGE
+ENV PS1         "sandbox:\[\033[01;34m\]\w\[\033[00m\]\$ "
+
+WORKDIR $CONTRAIL
+
+# Inject repositories that we might need
+# copy pip.conf to the same place and move it to right place later to simplify build script
+COPY *.repo pip.conf* /etc/yum.repos.d/
+
+# custom openssl built from source
+ENV OPENSSL_ROOT_DIR    /usr/local/ssl
+ENV LD_LIBRARY_PATH     $CONTRAIL/build/lib:$OPENSSL_ROOT_DIR/lib
+ENV LIBRARY_PATH        $LD_LIBRARY_PATH
+ENV C_INCLUDE_PATH      $OPENSSL_ROOT_DIR/include:/usr/include/tirpc
+ENV CPLUS_INCLUDE_PATH  $C_INCLUDE_PATH
+ENV LDFLAGS             "-L/usr/local/lib -L$OPENSSL_ROOT_DIR/lib"
+ENV PATH                $OPENSSL_ROOT_DIR/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/local/go/bin
+
+# https://fedoraproject.org/wiki/Changes/Avoid_usr_bin_python_in_RPM_Build#Quick_Opt-Out
+ENV PYTHON_DISALLOW_AMBIGUOUS_VERSION=0
+
+# NOTE:
+#  - we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
+# /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
+# - disable subscription-manager - rhel/ubi build use only mirrors that dont requrie subscription
+# NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
+# in centos it's possible to downgrade, in rhel yum issues prevent downgrade
+# NOTE: /etc/yum.repos.d/google-chrome.repo is overwritten by google-chrome-stable package. save it before and restore after
+
+# TODO: add ability to export repos for rhel-8 to be enabled inside container explicitely
+# codeready-builder-for-rhel-8-x86_64-rpms
+RUN \
+    sed 's/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
+    if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
+    YUM_ENABLE_REPOS=$(echo $YUM_ENABLE_REPOS | tr -d '"') && \
+    if [[ -n "$YUM_ENABLE_REPOS" ]] ; then \
+        echo "INFO: enable repos $YUM_ENABLE_REPOS" && \
+        dnf config-manager --enable $YUM_ENABLE_REPOS ; \
+        dnf clean metadata ; \
+    fi && \
+    if ! dnf repolist | grep -q epel ; then \
+        dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || exit 1 ; \
+    fi && \
+    cp /etc/yum.repos.d/google-chrome.repo /tmp && \
+    dnf -y update -x nss* && \
+    dnf group install -y "Development Tools" --excludepkgs "boost*,source-highlight,asciidoc,systemtap*" && \
+    dnf -y install glibc-langpack-en \
+        python3 python2 iproute \
+        createrepo git-review jq rpmdevtools \
+        rpcgen perl-Test-Harness \
+        vim wget yum-utils redhat-lsb-core \
+        sudo net-tools httpd \
+        podman-docker podman \
+        python3-devel python3-lxml python3-virtualenv python3-future python3-tox \
+        libtirpc-devel compat-openssl10 compat-openssl10-debugsource \
+        google-chrome-stable && \
+    cp /tmp/google-chrome.repo /etc/yum.repos.d/google-chrome.repo && \
+    pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2 && \
+    which python || alternatives --verbose --set python /usr/bin/python2 && \
+    which pip || alternatives --verbose --install /usr/bin/pip pip $(which pip2) 100 && \
+    python2 -m pip install scons==3.1.2 pytest==3.0.6 sphinx==1.1.3 chardet==2.2.1 docutils==0.12 && \
+    dnf clean all && \
+    echo "%_pkgverify_level none" > /etc/rpm/macros.verify && \
+    rm -rf /var/cache/yum && \
+    rm -f /usr/local/bin/virtualenv
+
+# custom comput ssl 1.0.2o
+RUN \
+    mkdir -p $OPENSSL_ROOT_DIR/lib && \
+    ln -s /usr/src/debug/compat-openssl10-1.0.2o-3.el8.x86_64/include $OPENSSL_ROOT_DIR/include && \
+    ln -s /usr/lib64/libcrypto.so.10 $OPENSSL_ROOT_DIR/lib/libcrypto.so && \
+    ln -s /usr/lib64/libssl.so.10 $OPENSSL_ROOT_DIR/lib/libssl.so
+
+ADD entrypoint.sh /
+
+# golang
+RUN wget -nv ${SITE_MIRROR:-"https://dl.google.com"}/go/go1.14.2.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.14.2.linux-amd64.tar.gz && \
+    rm -f go1.14.2.linux-amd64.tar.gz && \
+    wget -nv ${SITE_MIRROR:-"https://github.com"}/operator-framework/operator-sdk/releases/download/v0.17.2/operator-sdk-v0.17.2-x86_64-linux-gnu -O /usr/local/bin/operator-sdk && \
+    chmod u+x /usr/local/bin/operator-sdk
+
+RUN \
+    echo export CONTRAIL=$CONTRAIL                      >> $HOME/.bashrc && \
+    echo export OPENSSL_ROOT_DIR=$OPENSSL_ROOT_DIR      >> $HOME/.bashrc && \
+    echo export LD_LIBRARY_PATH=$LD_LIBRARY_PATH        >> $HOME/.bashrc && \
+    echo export LIBRARY_PATH=$LIBRARY_PATH              >> $HOME/.bashrc && \
+    echo export C_INCLUDE_PATH=$C_INCLUDE_PATH          >> $HOME/.bashrc && \
+    echo export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH  >> $HOME/.bashrc && \
+    echo export LDFLAGS=\"$LDFLAGS\"                    >> $HOME/.bashrc && \
+    echo export PATH=$PATH                              >> $HOME/.bashrc
+
+ENTRYPOINT ["/entrypoint.sh"]

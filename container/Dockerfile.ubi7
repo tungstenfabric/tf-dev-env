@@ -4,6 +4,7 @@ FROM $LINUX_DISTR:$LINUX_DISTR_VER
 ARG YUM_SM_PLUGIN_ENABLED=0
 
 ARG SITE_MIRROR
+ARG YUM_ENABLE_REPOS=""
 ARG LC_ALL=en_US.UTF-8
 ARG LANG=en_US.UTF-8
 ARG LANGUAGE=en_US.UTF-8
@@ -32,19 +33,26 @@ COPY *.repo pip.conf* /etc/yum.repos.d/
 RUN \
     sed 's/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
+    YUM_ENABLE_REPOS=$(echo $YUM_ENABLE_REPOS | tr -d '"') && \
+    if [[ -n "$YUM_ENABLE_REPOS" ]] ; then \
+        echo "INFO: enable repos $YUM_ENABLE_REPOS" && \
+        yum-config-manager --enable $YUM_ENABLE_REPOS ; \
+        yum clean metadata ; \
+    fi && \
     if ! yum repolist | grep -q epel ; then \
         yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || exit 1 ; \
     fi && \
     cp /etc/yum.repos.d/google-chrome.repo /tmp && \
     yum -y update -x nss* && \
     curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
-    yum -y install python3 iproute devtoolset-7-gcc devtoolset-7-binutils \
-                   autoconf automake createrepo docker-client docker-python gdb git git-review jq libtool \
-                   make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
-                   rpmdevtools sudo gcc-c++ net-tools httpd \
-                   python-virtualenv python-future python-tox \
-                   google-chrome-stable \
-                   elfutils-libelf-devel && \
+    yum -y install \
+        python3 iproute devtoolset-7-gcc devtoolset-7-binutils \
+        autoconf automake createrepo docker-client docker-python gdb git git-review jq libtool \
+        make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
+        rpmdevtools sudo gcc-c++ net-tools httpd \
+        python-virtualenv python-future python-tox \
+        google-chrome-stable \
+        elfutils-libelf-devel && \
     cp /tmp/google-chrome.repo /etc/yum.repos.d/google-chrome.repo && \
     yum clean all && \
     rm -rf /var/cache/yum && \

@@ -20,11 +20,11 @@ fetch_packages:
 	@$(TF_DE_DIR)scripts/fetch-packages.sh
 
 setup:
-	@yum autoremove -y python-requests python-urllib3
-	@pip list | grep urllib3 >/dev/null && pip uninstall -y urllib3 requests chardet || true
-	@pip -q uninstall -y setuptools || true
-	@yum -q reinstall -y python-setuptools
-	@yum -q install -y python-requests python-urllib3
+	@yum autoremove -y python2-requests python2-urllib3
+	@python2 -m pip list | grep urllib3 >/dev/null && python2 -m pip uninstall -y urllib3 requests chardet || true
+	@python2 -m pip -q uninstall -y setuptools || true
+	@yum -q reinstall -y python2-setuptools
+	@yum -q install -y python2-requests python2-urllib3
 
 sync:
 	@$(TF_DE_DIR)scripts/sync-sources.sh
@@ -33,10 +33,9 @@ sync:
 # RPM repo targets
 create-repo:
 	@mkdir -p $(REPODIR)/RPMS
-	@createrepo -C $(REPODIR)/RPMS/
-
-update-repo:
 	@createrepo --update $(REPODIR)/RPMS/
+
+update-repo: create-repo
 
 clean-repo:
 	@test -d $(REPODIR)/RPMS/repodata && rm -rf $(REPODIR)/RPMS/repodata || true

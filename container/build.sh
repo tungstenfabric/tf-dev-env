@@ -23,10 +23,17 @@ echo "Building tf-dev-env image: ${DEVENV_IMAGE}" | tee $logfile
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
 build_opts+=" --build-arg LINUX_DISTR=$LINUX_DISTR --build-arg LINUX_DISTR_VER=$LINUX_DISTR_VER"
 build_opts+=" --build-arg SITE_MIRROR=${SITE_MIRROR:+${SITE_MIRROR}/external-web-cache}"
+if [ -n "$YUM_ENABLE_REPOS" ] ; then
+    build_opts+=" --build-arg YUM_ENABLE_REPOS=$YUM_ENABLE_REPOS"
+fi
 if [[ "$LINUX_DISTR" =~ 'centos' ]] ; then
     docker_file="Dockerfile.centos"
 else
-    docker_file="Dockerfile.ubi7"
+    if [[ "$LINUX_DISTR" =~ 'ubi7' ]] ; then
+        docker_file="Dockerfile.ubi7"
+    else
+        docker_file="Dockerfile.ubi8"
+    fi
     if [[ -n "$YUM_SM_PLUGIN_ENABLED" ]] ; then
         build_opts+=" --build-arg YUM_SM_PLUGIN_ENABLED=$YUM_SM_PLUGIN_ENABLED"
     fi

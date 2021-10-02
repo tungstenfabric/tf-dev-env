@@ -85,7 +85,6 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   volumes=""
   if [[ $DISTRO != "macosx" ]]; then
-    volumes+=" -v /var/run:/var/run:${DOCKER_VOLUME_OPTIONS}"
     volumes+=" -v /etc/localtime:/etc/localtime:${DOCKER_VOLUME_OPTIONS}"
   fi
   volumes+=" -v ${scriptdir}:/root/tf-dev-env:${DOCKER_VOLUME_OPTIONS}"
@@ -99,6 +98,21 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
   volumes+=" -v ${WORKSPACE}/output:/output:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${input_dir}:/input:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
+
+  if [[ "$DISTRO" == 'rhel' && "$(echo $DISTRO_VER | cut -d '.' -f 1)" == '8' ]] ; then
+    echo "INFO: add podman container options for rhel8 env"
+    volumes+=' -v /var/run:/var/run'
+    volumes+=' -v /run/runc:/run/runc'
+    volumes+=' -v /sys/fs/cgroup:/sys/fs/cgroup:ro'
+    volumes+=' -v /sys/fs/selinux:/sys/fs/selinux'
+    volumes+=' -v /var/lib/containers:/var/lib/containers:shared'
+    volumes+=' -v /etc/containers:/etc/containers:ro'
+    volumes+=' -v /usr/share/containers:/usr/share/containers:ro'
+    options+=' --security-opt seccomp=unconfined'
+  elif [[ $DISTRO != "macosx" ]]; then
+    volumes+=" -v /var/run:/var/run:${DOCKER_VOLUME_OPTIONS}"
+  fi
+
   # Provide env variables because:
   #  - there is backward compatibility case with manual doing docker exec
   #  into container and user of make.

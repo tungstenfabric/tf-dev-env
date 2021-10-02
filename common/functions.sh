@@ -82,8 +82,26 @@ function install_prerequisites_centos() {
   fi
 }
 
+function install_prerequisites_rhel_8_x() {
+  local pkgs=""
+  which lsof || pkgs+=" lsof"
+  which jq || pkgs+=" jq"
+  which python3 || pkgs+=" python3"
+  if [ -n "$pkgs" ] ; then
+    mysudo yum install -y $pkgs
+  fi
+  which python || mysudo alternatives --verbose --set python /usr/bin/python3
+  which pip || mysudo alternatives --verbose --install /usr/bin/pip pip $(which pip3) 100
+}
+
 function install_prerequisites_rhel() {
-  install_prerequisites_centos
+  declare -A _install_rhel=(
+    ["7.8"]=install_prerequisites_centos
+    ["7.9"]=install_prerequisites_centos
+    ["8.2"]=install_prerequisites_rhel_8_x
+    ["8.4"]=install_prerequisites_rhel_8_x
+  )
+  ${_install_rhel[$DISTRO_VER]}
 }
 
 function install_prerequisites_ubuntu() {
