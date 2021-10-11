@@ -24,6 +24,15 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
+function _httpd() {
+    # Setup and start httpd for RPM repo if not present
+    # (tpp create repo file that leads to unavailability of contrail repo 
+    #  till package)
+    if ! pidof httpd ; then
+        make setup-httpd
+    fi
+}
+
 function fetch() {
     verify_tag=$(get_current_container_tag)
     while true ; do
@@ -66,6 +75,10 @@ function fetch() {
 }
 
 function configure() {
+    # frozen may have contrail repo set (e.g. if tpp changed)
+    # it is needed to have up rpm repo any stage that operates with yum
+    _httpd
+
     echo "INFO: make setup  $(date)"
     make setup
 
@@ -91,6 +104,10 @@ function compile() {
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
+
+    # frozen may have contrail repo set (e.g. if tpp changed)
+    # it is needed to have up rpm repo any stage that operates with yum
+    _httpd
 
     # Remove information about FROZEN_TAG so that package stage doesn't try to use ready containers.
     export FROZEN_TAG=""
@@ -135,10 +152,9 @@ function package() {
     uname -a
     make info
 
-    # Setup and start httpd for RPM repo if not present
-    if ! pidof httpd ; then
-        make setup-httpd
-    fi
+    # frozen may have contrail repo set (e.g. if tpp changed)
+    # it is needed to have up rpm repo any stage that operates with yum
+    _httpd
 
     # Check if we're packaging only a single target
     if [[ -n "$target" ]] ; then
