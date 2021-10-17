@@ -16,7 +16,7 @@ if [[ ! -e "$patchsets_info_file" ]] ; then
     echo "INFO: skip tpp: there is no patchset info"
     exit
 fi
-files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("contrail-third-party-packages")) | select(has("files")) | .files[]')
+files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("tf-third-party-packages")) | select(has("files")) | .files[]')
 if [[ -z "$files" ]] ; then
     echo "INFO: skip tpp: there is no changes in the files for contrail-third-party-packages"
     exit
@@ -43,7 +43,7 @@ LABEL vendor="$VENDOR_NAME" \
 COPY  rpms /contrail/tpp/rpms
 EOF
 
-build_tag=${}/contrail-third-party-packages:${CONTRAIL_CONTAINER_TAG}
+build_tag=${CONTAINER_REGISTRY}/contrail-third-party-packages:${CONTRAIL_CONTAINER_TAG}
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
 build_opts+=" --no-cache --tag $build_tag -f Dockerfile ."
 
