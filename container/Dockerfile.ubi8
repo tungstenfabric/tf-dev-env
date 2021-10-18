@@ -104,6 +104,7 @@ RUN \
     echo export C_INCLUDE_PATH=$C_INCLUDE_PATH          >> $HOME/.bashrc && \
     echo export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH  >> $HOME/.bashrc && \
     echo export LDFLAGS=\"$LDFLAGS\"                    >> $HOME/.bashrc && \
-    echo export PATH=$PATH                              >> $HOME/.bashrc
+    echo export PATH=$PATH                              >> $HOME/.bashrc && \
+    echo set -m                                         >> $HOME/.bashrc
 
 ENTRYPOINT ["/entrypoint.sh"]

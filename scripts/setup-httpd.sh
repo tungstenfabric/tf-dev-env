@@ -14,4 +14,9 @@ ln -s $HOME/contrail/RPMS /var/www/html/repo
 chmod 755 -R /var/www/html/repo
 chmod 755 /root
 
-/usr/sbin/httpd
+if ! pidof httpd ; then
+  echo "INFO: start httpd"
+  /usr/sbin/httpd
+else
+  echo "INFO: httpd is already started"
+fi

@@ -12,6 +12,7 @@ function create_env_file() {
   # exports 'src_volume_name' as return result
   local tf_container_env_file=$1
   cat <<EOF > $tf_container_env_file
+set -m
 export DEBUG=${DEBUG}
 export DEBUGINFO=${DEBUGINFO}
 export LINUX_DISTR=${LINUX_DISTR}

@@ -24,14 +24,6 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
-function _httpd() {
-    # Setup and start httpd for RPM repo if not present
-    # (tpp create repo file that leads to unavailability of contrail repo 
-    #  till package)
-    if ! pidof httpd ; then
-        make setup-httpd
-    fi
-}
 
 function fetch() {
     verify_tag=$(get_current_container_tag)
@@ -77,7 +69,7 @@ function fetch() {
 function configure() {
     # frozen may have contrail repo set (e.g. if tpp changed)
     # it is needed to have up rpm repo any stage that operates with yum
-    _httpd
+    make setup-httpd
 
     echo "INFO: make setup  $(date)"
     make setup
@@ -101,13 +93,18 @@ EOF
 }
 
 function compile() {
+    
+    local targets="$@"
+    [ -n "$targets" ] || targets="tpp rpm"
+
+    echo "INFO: compile: $targets"
     echo "INFO: Check variables used by makefile"
     uname -a
     make info
 
     # frozen may have contrail repo set (e.g. if tpp changed)
     # it is needed to have up rpm repo any stage that operates with yum
-    _httpd
+    make setup-httpd
 
     # Remove information about FROZEN_TAG so that package stage doesn't try to use ready containers.
     export FROZEN_TAG=""
@@ -117,25 +114,28 @@ function compile() {
     # Workaround for symlinked RPMS - rename of repodata to .oldata in createrepo utility fails otherwise
     rm -rf $WORK_DIR/RPMS/repodata
     make create-repo
-    echo "INFO: make tpp $(date)"
-    make build-tpp
-    echo "INFO: update rpm repo $(date)"
-    make update-repo
-    echo "INFO: package tpp $(date)"
-    # TODO: for now it does packaging for all rpms found in repo,
-    # at this moment tpp packages are built only if there are changes there
-    # from gerrit. So, for now it relies on tha fact that it is first step of RPMs.
-    make package-tpp
-    echo "INFO: CONTRAIL_BRANCH=${CONTRAIL_BRANCH^^}"
-    if [[ ! "${CONTRAIL_BRANCH^^}" =~ 'R1912' ]] && [[ ! "${CONTRAIL_BRANCH^^}" =~ 'R2011' ]]; then
-        if [ -e /opt/rh/devtoolset-7/enable ]; then
-            echo "INFO: enable /opt/rh/devtoolset-7/enable"
-            source /opt/rh/devtoolset-7/enable
-        fi
+    if [[ "$targets" =~ 'tpp' ]] ; then
+        echo "INFO: make tpp $(date)"
+        make build-tpp
+        echo "INFO: update rpm repo $(date)"
+        make update-repo
+        echo "INFO: package tpp $(date)"
+        # TODO: for now it does packaging for all rpms found in repo,
+        # at this moment tpp packages are built only if there are changes there
+        # from gerrit. So, for now it relies on tha fact that it is first step of RPMs.
+        make package-tpp
     fi
-
-    echo "INFO: make rpm  $(date)"
-    make rpm
+    if [[ "$targets" =~ 'rpm' ]] ; then
+        echo "INFO: CONTRAIL_BRANCH=${CONTRAIL_BRANCH^^}"
+        if [[ ! "${CONTRAIL_BRANCH^^}" =~ 'R1912' ]] && [[ ! "${CONTRAIL_BRANCH^^}" =~ 'R2011' ]]; then
+            if [ -e /opt/rh/devtoolset-7/enable ]; then
+                echo "INFO: enable /opt/rh/devtoolset-7/enable"
+                source /opt/rh/devtoolset-7/enable
+            fi
+        fi
+        echo "INFO: make rpm  $(date)"
+        make rpm
+    fi
     echo "INFO: update rpm repo $(date)"
     make update-repo
 }
@@ -154,7 +154,7 @@ function package() {
 
     # frozen may have contrail repo set (e.g. if tpp changed)
     # it is needed to have up rpm repo any stage that operates with yum
-    _httpd
+    make setup-httpd
 
     # Check if we're packaging only a single target
     if [[ -n "$target" ]] ; then
