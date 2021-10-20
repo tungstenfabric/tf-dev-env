@@ -67,17 +67,28 @@ function fetch() {
 }
 
 function configure() {
+    # targets can use yum and will block each other. don't run them in parallel
+
+    local targets="$@"
+    [ -n "$targets" ] || targets="setup tpp dep"
+
     # frozen may have contrail repo set (e.g. if tpp changed)
     # it is needed to have up rpm repo any stage that operates with yum
     make setup-httpd
+    if [[ "$targets" =~ 'setup' ]] ; then
+        echo "INFO: make setup  $(date)"
+        make setup
+    fi
 
-    echo "INFO: make setup  $(date)"
-    make setup
+    if [[ "$targets" =~ 'tpp' ]] ; then
+        echo "INFO: make fetch_packages $(date)"
+        make fetch_packages
+    fi
 
-    echo "INFO: make dep fetch_packages  $(date)"
-    # targets can use yum and will block each other. don't run them in parallel
-    make dep
-    make fetch_packages
+    if [[ "$targets" =~ 'dep' ]] ; then
+        echo "INFO: make dep $(date)"
+        make dep
+    fi
 
     # disable byte compiling
     if [[ ! -f /usr/lib/rpm/brp-python-bytecompile.org  ]] ; then
