@@ -146,9 +146,9 @@ function compile() {
         fi
         echo "INFO: make rpm  $(date)"
         make rpm
+        echo "INFO: update rpm repo $(date)"
+        make update-repo
     fi
-    echo "INFO: update rpm repo $(date)"
-    make update-repo
 }
 
 function test() {
