@@ -34,6 +34,8 @@ sync:
 create-repo:
 	@mkdir -p $(REPODIR)/RPMS
 	@createrepo --update $(REPODIR)/RPMS/
+	@echo "INFOD: clean all for contrail repo after udpate"
+	@yum clean all --disablerepo=* --enablerepo=contrail || true
 
 update-repo: create-repo
 

@@ -81,6 +81,9 @@ function configure() {
     fi
 
     if [[ "$targets" =~ 'tpp' ]] ; then
+        if [[ "$targets" == 'tpp' ]] ; then 
+            export BUILD_TPP_FORCE='true'
+        fi
         echo "INFO: make fetch_packages $(date)"
         make fetch_packages
     fi
@@ -126,6 +129,9 @@ function compile() {
     rm -rf $WORK_DIR/RPMS/repodata
     make create-repo
     if [[ "$targets" =~ 'tpp' ]] ; then
+        if [[ "$targets" == 'tpp' ]] ; then 
+            export BUILD_TPP_FORCE='true'
+        fi
         echo "INFO: make tpp $(date)"
         make build-tpp
         echo "INFO: update rpm repo $(date)"

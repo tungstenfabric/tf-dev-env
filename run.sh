@@ -109,6 +109,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     volumes+=' -v /etc/containers:/etc/containers:ro'
     volumes+=' -v /usr/share/containers:/usr/share/containers:ro'
     options+=' --security-opt seccomp=unconfined'
+    options+=' --security-opt label=disable'
   elif [[ $DISTRO != "macosx" ]]; then
     volumes+=" -v /var/run:/var/run:${DOCKER_VOLUME_OPTIONS}"
   fi

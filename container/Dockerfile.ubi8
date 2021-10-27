@@ -68,7 +68,7 @@ RUN \
         sudo net-tools httpd \
         podman-docker podman \
         python3-devel python3-lxml python3-virtualenv python3-future python3-tox \
-        libtirpc-devel compat-openssl10 compat-openssl10-debugsource \
+        libtirpc-devel compat-openssl10 compat-openssl10-debugsource python2-pyyaml \
         google-chrome-stable && \
     cp /tmp/google-chrome.repo /etc/yum.repos.d/google-chrome.repo && \
     pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2 && \

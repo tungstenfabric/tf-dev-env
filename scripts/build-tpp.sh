@@ -21,24 +21,27 @@ EOF
     fi
     echo "INFO: contrail repo info"
     cat /etc/yum.repos.d/contrail.repo
+    yum clean all --disablerepo=* --enablerepo=contrail
 }
 
-echo "INFO: compile tpp if needed $(date)"
+echo "INFO: compile tpp if needed $(date) (BUILD_TPP_FORCE=$BUILD_TPP_FORCE)"
 
 if [ -z "${REPODIR}" ] ; then
     echo "ERROR: env variable REPODIR is required"
     exit 1
 fi
 
-patchsets_info_file=/input/patchsets-info.json
-if [[ ! -e "$patchsets_info_file" ]] ; then
-    echo "INFO: skip tpp: there is no patchset info"
-    exit
-fi
-files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("tf-third-party-packages")) | select(has("files")) | .files[]')
-if [[ -z "$files" ]] ; then
-    echo "INFO: skip tpp: there is no changes in the files for tf-third-party-packages"
-    exit
+if [[ "${BUILD_TPP_FORCE,,}" != 'true' ]] ; then
+    patchsets_info_file=/input/patchsets-info.json
+    if [[ ! -e "$patchsets_info_file" ]] ; then
+        echo "INFO: skip tpp: there is no patchset info"
+        exit
+    fi
+    files=$(cat $patchsets_info_file | jq -r '.[] | select(.project | contains("tf-third-party-packages")) | select(has("files")) | .files[]')
+    if [[ -z "$files" ]] ; then
+        echo "INFO: skip tpp: there is no changes in the files for tf-third-party-packages"
+        exit
+    fi
 fi
 
 # check path third_party/contrail-third-party-packages because
@@ -54,9 +57,12 @@ pushd ${tpp_dir}/upstream/rpm
 echo "INFO: tpp: make list"
 all_targets=$(make list --no-print-directory)
 echo "$all_targets"
+all_targets=$(echo "$all_targets" | tr ' ' '\n')
 echo "INFO: tpp: make prep"
 make prep
-boost_target=$(echo "$all_targets" | tr ' ' '\n' | grep boost)
+
+# boost 1st (cpp 3d-party depends on it)
+boost_target=$(echo "$all_targets" | grep boost)
 if [ -n "$boost_target" ] ; then
     echo "INFO: tpp: make $boost_target"
     make $boost_target
@@ -66,10 +72,26 @@ if [ -n "$boost_target" ] ; then
     make update-repo
     pushd ${tpp_dir}/upstream/rpm
 fi
-rest_targets=$(echo "$all_targets" | tr ' ' '\n' | grep -v boost)
-[ -n "$rest_targets" ] || rest_targets="all"
-echo "INFO: tpp: make $rest_targets"
-make $rest_targets
+all_targets=$(echo "$all_targets" | grep -v 'boost')
+
+# python-mimeparse 2nd (python-setuptools depends on it)
+python_mimeparse_target=$(echo "$all_targets" | grep 'python-mimeparse')
+if [ -n "$boost_target" ] ; then
+    echo "INFO: tpp: make $python_mimeparse_target"
+    make $python_mimeparse_target
+    make_contrail_repo
+    popd
+    echo "INFO: update rpm repo $(date)"
+    make update-repo
+    pushd ${tpp_dir}/upstream/rpm
+fi
+all_targets=$(echo "$all_targets" | grep -v 'python-mimeparse')
+
+# rest targets
+all_targets=$(echo "$all_targets" | tr '\n' ' ')
+[ -n "$all_targets" ] || all_targets="all"
+echo "INFO: tpp: make $all_targets"
+make $all_targets
 popd
 
 make_contrail_repo
