@@ -51,7 +51,7 @@ RUN \
         make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
         rpmdevtools sudo gcc-c++ net-tools httpd \
         python-virtualenv python-future python-tox \
-        google-chrome-stable \
+        google-chrome-stable-94.0.4606.71-1.x86_64 \
         elfutils-libelf-devel && \
     cp /tmp/google-chrome.repo /etc/yum.repos.d/google-chrome.repo && \
     yum clean all && \
