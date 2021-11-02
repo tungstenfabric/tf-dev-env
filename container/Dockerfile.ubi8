@@ -60,7 +60,7 @@ RUN \
     cp /etc/yum.repos.d/google-chrome.repo /tmp && \
     dnf -y update -x nss* && \
     dnf group install -y "Development Tools" --excludepkgs "boost*,source-highlight,asciidoc,systemtap*" && \
-    dnf -y install glibc-langpack-en \
+    dnf -y install glibc-langpack-en rsync \
         python3 python2 iproute \
         createrepo git-review jq rpmdevtools \
         rpcgen perl-Test-Harness \
