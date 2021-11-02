@@ -41,7 +41,6 @@ ENV PYTHON_DISALLOW_AMBIGUOUS_VERSION=0
 # - disable subscription-manager - rhel/ubi build use only mirrors that dont requrie subscription
 # NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
 # in centos it's possible to downgrade, in rhel yum issues prevent downgrade
-# NOTE: /etc/yum.repos.d/google-chrome.repo is overwritten by google-chrome-stable package. save it before and restore after
 
 # TODO: add ability to export repos for rhel-8 to be enabled inside container explicitely
 # codeready-builder-for-rhel-8-x86_64-rpms
@@ -57,7 +56,6 @@ RUN \
     if ! dnf repolist | grep -q epel ; then \
         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || exit 1 ; \
     fi && \
-    cp /etc/yum.repos.d/google-chrome.repo /tmp && \
     dnf -y update -x nss* && \
     dnf group install -y "Development Tools" --excludepkgs "boost*,source-highlight,asciidoc,systemtap*" && \
     dnf -y install glibc-langpack-en rsync \
@@ -68,9 +66,7 @@ RUN \
         sudo net-tools httpd \
         podman-docker podman \
         python3-devel python3-lxml python3-virtualenv python3-future python3-tox \
-        libtirpc-devel compat-openssl10 compat-openssl10-debugsource python2-pyyaml \
-        google-chrome-stable && \
-    cp /tmp/google-chrome.repo /etc/yum.repos.d/google-chrome.repo && \
+        libtirpc-devel compat-openssl10 compat-openssl10-debugsource python2-pyyaml && \
     pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2 && \
     which python || alternatives --verbose --set python /usr/bin/python2 && \
     which pip || alternatives --verbose --install /usr/bin/pip pip $(which pip2) 100 && \
