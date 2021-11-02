@@ -74,18 +74,8 @@ function load_tf_devenv_profile() {
 }
 
 function install_prerequisites_centos() {
-  local pkgs=""
+  local pkgs="$1"
   which lsof || pkgs+=" lsof"
-  which python || pkgs+=" python"
-  if [ -n "$pkgs" ] ; then
-    mysudo yum install -y $pkgs
-  fi
-}
-
-function install_prerequisites_rhel_8_x() {
-  local pkgs=""
-  which lsof || pkgs+=" lsof"
-  which jq || pkgs+=" jq"
   which python3 || pkgs+=" python3"
   if [ -n "$pkgs" ] ; then
     mysudo yum install -y $pkgs
@@ -95,13 +85,11 @@ function install_prerequisites_rhel_8_x() {
 }
 
 function install_prerequisites_rhel() {
-  declare -A _install_rhel=(
-    ["7.8"]=install_prerequisites_centos
-    ["7.9"]=install_prerequisites_centos
-    ["8.2"]=install_prerequisites_rhel_8_x
-    ["8.4"]=install_prerequisites_rhel_8_x
-  )
-  ${_install_rhel[$DISTRO_VER]}
+  local pkgs=""
+  if [[ ${DISTRO}_${DISTRO_VER} == 'rhel_8.2' || ${DISTRO}_${DISTRO_VER} == 'rhel_8.4' ]]; then
+    pkgs="jq"
+  fi
+  install_prerequisites_centos "$pkgs"
 }
 
 function install_prerequisites_ubuntu() {
