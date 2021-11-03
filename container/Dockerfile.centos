@@ -32,7 +32,7 @@ RUN source /etc/os-release && \
     if [[ "$VERSION_ID" == '7' ]]; then \
         yum -y update -x nss* && yum -y downgrade nss* ; \
     fi && \
-    if which python2 ; then \
+    if command -v python2 ; then \
         curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' ; \
     fi && \
     yum -y install centos-release-scl && \
