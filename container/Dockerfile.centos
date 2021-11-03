@@ -30,8 +30,11 @@ RUN source /etc/os-release && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     cp /etc/yum.repos.d/google-chrome.repo /tmp && \
     if [[ "$VERSION_ID" == '7' ]]; then \
-        yum -y update -x nss* && yum -y downgrade nss* ; fi && \
-    curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
+        yum -y update -x nss* && yum -y downgrade nss* ; \
+    fi && \
+    if which python2 ; then \
+        curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' \
+    fi && \
     yum -y install centos-release-scl && \
     yum -y install \
         python3 iproute devtoolset-7-gcc devtoolset-7-binutils \
