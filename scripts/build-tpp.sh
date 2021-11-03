@@ -15,6 +15,7 @@ name = Contrail repo
 baseurl = ${CONTRAIL_REPOSITORY}
 enabled = 1
 gpgcheck = 0
+cost = 100
 EOF
     else
         echo "INFO: contrail repo is already created"
