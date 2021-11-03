@@ -25,11 +25,12 @@ COPY *.repo pip.conf* /etc/yum.repos.d/
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
 # NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
 # NOTE: /etc/yum.repos.d/google-chrome.repo is overwritten by google-chrome-stable package. save it before and restore after
-RUN if ! yum info jq ; then yum -y install epel-release ; fi && \
+RUN source /etc/os-release && \
+    if ! yum info jq ; then yum -y install epel-release ; fi && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     cp /etc/yum.repos.d/google-chrome.repo /tmp && \
-    yum -y update -x nss* && \
-    yum -y downgrade nss* && \
+    if [[ "$VERSION_ID" == '7' ]]; then \
+        yum -y update -x nss* && yum -y downgrade nss* ; fi && \
     curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1' && \
     yum -y install centos-release-scl && \
     yum -y install \
