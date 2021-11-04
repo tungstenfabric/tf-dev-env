@@ -11,10 +11,13 @@ fi
 # to fix locale warning
 yum install -y langpacks-en glibc-all-langpacks
 
+# for cmake
+yum --enable config-manager powertools
+
 yum -y install \
   python3 iproute autoconf automake createrepo gdb git git-review jq libtool \
   make python3-devel python3-lxml rpm-build vim wget yum-utils redhat-lsb-core \
-  rpmdevtools sudo gcc-c++ net-tools httpd elfutils-libelf-devel \
+  rpmdevtools sudo gcc-c++ net-tools httpd elfutils-libelf-devel cmake \
   python3-virtualenv python3-future python3-tox \
   python2-devel python2 python2-setuptools
 yum clean all
