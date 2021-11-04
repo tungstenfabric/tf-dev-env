@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-if ! yum info jq ; then
+if ! yum info git-review ; then
   yum -y install epel-release
 fi
 
