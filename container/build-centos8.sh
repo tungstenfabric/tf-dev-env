@@ -38,8 +38,8 @@ alternatives --verbose --set python /usr/bin/python2
 # install, customize and configure compat ssl 1.0.2o
 yum install -y \
   compat-openssl10 \
-  https://pkgs.dyn.su/el8/extras/x86_64/compat-openssl10-devel-1.0.2o-3.el8.x86_64.rpm
-  https://koji.mbox.centos.org/pkgs/packages/compat-openssl10/1.0.2o/3.el8/x86_64/compat-openssl10-debugsource-1.0.2o-3.el8.x86_64.rpm
+  ${SITE_MIRROR:-"https://pkgs.dyn.su"}/el8/extras/x86_64/compat-openssl10-devel-1.0.2o-3.el8.x86_64.rpm \
+  ${SITE_MIRROR:-"https://koji.mbox.centos.org"}/pkgs/packages/compat-openssl10/1.0.2o/3.el8/x86_64/compat-openssl10-debugsource-1.0.2o-3.el8.x86_64.rpm
 
 OPENSSL_ROOT_DIR=/usr/local/ssl
 echo export OPENSSL_ROOT_DIR=/usr/local/ssl >> $HOME/.bashrc
