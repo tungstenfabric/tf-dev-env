@@ -8,15 +8,15 @@ if [ -f /etc/yum.repos.d/pip.conf ] ; then
   mv /etc/yum.repos.d/pip.conf /etc/
 fi
 
-# to fix locale warning
-yum install -y langpacks-en glibc-all-langpacks
+# to fix locale warning and to enable following cmd
+yum install -y langpacks-en glibc-all-langpacks yum-utils
 
 # for cmake
 yum --enable config-manager powertools
 
 yum -y install \
   python3 iproute autoconf automake createrepo gdb git git-review jq libtool \
-  make python3-devel python3-lxml rpm-build vim wget yum-utils redhat-lsb-core \
+  make python3-devel python3-lxml rpm-build vim wget redhat-lsb-core \
   rpmdevtools sudo gcc-c++ net-tools httpd elfutils-libelf-devel cmake \
   python3-virtualenv python3-future python3-tox \
   python2-devel python2 python2-setuptools
