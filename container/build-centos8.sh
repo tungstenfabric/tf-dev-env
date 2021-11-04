@@ -16,17 +16,14 @@ yum --enable config-manager powertools
 
 yum -y install \
   python3 iproute autoconf automake createrepo gdb git git-review jq libtool \
-  make python3-devel python3-lxml rpm-build vim wget redhat-lsb-core \
-  rpmdevtools sudo gcc-c++ net-tools httpd elfutils-libelf-devel cmake \
-  python3-virtualenv python3-future python3-tox \
+  make cmake libuv-devel rpm-build vim wget redhat-lsb-core \
+  rpmdevtools sudo gcc-c++ net-tools httpd elfutils-libelf-devel \
+  python3-virtualenv python3-future python3-tox python3-devel python3-lxml \
   python2-devel python2 python2-setuptools
 yum clean all
 rm -rf /var/cache/yum
 
 pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2
-
-echo export CONTRAIL=$CONTRAIL >> $HOME/.bashrc
-echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib >> $HOME/.bashrc
 
 wget -nv ${SITE_MIRROR:-"https://dl.google.com"}/go/go1.14.2.linux-amd64.tar.gz
 tar -C /usr/local -xzf go1.14.2.linux-amd64.tar.gz
@@ -37,3 +34,23 @@ chmod u+x /usr/local/bin/operator-sdk
 
 # this is required to compile boost-1.53 from tpp
 alternatives --verbose --set python /usr/bin/python2
+
+# install, customize and configure compat ssl 1.0.2o
+yum install -y \
+  compat-openssl10 \
+  https://pkgs.dyn.su/el8/extras/x86_64/compat-openssl10-devel-1.0.2o-3.el8.x86_64.rpm
+  https://koji.mbox.centos.org/pkgs/packages/compat-openssl10/1.0.2o/3.el8/x86_64/compat-openssl10-debugsource-1.0.2o-3.el8.x86_64.rpm
+
+OPENSSL_ROOT_DIR=/usr/local/ssl
+echo export OPENSSL_ROOT_DIR=/usr/local/ssl >> $HOME/.bashrc
+echo export LD_LIBRARY_PATH=$CONTRAIL/build/lib:$OPENSSL_ROOT_DIR/lib >> $HOME/.bashrc
+echo export LIBRARY_PATH=$LD_LIBRARY_PATH >> $HOME/.bashrc
+echo export C_INCLUDE_PATH=$OPENSSL_ROOT_DIR/include:/usr/include/tirpc >> $HOME/.bashrc
+echo export CPLUS_INCLUDE_PATH=$C_INCLUDE_PATH >> $HOME/.bashrc
+echo export LDFLAGS=\"-L/usr/local/lib -L$OPENSSL_ROOT_DIR/lib\" >> $HOME/.bashrc
+echo export PATH=$PATH:$OPENSSL_ROOT_DIR/bin >> $HOME/.bashrc
+
+mkdir -p $OPENSSL_ROOT_DIR/lib
+ln -s /usr/src/debug/compat-openssl10-1.0.2o-3.el8.x86_64/include $OPENSSL_ROOT_DIR/include
+ln -s /usr/lib64/libcrypto.so.10 $OPENSSL_ROOT_DIR/lib/libcrypto.so
+ln -s /usr/lib64/libssl.so.10 $OPENSSL_ROOT_DIR/lib/libssl.so
