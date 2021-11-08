@@ -44,7 +44,11 @@ ENV PYTHON_DISALLOW_AMBIGUOUS_VERSION=0
 
 # TODO: add ability to export repos for rhel-8 to be enabled inside container explicitely
 # codeready-builder-for-rhel-8-x86_64-rpms
+# TODO:
+# exclude=openssl-devel - to avoid installation and break build earlier
+# as this is incompatible version with contrail
 RUN \
+    echo "exclude=openssl-devel" >> /etc/yum.conf && \
     sed 's/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     YUM_ENABLE_REPOS=$(echo $YUM_ENABLE_REPOS | tr -d '"') && \
@@ -67,6 +71,8 @@ RUN \
         podman-docker podman \
         python3-devel python3-lxml python3-virtualenv python3-future python3-tox \
         libtirpc-devel compat-openssl10 compat-openssl10-debugsource python2-pyyaml && \
+    rpm -ivh --nodeps $(repoquery -q --location --latest-limit 1  "mariadb-connector-c-3.*x86_64*"  | head -n 1) && \
+    rpm -ivh --nodeps $(repoquery -q --location --latest-limit 1  "mariadb-connector-c-devel-3.*x86_64*"  | head -n 1) && \
     pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2 && \
     which python || alternatives --verbose --set python /usr/bin/python2 && \
     which pip || alternatives --verbose --install /usr/bin/pip pip $(which pip2) 100 && \
