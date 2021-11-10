@@ -49,7 +49,7 @@ ENV PYTHON_DISALLOW_AMBIGUOUS_VERSION=0
 # as this is incompatible version with contrail
 RUN \
     echo "exclude=openssl-devel" >> /etc/yum.conf && \
-    sed 's/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
+    sed "s/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g" /etc/yum/pluginconf.d/subscription-manager.conf && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     YUM_ENABLE_REPOS=$(echo $YUM_ENABLE_REPOS | tr -d '"') && \
     if [[ -n "$YUM_ENABLE_REPOS" ]] ; then \
@@ -60,7 +60,6 @@ RUN \
     if ! dnf repolist | grep -q epel ; then \
         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || exit 1 ; \
     fi && \
-    dnf -y update -x nss* && \
     dnf group install -y "Development Tools" --excludepkgs "boost*,source-highlight,asciidoc,systemtap*" && \
     dnf -y install glibc-langpack-en rsync \
         python3 python2 iproute \
