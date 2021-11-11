@@ -20,6 +20,13 @@ yum -y install \
   rpmdevtools sudo gcc-c++ net-tools httpd elfutils-libelf-devel \
   python3-virtualenv python3-future python3-tox python3-devel python3-lxml \
   python2-devel python2 python2-setuptools
+
+# this is for net-snmp packages (it is not possible to use BuildRequires in spec
+# as it installs openssl-devel-1.1.1 which is incompatible with other Contrail comps 
+# (3rd party bind and boost-1.53))
+rpm -ivh --nodeps $(repoquery -q --location --latest-limit 1  "mariadb-connector-c-3.*x86_64*"  | head -n 1)
+rpm -ivh --nodeps $(repoquery -q --location --latest-limit 1  "mariadb-connector-c-devel-3.*x86_64*"  | head -n 1)
+
 yum clean all
 rm -rf /var/cache/yum
 
