@@ -22,6 +22,7 @@ export BUILD_MODE=${BUILD_MODE:-"full"}
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
   export DISTRO_VER=$(cat /etc/*release | egrep '^VERSION_ID=' | awk -F= '{print $2}' | tr -d \")
+  export DISTRO_VER_MAJOR=${DISTRO_VER//.*/}
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   export DISTRO="macosx"
 else

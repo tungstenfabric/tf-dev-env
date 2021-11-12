@@ -56,13 +56,20 @@ function build_operator() {
 
   echo "INFO: build tf-operator"
   local target=${CONTAINER_REGISTRY}/tf-operator:${CONTRAIL_CONTAINER_TAG}
-  run_cmd operator-sdk build $target
+  local build_opts=""
+  if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
+    build_opts+=' --image-builder podman --image-build-args "--format=docker"'
+  fi
+  run_cmd operator-sdk build $target $build_opts
   run_cmd docker push $target
 
   # olm bundle
   echo "INFO: build tf-operator bundle for olm"
   local build_tag=${CONTAINER_REGISTRY}/tf-operator-bundle:${CONTRAIL_CONTAINER_TAG}
-  local build_opts=" --no-cache --tag $build_tag -f deploy/bundle/bundle.Dockerfile deploy/bundle"
+  build_opts=" --no-cache --tag $build_tag -f deploy/bundle/bundle.Dockerfile deploy/bundle"
+  if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
+    build_opts+=' --format docker'
+  fi
   run_cmd docker build $build_opts
   run_cmd docker push $build_tag
 }

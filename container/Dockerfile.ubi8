@@ -57,6 +57,7 @@ RUN \
         dnf config-manager --enable $YUM_ENABLE_REPOS ; \
         dnf clean metadata ; \
     fi && \
+    dnf update -y -x "redhat-release*" && \
     if ! dnf repolist | grep -q epel ; then \
         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || exit 1 ; \
     fi && \

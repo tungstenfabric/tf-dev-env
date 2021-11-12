@@ -46,6 +46,9 @@ EOF
 build_tag=${CONTAINER_REGISTRY}/contrail-third-party-packages:${CONTRAIL_CONTAINER_TAG}
 build_opts="--build-arg LC_ALL=en_US.UTF-8 --build-arg LANG=en_US.UTF-8 --build-arg LANGUAGE=en_US.UTF-8"
 build_opts+=" --no-cache --tag $build_tag -f Dockerfile ."
+if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
+  build_opts+=' --format docker'
+fi
 
 docker build $build_opts
 docker push $build_tag
