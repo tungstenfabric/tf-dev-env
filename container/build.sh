@@ -33,7 +33,6 @@ else
         docker_file="Dockerfile.ubi7"
     else
         docker_file="Dockerfile.ubi8"
-        build_opts+=" --format docker"
     fi
     if [[ -n "$YUM_SM_PLUGIN_ENABLED" ]] ; then
         build_opts+=" --build-arg YUM_SM_PLUGIN_ENABLED=$YUM_SM_PLUGIN_ENABLED"
