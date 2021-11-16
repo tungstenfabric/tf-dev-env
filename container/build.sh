@@ -55,10 +55,10 @@ if [[ "$docker_ver" < '17.06' ]] ; then
     docker_file="${docker_file}.nofromargs"
 fi
 
-build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} --tag ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} -f $docker_file ."
 if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
     build_opts+=' --format docker'
 fi
+build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} --tag ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} -f $docker_file ."
 
 if [[ $DISTRO != 'macosx' ]] ; then
     CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES,,}
