@@ -73,6 +73,7 @@ if [[ "${CONTRAIL_KEEP_LOG_FILES}" != 'true' ]] ; then
    fi
 else
    # skip output into terminal
+   echo "INFO: build cmd: docker build $build_opts"
    mysudo docker build $build_opts >> $logfile 2>&1
    result=${PIPESTATUS[0]}
 fi
