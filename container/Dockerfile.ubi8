@@ -61,8 +61,8 @@ RUN \
     if ! dnf repolist | grep -q epel ; then \
         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || exit 1 ; \
     fi && \
-    dnf group install -y "Development Tools" --excludepkgs "boost*,source-highlight,asciidoc,systemtap*" && \
-    dnf -y install glibc-langpack-en rsync \
+    dnf group install -y --nobest "Development Tools" --excludepkgs "boost*,source-highlight,asciidoc,systemtap*" && \
+    dnf install -y --nobest  glibc-langpack-en rsync \
         python3 python2 iproute \
         createrepo git-review jq rpmdevtools \
         rpcgen perl-Test-Harness \
