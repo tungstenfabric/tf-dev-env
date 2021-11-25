@@ -40,7 +40,7 @@ else
 fi
 
 docker_ver=$(mysudo docker -v | awk -F' ' '{print $3}' | sed 's/,//g')
-echo "Docker version: $docker_ver"
+echo "INFO: Docker version: $docker_ver"
 
 if [[ "$docker_ver" < '17.06' ]] ; then
     # old docker can't use ARG-s before FROM:
@@ -55,6 +55,7 @@ if [[ "$docker_ver" < '17.06' ]] ; then
     docker_file="${docker_file}.nofromargs"
 fi
 
+echo "INFO: DISTRO=$DISTRO DISTRO_VER=$DISTRO_VER DISTRO_VER_MAJOR=$DISTRO_VER_MAJOR"
 if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
     build_opts+=' --format docker'
 fi
@@ -64,6 +65,7 @@ if [[ $DISTRO != 'macosx' ]] ; then
     CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES,,}
 fi
 if [[ "${CONTRAIL_KEEP_LOG_FILES}" != 'true' ]] ; then
+   echo "INFO: build cmd: docker build $build_opts"
    mysudo docker build $build_opts 2>&1 | tee -a $logfile
    result=${PIPESTATUS[0]}
    if [ $result -eq 0 ]; then
