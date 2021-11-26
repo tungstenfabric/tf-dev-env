@@ -56,8 +56,15 @@ function install_docker_rhel_8() {
       --enable rhel-8-server-extras-rpms \
       --enable rhel-8-server-optional-rpms
   fi
-  retry yum install -y podman-docker podman device-mapper-libs device-mapper-event-libs
+  echo "INFO: dnf disable modules container-tools"
+  dnf module disable -y container-tools || true
+  declare -A ct_vers=(["8.2"]="2.0" ["8.4"]="3.0")
+  echo "INFO: dnf enable container-tools:${ct_vers[$DISTRO_VER]}"
+  dnf module enable -y container-tools:${ct_vers[$DISTRO_VER]}
+  retry dnf install -y podman-docker podman device-mapper-libs device-mapper-event-libs
   touch /etc/containers/nodocker
+  sed -i 's/.*image_default_format.*/image_default_format = "v2s2"/g' /usr/share/containers/containers.conf
+  sed -i 's/.*image_build_format.*/image_build_format = "docker"/g' /usr/share/containers/containers.conf
 }
 
 declare -A install_docker_rhel=(
