@@ -24,7 +24,13 @@ if [[ "$stage" == 'upload' ]]; then
   # Pushes devenv (or potentially other containers) to external registry
   echo "INFO: pushing devenv to container registry"
   mysudo docker stop ${DEVENV_CONTAINER_NAME}
-  mysudo docker commit ${DEVENV_CONTAINER_NAME} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+  commit_opts=''
+  if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
+    commit_opts+=' --format docker'
+  fi
+  echo "INFO: commit container: docker commit $commit_opts ${DEVENV_CONTAINER_NAME} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}"
+  mysudo docker commit $commit_opts ${DEVENV_CONTAINER_NAME} ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
+  echo "INFO: push container: docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}"
   mysudo docker push ${CONTAINER_REGISTRY}/${DEVENV_IMAGE_NAME}:${DEVENV_PUSH_TAG}
   exit 0
 fi
