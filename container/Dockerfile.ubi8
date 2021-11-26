@@ -8,7 +8,7 @@ ARG YUM_ENABLE_REPOS=""
 ARG LC_ALL=en_US.UTF-8
 ARG LANG=en_US.UTF-8
 ARG LANGUAGE=en_US.UTF-8
-ARG CONTAINER_TOOLS_VER=3.0
+ARG CONTAINER_TOOLS_VER=""
 
 ENV USER        root
 ENV HOME        /root
@@ -62,8 +62,11 @@ RUN \
     if ! dnf repolist | grep -q epel ; then \
         dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || exit 1 ; \
     fi && \
-    dnf module disable -y container-tools && \
-    dnf module enable -y container-tools:${CONTAINER_TOOLS_VER} && \
+    if [[ -n "$CONTAINER_TOOLS_VER" ]] ; then \
+        echo "INFO: enable container-tools:${CONTAINER_TOOLS_VER}" && \
+        dnf module disable -y container-tools && \
+        dnf module enable -y container-tools:${CONTAINER_TOOLS_VER} ; \
+    fi && \
     dnf group install -y --nobest "Development Tools" --excludepkgs "boost*,source-highlight,asciidoc,systemtap*" && \
     dnf install -y --nobest  glibc-langpack-en rsync \
         python3 python2 iproute \

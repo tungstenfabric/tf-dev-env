@@ -58,8 +58,10 @@ fi
 echo "INFO: DISTRO=$DISTRO DISTRO_VER=$DISTRO_VER DISTRO_VER_MAJOR=$DISTRO_VER_MAJOR"
 if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
     build_opts+=' --format docker'
-    declare -A ct_vers=(["8.2"]="2.0" ["8.4"]="3.0")
-    build_opts+=" --build-arg CONTAINER_TOOLS_VER=${ct_vers[$DISTRO_VER]}"
+    # TODO: invetigate: use of module 3.0 leads to broken build
+    # (podman run is not working inside sandbox)
+    # declare -A ct_vers=(["8.2"]="2.0" ["8.4"]="3.0")
+    # build_opts+=" --build-arg CONTAINER_TOOLS_VER=${ct_vers[$DISTRO_VER]}"
 fi
 build_opts+=" --network host --no-cache --tag ${DEVENV_IMAGE} --tag ${CONTAINER_REGISTRY}/${DEVENV_IMAGE} -f $docker_file ."
 
