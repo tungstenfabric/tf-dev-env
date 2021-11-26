@@ -116,6 +116,12 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     volumes+=' -v /usr/share/containers:/usr/share/containers:ro'
     options+=' --security-opt seccomp=unconfined'
     options+=' --security-opt label=disable'
+    if [[ ! -e /run/runc ]] ; then
+      # WA for rhel8.4 with container-tools:3.0: folder created at first podman run
+      # so it is not possible to bind this folder at first run as podman
+      # fails because folder doesnt exist
+      sudo mkdir -v -p --context='unconfined_u:object_r:container_var_run_t:s0' -m 0600 /run/runc
+    fi
   elif [[ $DISTRO != "macosx" ]]; then
     volumes+=" -v /var/run:/var/run:${DOCKER_VOLUME_OPTIONS}"
   fi
