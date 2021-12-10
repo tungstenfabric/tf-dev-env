@@ -32,7 +32,7 @@ sudo yum install -y git
 
 For MacOS only:
 
-The script will install a limitted number of dependencies using `brew`
+The script will install a limited number of dependencies using `brew`
 (python, docker, lsof). The `coreutils` packages is needed by the
 script itself.
 
