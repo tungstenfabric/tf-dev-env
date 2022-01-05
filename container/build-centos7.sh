@@ -23,7 +23,8 @@ yum -y install \
     python-virtualenv python-future python-tox \
     elfutils-libelf-devel
 yum clean all
-rm -rf /var/cache/yum
+yum -y remove centos-release-scl
+rm -rf /var/cache/yum /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
 
 pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
