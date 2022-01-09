@@ -14,17 +14,24 @@ yum -y downgrade nss*
 
 curl --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://bootstrap.pypa.io"}/pip/2.7/get-pip.py | python2 - 'pip==20.1'
 
-yum -y install centos-release-scl
+sclo=0
+if ! yum repolist | grep -q "centos-sclo-rh" ; then
+  sclo=1
+  yum -y install centos-release-scl
+fi
 yum -y install \
-    python3 iproute devtoolset-7-gcc devtoolset-7-binutils \
-    autoconf automake createrepo docker-client docker-python gdb git git-review jq libtool \
-    make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
-    rpmdevtools sudo gcc-c++ net-tools httpd \
-    python-virtualenv python-future python-tox \
-    elfutils-libelf-devel
+  python3 iproute devtoolset-7-gcc devtoolset-7-binutils \
+  autoconf automake createrepo docker-client docker-python gdb git git-review jq libtool \
+  make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
+  rpmdevtools sudo gcc-c++ net-tools httpd \
+  python-virtualenv python-future python-tox \
+  elfutils-libelf-devel
 yum clean all
-yum -y remove centos-release-scl
-rm -rf /var/cache/yum /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+rm -rf /var/cache/yum
+if [[ "$sclo" == '1' ]]; then
+  yum -y remove centos-release-scl
+  rm -rf /var/cache/yum /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+fi
 
 pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
