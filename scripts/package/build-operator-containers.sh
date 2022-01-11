@@ -54,13 +54,18 @@ function build_operator() {
   }
   export CGO_ENABLED=1
 
-  echo "INFO: build tf-operator"
+  local sdk_ver=$(awk '/github.com\/operator-framework\/operator-sdk/{print($2)}' go.mod | cut -d '.' -f1,2)
+
+  echo "INFO: build tf-operator (operator-sdk version $sdk_ver)"
   local target=${CONTAINER_REGISTRY}/tf-operator:${CONTRAIL_CONTAINER_TAG}
   local build_opts=""
   if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
     build_opts+=' --image-builder podman --image-build-args "--format=docker"'
   fi
-  run_cmd operator-sdk build $target $build_opts
+  local sdk_cmd="operator-sdk"
+  [ -z "$sdk_ver" ] || sdk_cmd+="-$sdk_ver"
+  echo "INFO: build tf-operator cmd: $sdk_cmd build $target $build_opts"
+  run_cmd $sdk_cmd build $target $build_opts
   run_cmd docker push $target
 
   # olm bundle
@@ -70,6 +75,7 @@ function build_operator() {
   if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
     build_opts+=' --format docker'
   fi
+  echo "INFO: build tf-operator bundle cmd: docker build $build_opts"
   run_cmd docker build $build_opts
   run_cmd docker push $build_tag
 }
