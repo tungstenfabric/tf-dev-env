@@ -37,13 +37,13 @@ function append_log() {
 function run_cmd(){
   local me=$(whoami)
   if [[ "root" == "$me" ]] || ! grep -q "^docker:" /etc/group || groups | grep -q 'docker' ; then
-    $@
+    eval "$@"
     return
   fi
   if ! grep -q "^docker:.*:$me" /etc/group ; then
     /usr/bin/sudo usermod -aG docker $me
   fi
-  echo $@ | sg docker -c bash
+  echo "$@" | sg docker -c bash
 }
 
 function build_operator() {
@@ -60,12 +60,12 @@ function build_operator() {
   local target=${CONTAINER_REGISTRY}/tf-operator:${CONTRAIL_CONTAINER_TAG}
   local build_opts=""
   if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
-    build_opts+=' --image-builder podman --image-build-args "--format=docker"'
+    build_opts+=' --image-builder podman --image-build-args "--format docker --network host -v /etc/resolv.conf:/etc/resolv.conf:ro"'
   fi
   local sdk_cmd="operator-sdk"
   [ -z "$sdk_ver" ] || sdk_cmd+="-$sdk_ver"
   echo "INFO: build tf-operator cmd: $sdk_cmd build $target $build_opts"
-  run_cmd $sdk_cmd build $target $build_opts
+  run_cmd $sdk_cmd build $target "$build_opts"
   run_cmd docker push $target
 
   # olm bundle
@@ -73,7 +73,7 @@ function build_operator() {
   local build_tag=${CONTAINER_REGISTRY}/tf-operator-bundle:${CONTRAIL_CONTAINER_TAG}
   build_opts=" --no-cache --tag $build_tag -f deploy/bundle/bundle.Dockerfile deploy/bundle"
   if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
-    build_opts+=' --format docker'
+    build_opts+=' --format docker --network host'
   fi
   echo "INFO: build tf-operator bundle cmd: docker build $build_opts"
   run_cmd docker build $build_opts
