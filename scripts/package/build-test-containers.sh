@@ -21,7 +21,31 @@ export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"dev"}
 openstack_version="train"
 CONTRAIL_KEEP_LOG_FILES=${CONTRAIL_KEEP_LOG_FILES:-'false'}
 
+# in R21.4 test containers are joined and base container is absent
+# supporting earlier versions
+if [[ -f "${CONTRAIL_TEST_DIR}/docker/base/Dockerfile" ]]; then
+  tpc_repo="/etc/yum.repos.d/tpc.repo"
+  if [ -f $tpc_repo ]; then
+    cp $tpc_repo ${CONTRAIL_TEST_DIR}/docker/base/tpc.repo
+    cp $tpc_repo ${CONTRAIL_TEST_DIR}/docker/test/tpc.repo
+  fi
+fi
+
 pushd ${CONTRAIL_TEST_DIR}
+
+# in R21.4 test containers are joined and base container is absent
+# supporting earlier versions
+if [[ -f "${CONTRAIL_TEST_DIR}/docker/base/Dockerfile" ]]; then
+  if [[ -n "$CONTRAIL_CONFIG_DIR" && -d "${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d" && -n "$(ls ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/)" ]] ; then
+    # apply same repos for test containers
+    cp -f ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/* docker/base/
+    cp -f ${CONTRAIL_CONFIG_DIR}/etc/yum.repos.d/* docker/test/
+  fi
+
+  if [ -e $CONTRAIL_CONFIG_DIR/etc/pip.conf ]; then
+    cp $CONTRAIL_CONFIG_DIR/etc/pip.conf docker/base/
+  fi
+fi
 
 function append_log() {
   local logfile=$1
@@ -64,7 +88,28 @@ function build_for_os_version() {
     return $res
 }
 
-build_for_os_version $openstack_version || res=1
+res=0
+
+# in R21.4 test containers are joined and base container is absent
+# supporting earlier versions
+if [[ -f "${CONTRAIL_TEST_DIR}/docker/base/Dockerfile" ]]; then
+  logfile="./build-test-base.log"
+  echo "INFO: Build base test container" | append_log $logfile true
+  ./build-container.sh base \
+    --registry-server ${CONTRAIL_REGISTRY} \
+    --tag ${CONTRAIL_CONTAINER_TAG} 2>&1 | append_log $logfile
+  if [ ${PIPESTATUS[0]} -eq 0 ]; then
+    echo "INFO: Build base test container finished successfully" | append_log $logfile true
+    [[ "${CONTRAIL_KEEP_LOG_FILES,,}" != 'true' ]] && rm -f $logfile
+  else
+    echo "ERROR: Failed to build base test container" | append_log $logfile true
+    res=1
+  fi
+fi
+
+if [[ $res == '0' ]]; then
+  build_for_os_version $openstack_version || res=1
+fi
 
 popd
 
