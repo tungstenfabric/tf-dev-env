@@ -50,7 +50,7 @@ ENV PYTHON_DISALLOW_AMBIGUOUS_VERSION=0
 # as this is incompatible version with contrail
 RUN \
     echo "exclude=openssl-devel" >> /etc/yum.conf && \
-    sed "s/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g" /etc/yum/pluginconf.d/subscription-manager.conf && \
+    sed -i "s/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g" /etc/yum/pluginconf.d/subscription-manager.conf && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     YUM_ENABLE_REPOS=$(echo $YUM_ENABLE_REPOS | tr -d '"') && \
     if [[ -n "$YUM_ENABLE_REPOS" ]] ; then \

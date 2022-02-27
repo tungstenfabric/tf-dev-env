@@ -30,7 +30,7 @@ COPY *.repo pip.conf* /etc/yum.repos.d/
 # NOTE: pin nss version due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1896808
 # in centos it's possible to downgrade, in rhel yum issues prevent downgrade
 RUN \
-    sed 's/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g' /etc/yum/pluginconf.d/subscription-manager.conf && \
+    sed -i "s/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g" /etc/yum/pluginconf.d/subscription-manager.conf && \
     if [ -f /etc/yum.repos.d/pip.conf ] ; then mv /etc/yum.repos.d/pip.conf /etc/ ; fi && \
     YUM_ENABLE_REPOS=$(echo $YUM_ENABLE_REPOS | tr -d '"') && \
     if [[ -n "$YUM_ENABLE_REPOS" ]] ; then \
