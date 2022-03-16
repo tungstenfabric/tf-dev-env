@@ -456,4 +456,4 @@ tf-devstack/k8s_manifests/run.sh master
 
 ## Notes
 
-- Vagrantfile is deprecated and is not supported. Will be removed later
+- Vagrantfile is deprecated and is not supported. Will be removed later.
