@@ -48,6 +48,7 @@ ENV PYTHON_DISALLOW_AMBIGUOUS_VERSION=0
 # TODO:
 # exclude=openssl-devel - to avoid installation and break build earlier
 # as this is incompatible version with contrail
+# TODO: remove podman pinning. for now podman 4.0.2 can't build general-base image due to bug with setxattr
 RUN \
     echo "exclude=openssl-devel" >> /etc/yum.conf && \
     sed "s/enabled=.*/enabled=$YUM_SM_PLUGIN_ENABLED/g" /etc/yum/pluginconf.d/subscription-manager.conf && \
@@ -74,7 +75,7 @@ RUN \
         rpcgen perl-Test-Harness \
         vim wget yum-utils redhat-lsb-core \
         sudo net-tools httpd \
-        podman-docker podman \
+        podman-docker podman-3.2.3-0.11.module+el8.4.0+12050+ef972f71 \
         python3-devel python3-lxml python3-virtualenv python3-future python3-tox \
         libtirpc-devel compat-openssl10 compat-openssl10-debugsource python2-pyyaml && \
     rpm -ivh --nodeps $(repoquery -q --location --latest-limit 1  "mariadb-connector-c-3.*x86_64*"  | head -n 1) && \
