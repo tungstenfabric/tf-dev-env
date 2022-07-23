@@ -88,7 +88,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     cd ${scriptdir}
   fi
 
-  options="-e LC_ALL=C.UTF-8 -e LANG=C.UTF-8 -e LANGUAGE=C.UTF-8 "
+  options="-e LC_ALL=en_US.UTF-8 -e LANG=en_US.UTF-8 -e LANGUAGE=en_US.UTF-8 "
   volumes=""
   if [[ $DISTRO != "macosx" ]]; then
     volumes+=" -v /etc/localtime:/etc/localtime:${DOCKER_VOLUME_OPTIONS}"
