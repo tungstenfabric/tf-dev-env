@@ -110,3 +110,12 @@ function install_prerequisites_macosx() {
     brew install $pkgs
   fi
 }
+
+function install_prerequisites_arch() {
+    local pkgs=""
+    which lsof || pkgs+=" lsof"
+    which python3 || pkgs+=" python3"
+    if [ -n "$pkgs" ] ; then
+        pacman -S $pkgs
+    fi
+}
