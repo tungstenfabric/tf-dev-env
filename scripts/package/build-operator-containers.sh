@@ -56,6 +56,11 @@ function build_operator() {
 
   local sdk_ver=$(awk '/github.com\/operator-framework\/operator-sdk/{print($2)}' go.mod | cut -d '.' -f1,2)
 
+  if [[ -e contrib/ziu-2011-to-21.4-hack ]] ; then
+    echo "INFO: build ziu hack tool to enable 2011 -> 21.4 upgrade"
+    go build -o build/_output/bin/ ./contrib/ziu-2011-to-21.4-hack/
+  fi
+
   echo "INFO: build tf-operator (operator-sdk version $sdk_ver)"
   local target=${CONTAINER_REGISTRY}/tf-operator:${CONTRAIL_CONTAINER_TAG}
   local build_opts=""
