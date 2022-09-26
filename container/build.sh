@@ -55,6 +55,9 @@ if [[ "$docker_ver" < '17.06' ]] ; then
     docker_file="${docker_file}.nofromargs"
 fi
 
+#Configuring tpc.repo
+sed -i "s|___SITE_MIRROR___|${SITE_MIRROR}|" tpc.repo
+
 echo "INFO: DISTRO=$DISTRO DISTRO_VER=$DISTRO_VER DISTRO_VER_MAJOR=$DISTRO_VER_MAJOR"
 if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
     build_opts+=' --format docker'
