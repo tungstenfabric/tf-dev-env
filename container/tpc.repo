@@ -1,6 +1,6 @@
 [contrail-tpc]
 name=Third parties for Contrail
-baseurl=___SITE_MIRROR___/yum-tpc$releasever/
+baseurl=http://tf-nexus.progmaticlab.com/repository/yum-tpc$releasever/
 enabled = 1
 gpgcheck = 0
 cost = 500
