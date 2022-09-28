@@ -19,9 +19,19 @@ if ! yum repolist | grep -q "centos-sclo-rh" ; then
   sclo=1
   yum -y install centos-release-scl
 fi
+
+echo "INFO: installing newer git"
+curl -O --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://packages.endpointdev.com"}/rhel/7/os/x86_64/git-core-2.37.1-1.ep7.x86_64.rpm
+curl -O --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://packages.endpointdev.com"}/rhel/7/os/x86_64/git-2.37.1-1.ep7.x86_64.rpm
+curl -O --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://packages.endpointdev.com"}/rhel/7/os/x86_64/git-core-doc-2.37.1-1.ep7.noarch.rpm
+curl -O --retry 3 --retry-delay 10 ${SITE_MIRROR:-"https://packages.endpointdev.com"}/rhel/7/os/x86_64/perl-Git-2.37.1-1.ep7.noarch.rpm
+
+yum install -y git-2.37.1-1.ep7.x86_64.rpm git-core-2.37.1-1.ep7.x86_64.rpm git-core-doc-2.37.1-1.ep7.noarch.rpm perl-Git-2.37.1-1.ep7.noarch.rpm
+echo "INFO: git installed $(git --version)"
+
 yum -y install \
   python3 iproute devtoolset-7-gcc devtoolset-7-binutils \
-  autoconf automake createrepo docker-client docker-python gdb git git-review jq libtool \
+  autoconf automake createrepo docker-client docker-python gdb git-review jq libtool rsync \
   make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
   rpmdevtools sudo gcc-c++ net-tools httpd \
   python-virtualenv python-future python-tox \
