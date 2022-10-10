@@ -22,8 +22,8 @@ repo_init_defauilts='--repo-branch=repo-1'
 repo_sync_defauilts='--no-tags --no-clone-bundle -q '
 [ -n "$DEBUG" ] && repo_init_defauilts+=' -q' && repo_sync_defauilts+=' -q'
 
-REPO_INIT_MANIFEST_URL="https://github.com/tungstenfabric/tf-vnc"
-VNC_ORGANIZATION="tungstenfabric"
+REPO_INIT_MANIFEST_URL=${REPO_INIT_MANIFEST_URL:-"https://github.com/tungstenfabric/tf-vnc"}
+VNC_ORGANIZATION=${VNC_ORGANIZATION:-"tungstenfabric"}
 VNC_REPO="tf-vnc"
 if [[ -n "$CONTRAIL_BRANCH" ]] ; then
   echo "INFO: CONTRAIL_BRANCH is not empty - $CONTRAIL_BRANCH"
@@ -47,7 +47,7 @@ if [[ -n "$CONTRAIL_BRANCH" ]] ; then
       GERRIT_BRANCH=""
     fi
   else
-    echo "INFO: using tungstenfabric/tf-vnc"
+    echo "INFO: using ${REPO_INIT_MANIFEST_URL}"
   fi
 fi
 
