@@ -56,7 +56,7 @@ if [[ "$docker_ver" < '17.06' ]] ; then
 fi
 
 #Configuring tpc.repo
-sed -i "s|___SITE_MIRROR___|${SITE_MIRROR}|" tpc.repo
+sed -i "s|___SITE_MIRROR___|${SITE_MIRROR:-"http://tf-nexus.progmaticlab.com/repository"}|" tpc.repo
 
 echo "INFO: DISTRO=$DISTRO DISTRO_VER=$DISTRO_VER DISTRO_VER_MAJOR=$DISTRO_VER_MAJOR"
 if [[ "$DISTRO_VER_MAJOR" == '8' ]] ; then
