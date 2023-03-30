@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 scriptdir=$(realpath $(dirname "$0"))
 source ${scriptdir}/common.sh
@@ -32,10 +32,8 @@ function install_docker_ubuntu() {
 function install_docker_centos() {
   which docker && return
   yum install -y yum-utils device-mapper-persistent-data lvm2
-  if ! yum info docker-ce &> /dev/null ; then
-    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-  fi
-  retry yum install -y docker-ce-18.03.1.ce
+  yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  retry yum install -y docker-ce-cli-20.10.9 docker-ce-20.10.9
 }
 
 function install_docker_rhel_7() {
