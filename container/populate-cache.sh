@@ -16,7 +16,7 @@ wget -nv -t3 -P operator-framework/operator-sdk/releases/download/v0.17.2 https:
 wget -nv -t3 -P operator-framework/operator-sdk/releases/download/v0.18.2 https://github.com/operator-framework/operator-sdk/releases/download/v0.18.2/operator-sdk-v0.18.2-x86_64-linux-gnu
 
 wget -nv -t3 -P el8/extras/x86_64 https://pkgs.dyn.su/el8/extras/x86_64/compat-openssl10-devel-1.0.2o-3.el8.x86_64.rpm
-wget -nv -t3 -P pkgs/packages/compat-openssl10/1.0.2o/3.el8/x86_64 https://koji.mbox.centos.org/pkgs/packages/compat-openssl10/1.0.2o/3.el8/x86_64/compat-openssl10-debugsource-1.0.2o-3.el8.x86_64.rpm
+#wget -nv -t3 -P pkgs/packages/compat-openssl10/1.0.2o/3.el8/x86_64 https://koji.mbox.centos.org/pkgs/packages/compat-openssl10/1.0.2o/3.el8/x86_64/compat-openssl10-debugsource-1.0.2o-3.el8.x86_64.rpm
 
 #Upgrading git in centos7
 #default git 1.18 causes fail (HTTP 402) in fetch-sources job when it's working with gitlab
