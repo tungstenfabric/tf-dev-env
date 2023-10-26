@@ -10,7 +10,7 @@
 # (gerrit) System.
 #
 [gerrit]
-host=gerrit.tungsten.io
+host=tf-gerrit.gz1.progmaticlab.com
 port=29418
 project=tungstenfabric/tf-dev-env.git
 defaultbranch=master

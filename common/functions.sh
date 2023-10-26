@@ -95,9 +95,11 @@ function install_prerequisites_rhel() {
 function install_prerequisites_ubuntu() {
   local pkgs=""
   which lsof || pkgs+=" lsof"
-  which python || pkgs+=" python2-minimal"
+  which python3 || pkgs+=" python3-minimal"
+  which python || pkgs+=" python-is-python3"
   if [ -n "$pkgs" ] ; then
     export DEBIAN_FRONTEND=noninteractive
+    mysudo -E apt-get update -y
     mysudo -E apt-get install -y $pkgs
   fi
 }
