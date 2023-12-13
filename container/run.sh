@@ -24,7 +24,6 @@ declare -a all_stages=(fetch configure compile package test freeze)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
-
 function fetch() {
     verify_tag=$(get_current_container_tag)
     while true ; do
@@ -40,6 +39,12 @@ function fetch() {
         # If tag's changed during our fetch we'll cleanup sources and retry fetching
         echo "WARNING: tag was changed ($verify_tag -> $current_tag). Run sync again..."
         verify_tag=$current_tag
+    done
+
+    # paths must be fixed inside tf-dev-sandbox container
+    for vfile in $(find .. -name version.info); do
+        echo "INFO: patching file $vfile"
+        echo $CONTRAIL_CONTAINER_TAG | sed 's/[_-]/./g' > $vfile
     done
 
     # Invalidate stages after new fetch. For fast build and patchest invalidate only if needed.
@@ -107,7 +112,6 @@ EOF
 }
 
 function compile() {
-    
     local targets="$@"
     [ -n "$targets" ] || targets="tpp rpm"
 
