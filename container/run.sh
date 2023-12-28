@@ -216,16 +216,6 @@ function package() {
         fi
     fi
 
-    # To be removed. Left here for r1912 only
-    if [[ $BUILD_MODE == "full" ]] ; then
-        # build containers
-        echo "INFO: make deployers $(date)"
-        if ! make deployers ; then
-            echo "ERROR: make deployers failed $(date)"
-            exit 1
-        fi
-    fi
-
     local res=0
     # Pull containers which build skipped
     for container in ${unchanged_containers[@]}; do

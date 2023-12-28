@@ -7,10 +7,8 @@ SHELL=/bin/bash -o pipefail
 
 REPODIR=$(TF_DE_TOP)contrail
 CONTAINER_BUILDER_DIR=$(REPODIR)/contrail-container-builder
-CONTRAIL_DEPLOYERS_DIR=$(REPODIR)/contrail-deployers-containers
 CONTRAIL_TEST_DIR=$(REPODIR)/third_party/contrail-test
 export REPODIR
-export CONTRAIL_DEPLOYERS_DIR
 export CONTRAIL_TEST_DIR
 export CONTAINER_BUILDER_DIR
 
@@ -73,22 +71,6 @@ containers-only:
 	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTAINER_BUILDER_DIR) container |& sed "s/^/containers: /"
 
 containers: prepare-containers containers-only
-
-##############################################################################
-# Container deployers targets
-prepare-deployers:
-	@$(TF_DE_DIR)scripts/package/prepare-deployers.sh |& sed "s/^/deployers: /"
-
-list-deployers:
-	@$(TF_DE_DIR)scripts/package/list-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer
-
-deployer-%:
-	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer $(patsubst deployer-%,%,$(subst _,/,$(@))) | sed "s/^/$(@): /"
-
-deployers-only:
-	@$(TF_DE_DIR)scripts/package/build-containers.sh $(CONTRAIL_DEPLOYERS_DIR) deployer |& sed "s/^/deployers: /"
-
-deployers: prepare-deployers deployers-only
 
 ##############################################################################
 # Operator container targets
