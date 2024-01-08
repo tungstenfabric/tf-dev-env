@@ -100,7 +100,7 @@ if ! is_container_created "$DEVENV_CONTAINER_NAME"; then
     volumes+=" -v ${CONTRAIL_DIR}:/root/contrail:${DOCKER_VOLUME_OPTIONS}"
   fi
   # make dir to create them under current user
-  mkdir -p ${WORKSPACE}/output
+  mkdir -p ${WORKSPACE}/output/logs
   volumes+=" -v ${WORKSPACE}/output:/output:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${input_dir}:/input:${DOCKER_VOLUME_OPTIONS}"
   volumes+=" -v ${scriptdir}/config:/config:${DOCKER_VOLUME_OPTIONS}"
@@ -156,6 +156,10 @@ fi
 if [[ "$stage" == 'none' || "$stage" == 'frozen' ]] ; then
   echo "INFO: don't run any stages"
   exit 0
+fi
+
+if [[ "$stage" == 'test' ]] && which atop >/dev/null 2>&1 ; then
+   nohup sudo atop -w ${WORKSPACE}/output/logs/atop 60 > ${WORKSPACE}/output/logs/atop.log 2>&1 < /dev/null &
 fi
 
 echo "INFO: run stage $stage with target $target"
