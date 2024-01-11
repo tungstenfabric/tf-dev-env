@@ -89,7 +89,7 @@ function get_current_container_tag()
 # Classification of TF projects dealing with containers.
 # TODO: use vnc/default.xml for this information later (loaded to .repo/manifest.xml)
 deployers_projects=("tf-charms" "tf-helm-deployer" "tf-ansible-deployer" "tf-operator" \
-  "tf-kolla-ansible" "tf-tripleo-heat-templates" "tf-container-builder" "tf-openshift-ansible")
+  "tf-kolla-ansible" "tf-tripleo-heat-templates" "tf-container-builder")
 containers_projects=("tf-container-builder")
 operator_projects=("tf-operator")
 tests_projects=("tf-test" "tf-deployment-test")
