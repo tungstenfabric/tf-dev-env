@@ -34,7 +34,7 @@ rpm -ivh --nodeps $(repoquery -q --location --latest-limit 1  "mariadb-connector
 yum clean all
 rm -rf /var/cache/yum
 
-pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2
+pip3 install --retries=10 --timeout 200 --upgrade tox setuptools "lxml<5.1" jinja2
 
 wget -nv ${SITE_MIRROR:-"https://dl.google.com"}/go/go1.14.2.linux-amd64.tar.gz
 tar -C /usr/local -xzf go1.14.2.linux-amd64.tar.gz

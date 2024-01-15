@@ -44,7 +44,7 @@ if [[ "$sclo" == '1' ]]; then
   rm -rf /var/cache/yum /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
 fi
 
-pip3 install --retries=10 --timeout 200 --upgrade tox setuptools lxml jinja2
+pip3 install --retries=10 --timeout 200 --upgrade tox setuptools "lxml<5.1" jinja2
 # NOTE: we have to remove /usr/local/bin/virtualenv after installing tox by python3 because it has python3 as shebang and masked
 # /usr/bin/virtualenv with python2 shebang. it can be removed later when all code will be ready for python3
 rm -f /usr/local/bin/virtualenv
