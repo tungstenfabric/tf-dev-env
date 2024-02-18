@@ -37,6 +37,8 @@ yum -y install \
   rpmdevtools sudo gcc-c++ net-tools httpd \
   python-virtualenv python-future python-tox \
   elfutils-libelf-devel
+# next packages are required for UT
+yum -y install java-1.8.0-openjdk
 yum clean all
 rm -rf /var/cache/yum
 if [[ "$sclo" == '1' ]]; then

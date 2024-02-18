@@ -25,6 +25,9 @@ yum -y install \
   python3-virtualenv python3-future python3-tox python3-devel python3-lxml \
   python2-devel python2 python2-setuptools
 
+# next packages are required for UT
+yum -y install java-1.8.0-openjdk
+
 # this is for net-snmp packages (it is not possible to use BuildRequires in spec
 # as it installs openssl-devel-1.1.1 which is incompatible with other Contrail comps 
 # (3rd party bind and boost-1.53))
