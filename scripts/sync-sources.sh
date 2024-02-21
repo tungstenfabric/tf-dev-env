@@ -68,6 +68,8 @@ echo "INFO: Init contrail sources git repos"
 git config --get user.name >/dev/null  2>&1 || git config --global user.name "tf-dev-env"
 git config --get user.email >/dev/null 2>&1 || git config --global user.email "tf-dev-env@tf"
 
+git config --global http.postBuffer 524288000
+
 # temporary hack for expired SSL certs at review.opencontrail.org
 # git config --global http.sslVerify false
 
