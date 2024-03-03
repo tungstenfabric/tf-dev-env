@@ -23,7 +23,8 @@ yum -y install \
   make cmake libuv-devel rpm-build vim wget redhat-lsb-core \
   rpmdevtools sudo gcc-c++ net-tools httpd elfutils-libelf-devel \
   python3-virtualenv python3-future python3-tox python3-devel python3-lxml \
-  python2-devel python2 python2-setuptools
+  python2-devel python2 python2-setuptools \
+  doxygen graphviz
 
 # next packages are required for UT
 yum -y install java-1.8.0-openjdk

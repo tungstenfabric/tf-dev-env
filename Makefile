@@ -88,6 +88,12 @@ test:
 	@$(TF_DE_DIR)scripts/run-tests.sh $(TEST_PACKAGE)
 
 ##############################################################################
+# Prepare Doxygen documentation
+doxygen:
+	echo $(DOXYFILE)
+	doxygen $(DOXYFILE)
+
+##############################################################################
 # Other clean targets
 clean-rpm:
 	@test -d $(REPODIR)/RPMS && rm -rf $(REPODIR)/RPMS/* || true

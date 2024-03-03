@@ -188,6 +188,7 @@ if [[ $result == 0 ]] ; then
   echo "  upload    - push tf-dev-env to container registry"
   echo "  none      - create the tf-dev-env container empty"
   echo "  frozen    - fetch frozen tf-dev-env from Ci registry, you still have to use run.sh or fetch/configure to get sources"
+  echo "  doxygen   - builds doxygen documentation for the project"
   echo "For advanced usage You can now connect to the sandbox container by using:"
   if [[ $DISTRO != "macosx" ]]; then
     echo "  sudo docker exec -it $DEVENV_CONTAINER_NAME bash"

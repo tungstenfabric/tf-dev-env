@@ -36,7 +36,8 @@ yum -y install \
   make python-devel python-lxml rpm-build vim wget yum-utils redhat-lsb-core \
   rpmdevtools sudo gcc-c++ net-tools httpd \
   python-virtualenv python-future python-tox \
-  elfutils-libelf-devel
+  elfutils-libelf-devel \
+  doxygen graphviz
 # next packages are required for UT
 yum -y install java-1.8.0-openjdk
 yum clean all

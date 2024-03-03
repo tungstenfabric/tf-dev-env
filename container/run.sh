@@ -20,7 +20,7 @@ cd $DEV_ENV_ROOT
 
 [ -n "$DEBUG" ] && set -x
 
-declare -a all_stages=(fetch configure compile package test freeze)
+declare -a all_stages=(fetch configure compile package test freeze doxygen)
 declare -a default_stages=(fetch configure)
 declare -a build_stages=(fetch configure compile package)
 
@@ -251,6 +251,26 @@ function freeze() {
         rm -rf $HOME/contrail || /bin/true
     fi
 }
+
+function doxygen() {
+    # Builds doxygen documentation for the project
+    echo "INFO: Doxygen stage"
+
+    export DOXYGEN_SRC="/root/contrail/"            # Used by Doxyfile
+    export DOXYFILE="/root/tf-dev-env/Doxyfile"     # Used by Makefile
+    export DOXYGEN_RES="$DOXYGEN_SRC/doxygen-docs/" # Where to store results
+    if [ -f "$DOXYFILE" ] ; then
+        echo "INFO: Doxygen stage: Cleaning old documentation"
+        rm -rf "$DOXYGEN_RES"
+        mkdir -p "$DOXYGEN_RES"
+
+        echo "INFO: Doxygen stage: running the doxygen translator"
+        make doxygen
+    else
+        echo "INFO: Doxygen stage: Cannot find the Doxygen file ($DOXYFILE)"
+    fi
+}
+
 
 function run_stage() {
     if ! finished_stage $1 ; then
